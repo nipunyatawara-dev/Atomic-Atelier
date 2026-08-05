@@ -16,7 +16,12 @@ test("explorer synchronizes selection, comparison, and saved progress", async ({
 test("periodic table supports keyboard navigation and escape", async ({ page }) => {
   await page.goto("/");
   const mobile = (page.viewportSize()?.width ?? 1200) <= 760;
-  await page.getByRole("button", { name: mobile ? "Table" : "Periodic table", exact: true }).click();
+  if (mobile) {
+    await page.getByRole("button", { name: "Table", exact: true }).click();
+  } else {
+    await page.getByRole("button", { name: "Explore", exact: true }).click();
+    await page.getByRole("group", { name: "Explore menu" }).getByRole("button", { name: /Periodic table/ }).click();
+  }
   const grid = page.getByRole("grid", { name: "Periodic table of elements" });
   const bounds = await grid.boundingBox();
   const viewport = page.viewportSize();

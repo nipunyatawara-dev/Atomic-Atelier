@@ -160,10 +160,6 @@ export function AppHeader(props: Props) {
         </nav>
 
         <div className="header-actions" aria-label="Quick actions">
-          <button type="button" className="header-action" onClick={props.onTable} aria-label="Periodic table">
-            <Grid3X3 aria-hidden="true" />
-            <span>Table</span>
-          </button>
           <button type="button" className="header-action" onClick={props.onSaved} aria-label="Saved">
             <Bookmark aria-hidden="true" />
             <span>Saved</span>
