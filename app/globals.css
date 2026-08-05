@@ -338,11 +338,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .structure-guide header span { align-items: center; color: var(--teal); display: flex; font-size: 9px; font-weight: 700; gap: 6px; letter-spacing: .1em; text-transform: uppercase; }
 .structure-guide header button { align-items: center; background: transparent; border: 0; color: var(--muted); cursor: pointer; display: flex; padding: 2px; }
 .structure-options { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 9px; }
-.structure-options button { background: #f2f2ec; border: 1px solid transparent; border-left: 3px solid #859c9c; border-radius: 5px; color: var(--muted); cursor: pointer; font-size: 8px; padding: 5px 7px; }
-.structure-options button.proton { border-left-color: #ef7765; }
-.structure-options button.neutron { border-left-color: #587583; }
-.structure-options button.electron { border-left-color: #78c9e8; }
-.structure-options button.valence { border-left-color: #9d75d7; }
+.structure-options button { background: #f2f2ec; border: 1px solid transparent; border-radius: 5px; color: var(--muted); cursor: pointer; font-size: 8px; padding: 5px 7px; }
 .structure-options button.active { background: #e2eee9; border-color: #bfd6ce; color: var(--deep); }
 .structure-guide-copy { border-top: 1px solid var(--line); margin-top: 9px; padding-top: 8px; }
 .structure-guide-copy strong { font-family: var(--font-display); font-size: 15px; }
@@ -473,7 +469,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .quiz-options button span { align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 8px; display: flex; font-family: var(--font-mono); font-size: 10px; height: 29px; justify-content: center; width: 29px; }
 .quiz-options button.correct { background: #e1f1e6; border-color: #72aa82; }
 .quiz-options button.incorrect { background: #f7e5e0; border-color: #d88775; }
-.quiz-explanation { background: #e8f0ec; border-left: 3px solid var(--teal); border-radius: 7px; color: var(--muted); font-size: 11px; line-height: 1.5; margin: 12px 0; padding: 10px 12px; }
+.quiz-explanation { background: #e8f0ec; border-radius: 7px; color: var(--muted); font-size: 11px; line-height: 1.5; margin: 12px 0; padding: 10px 12px; }
 .quiz-explanation b { color: var(--ink); }
 .quiz-body > .primary-button { margin-left: auto; padding: 0 15px; }
 .quiz-body > .primary-button:disabled { opacity: .45; }
@@ -584,7 +580,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .reaction-info ol { color: var(--muted); counter-reset: atom-step; list-style: none; margin: 0; padding: 0; }
 .reaction-info li { counter-increment: atom-step; font-size: 10px; line-height: 1.45; margin-bottom: 9px; padding-left: 27px; position: relative; }
 .reaction-info li::before { align-items: center; background: #e3ede8; border-radius: 50%; color: var(--teal); content: counter(atom-step); display: flex; font-family: var(--font-mono); font-size: 8px; height: 19px; justify-content: center; left: 0; position: absolute; top: -2px; width: 19px; }
-.safety-note { background: #f4e8e2; border-left: 3px solid var(--coral); border-radius: 8px; margin-top: 14px; padding: 10px 12px; }
+.safety-note { background: #f4e8e2; border-radius: 8px; margin-top: 14px; padding: 10px 12px; }
 .safety-note strong { color: var(--danger); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
 .safety-note p { color: #775f57; font-size: 9px; line-height: 1.45; margin: 4px 0 0; }
 .related-elements { margin: 18px 0 13px; }

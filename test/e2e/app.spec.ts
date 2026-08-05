@@ -122,6 +122,11 @@ test("primary routes render without console errors", async ({ page }) => {
 
 test("publishes browser icons and social preview metadata", async ({ page }) => {
   await page.goto("/?element=carbon");
+  const favicon = page.locator('link[rel="icon"][href*="favicon.ico"]');
+  await expect(favicon).toHaveCount(1);
+  const faviconResponse = await page.request.get((await favicon.getAttribute("href"))!);
+  expect(faviconResponse.status()).toBe(200);
+  expect(faviconResponse.headers()["content-type"]).toContain("image/x-icon");
   await expect(page.locator('link[rel="icon"][href*="icon.png"]')).toHaveCount(1);
   await expect(page.locator('link[rel="apple-touch-icon"][href*="apple-icon.png"]')).toHaveCount(1);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /atomic-atelier-share\.png/);
