@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test("desktop navigation menus are anchored, dismissible, and keyboard friendly", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === "mobile", "desktop navigation uses disclosure menus");
+test("desktop navigation is direct while the Explore disclosure stays keyboard friendly", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "mobile", "desktop navigation uses an Explore disclosure");
   await page.goto("/?element=carbon");
 
   const explore = page.getByRole("button", { name: "Explore", exact: true });
@@ -17,9 +17,7 @@ test("desktop navigation menus are anchored, dismissible, and keyboard friendly"
   await expect(explore).toBeFocused();
   await expect(exploreMenu).toBeHidden();
 
-  const reactions = page.getByRole("button", { name: "Reactions", exact: true });
+  const reactions = page.getByRole("link", { name: "Reactions", exact: true });
   await reactions.click();
-  await expect(page.getByRole("group", { name: "Reactions menu" })).toBeVisible();
-  await page.getByRole("link", { name: "Atomic Atelier home" }).click();
-  await expect(reactions).toHaveAttribute("aria-expanded", "false");
+  await expect(page).toHaveURL(/\/reactions$/);
 });

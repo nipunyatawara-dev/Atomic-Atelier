@@ -17,33 +17,29 @@ type Props = {
   onSaved: () => void;
 };
 
-type MenuName = "explore" | "reactions";
-
 const actionItems = (props: Props) => [
   { label: "Periodic table", icon: Grid3X3, action: props.onTable },
   { label: "Saved", icon: Bookmark, action: props.onSaved },
 ];
 
 export function AppHeader(props: Props) {
-  const [openMenu, setOpenMenu] = useState<MenuName | null>(null);
+  const [exploreOpen, setExploreOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const exploreTriggerRef = useRef<HTMLButtonElement>(null);
-  const reactionsTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!openMenu) return;
+    if (!exploreOpen) return;
 
     const closeFromOutside = (event: PointerEvent) => {
-      if (!headerRef.current?.contains(event.target as Node)) setOpenMenu(null);
+      if (!headerRef.current?.contains(event.target as Node)) setExploreOpen(false);
     };
 
     const closeFromEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      const trigger = openMenu === "explore" ? exploreTriggerRef.current : reactionsTriggerRef.current;
-      setOpenMenu(null);
-      requestAnimationFrame(() => trigger?.focus());
+      setExploreOpen(false);
+      requestAnimationFrame(() => exploreTriggerRef.current?.focus());
     };
 
     document.addEventListener("pointerdown", closeFromOutside);
@@ -52,25 +48,23 @@ export function AppHeader(props: Props) {
       document.removeEventListener("pointerdown", closeFromOutside);
       document.removeEventListener("keydown", closeFromEscape);
     };
-  }, [openMenu]);
+  }, [exploreOpen]);
 
-  const toggleMenu = (menu: MenuName) => {
-    setOpenMenu((current) => (current === menu ? null : menu));
-  };
+  const toggleMenu = () => setExploreOpen((current) => !current);
 
   const runAction = (action: () => void) => {
-    setOpenMenu(null);
+    setExploreOpen(false);
     action();
   };
 
   const closeWhenFocusLeaves = (event: React.FocusEvent<HTMLElement>) => {
-    if (!navRef.current?.contains(event.relatedTarget as Node | null)) setOpenMenu(null);
+    if (!navRef.current?.contains(event.relatedTarget as Node | null)) setExploreOpen(false);
   };
 
   return (
     <>
       <header ref={headerRef} className="topbar">
-        <Link href="/" className="brand" aria-label="Atomic Atelier home" onClick={() => setOpenMenu(null)}>
+        <Link href="/" className="brand" aria-label="Atomic Atelier home" onClick={() => setExploreOpen(false)}>
           <span className="brand-mark" aria-hidden="true"><Atom /></span>
           <span className="brand-copy"><strong>Atomic Atelier</strong><em>See matter differently</em></span>
         </Link>
@@ -82,9 +76,9 @@ export function AppHeader(props: Props) {
               id="explore-menu-trigger"
               className={`nav-trigger ${props.active === "explore" ? "active" : ""}`}
               type="button"
-              aria-expanded={openMenu === "explore"}
+              aria-expanded={exploreOpen}
               aria-controls="explore-menu"
-              onClick={() => toggleMenu("explore")}
+              onClick={toggleMenu}
             >
               <Atom aria-hidden="true" />
               <span>Explore</span>
@@ -95,15 +89,15 @@ export function AppHeader(props: Props) {
               className="nav-popover"
               role="group"
               aria-label="Explore menu"
-              aria-hidden={openMenu !== "explore"}
-              data-open={openMenu === "explore"}
+              aria-hidden={!exploreOpen}
+              data-open={exploreOpen}
             >
               <div className="nav-popover-heading">
                 <span>Discover matter</span>
                 <small>Choose a way in</small>
               </div>
               <div className="nav-popover-items">
-                <Link className={props.active === "explore" ? "current" : ""} href="/" onClick={() => setOpenMenu(null)}>
+                <Link className={props.active === "explore" ? "current" : ""} href="/" onClick={() => setExploreOpen(false)}>
                   <span className="nav-item-icon"><Atom /></span>
                   <span><strong>Element explorer</strong><small>Inspect all 118 elements in 3D</small></span>
                   <ArrowUpRight className="nav-item-arrow" />
@@ -117,41 +111,10 @@ export function AppHeader(props: Props) {
             </div>
           </div>
 
-          <div className="nav-menu">
-            <button
-              ref={reactionsTriggerRef}
-              id="reactions-menu-trigger"
-              className={`nav-trigger ${props.active === "reactions" ? "active" : ""}`}
-              type="button"
-              aria-expanded={openMenu === "reactions"}
-              aria-controls="reactions-menu"
-              onClick={() => toggleMenu("reactions")}
-            >
-              <FlaskConical aria-hidden="true" />
-              <span>Reactions</span>
-              <ChevronDown className="nav-chevron" aria-hidden="true" />
-            </button>
-            <div
-              id="reactions-menu"
-              className="nav-popover"
-              role="group"
-              aria-label="Reactions menu"
-              aria-hidden={openMenu !== "reactions"}
-              data-open={openMenu === "reactions"}
-            >
-              <div className="nav-popover-heading">
-                <span>Practice & progress</span>
-                <small>Turn concepts into intuition</small>
-              </div>
-              <div className="nav-popover-items">
-                <Link className={props.active === "reactions" ? "current" : ""} href="/reactions" onClick={() => setOpenMenu(null)}>
-                  <span className="nav-item-icon"><FlaskConical /></span>
-                  <span><strong>Reaction lab</strong><small>Balance equations and animate atoms</small></span>
-                  <ArrowUpRight className="nav-item-arrow" />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <Link className={`nav-link ${props.active === "reactions" ? "active" : ""}`} href="/reactions" onClick={() => setExploreOpen(false)}>
+            <FlaskConical aria-hidden="true" />
+            <span>Reactions</span>
+          </Link>
         </nav>
 
         <div className="header-actions" aria-label="Quick actions">

@@ -107,7 +107,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .main-nav { align-items: center; display: flex; gap: 4px; justify-content: center; }
 .nav-menu { position: relative; }
-.nav-trigger {
+.nav-trigger, .nav-link {
   align-items: center;
   background: transparent;
   border: 0;
@@ -124,10 +124,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   padding: 0 12px;
   transition: background-color .16s ease, color .16s ease, transform .1s ease-out;
 }
-.nav-trigger:hover, .nav-trigger[aria-expanded="true"] { background: rgba(23,57,58,.065); color: var(--deep); }
-.nav-trigger.active { background: rgba(23,57,58,.1); box-shadow: 0 1px 0 rgba(255,255,255,.72) inset; color: var(--deep); }
-.nav-trigger:active { transform: scale(.96); }
-.nav-trigger > svg { height: 16px; width: 16px; }
+.nav-trigger:hover, .nav-trigger[aria-expanded="true"], .nav-link:hover { background: rgba(23,57,58,.065); color: var(--deep); }
+.nav-trigger.active, .nav-link.active { background: rgba(23,57,58,.1); box-shadow: 0 1px 0 rgba(255,255,255,.72) inset; color: var(--deep); }
+.nav-trigger:active, .nav-link:active { transform: scale(.96); }
+.nav-trigger > svg, .nav-link > svg { height: 16px; width: 16px; }
 .nav-trigger .nav-chevron { height: 13px; margin-left: 1px; transition: transform .24s cubic-bezier(.2,.8,.2,1); width: 13px; }
 .nav-trigger[aria-expanded="true"] .nav-chevron { transform: rotate(180deg); }
 .nav-popover {
