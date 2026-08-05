@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Mono, DM_Sans } from "next/font/google";
 import "./globals.css";
 
+const configuredHost = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL ?? "http://localhost:3000";
+const metadataBase = new URL(configuredHost.startsWith("http") ? configuredHost : `https://${configuredHost}`);
+
 const display = Cormorant_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
@@ -20,26 +23,32 @@ const mono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chemistry-atelier.vercel.app"),
+  metadataBase,
   title: {
-    default: "Chemistry Atelier — See matter differently",
-    template: "%s · Chemistry Atelier",
+    default: "Atomic Atelier — See matter differently",
+    template: "%s · Atomic Atelier",
   },
   description:
     "Explore all 118 elements, compare periodic trends, balance reactions, and learn chemistry through interactive teaching models.",
-  applicationName: "Chemistry Atelier",
+  applicationName: "Atomic Atelier",
   keywords: ["chemistry", "periodic table", "elements", "reactions", "education"],
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
   openGraph: {
-    title: "Chemistry Atelier",
+    title: "Atomic Atelier",
     description: "Interactive elements, atomic structure, periodic trends, and guided reactions.",
     type: "website",
-    images: [{ url: "/chemistry-atelier-og.png", width: 1200, height: 630, alt: "A simplified teaching-model atom on a pale mineral grid" }],
+    siteName: "Atomic Atelier",
+    url: "/",
+    images: [{ url: "/atomic-atelier-share.png", width: 1200, height: 630, alt: "Atomic Atelier — See matter differently, with a simplified teaching-model atom" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Chemistry Atelier",
+    title: "Atomic Atelier",
     description: "Interactive elements, atomic structure, periodic trends, and guided reactions.",
-    images: ["/chemistry-atelier-og.png"],
+    images: ["/atomic-atelier-share.png"],
   },
 };
 

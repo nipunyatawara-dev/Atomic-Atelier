@@ -174,7 +174,7 @@ function safetyFor(category, z) {
 
 async function fetchJson(url, attempts = 4) {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    const response = await fetch(url, { headers: { "User-Agent": "Chemistry-Atelier-data-sync/1.0" } });
+    const response = await fetch(url, { headers: { "User-Agent": "Atomic-Atelier-data-sync/1.0" } });
     if (response.ok) return response.json();
     if (attempt === attempts) throw new Error(`${response.status} while fetching ${url}`);
     await new Promise((resolve) => setTimeout(resolve, 500 * attempt));

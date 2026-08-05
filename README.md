@@ -1,6 +1,6 @@
-# Chemistry Atelier
+# Atomic Atelier
 
-Chemistry Atelier is a static-first, interactive chemistry learning experience for high-school students. It combines all 118 elements, procedural Three.js atomic models, a keyboard-accessible periodic table, deterministic element quizzes, comparison tools, local progress, and twelve guided equation-balancing activities.
+Atomic Atelier is a static-first, interactive chemistry learning experience for high-school students. It combines all 118 elements, procedural Three.js atomic models, a keyboard-accessible periodic table, deterministic element quizzes, comparison tools, local progress, and twelve guided equation-balancing activities.
 
 The product reimplements the useful editorial structure of Anatomy Atelier without copying its source or anatomical assets. Chemistry content, interactions, data contracts, and procedural visuals are original to this repository.
 
@@ -40,7 +40,7 @@ Atomic shell paths, particle spacing, relative scale, and reaction geometry are 
 
 ## Persistence and privacy
 
-Favorites, eight recent elements, quiz scores, completed reactions, last selections, and auto-rotate preference are stored only in `localStorage` under `chemistry-atelier:v1`. Missing, blocked, old, or malformed storage recovers to safe defaults. The v1 app has no account, analytics payload, database, cloud sync, notes, or user PII.
+Favorites, eight recent elements, quiz scores, completed reactions, last selections, and auto-rotate preference are stored only in `localStorage` under `atomic-atelier:v1`. Existing data under the former key migrates automatically. Missing, blocked, old, or malformed storage recovers to safe defaults. The v1 app has no account, analytics payload, database, cloud sync, notes, or user PII.
 
 ## Deployment
 

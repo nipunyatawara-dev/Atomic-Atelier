@@ -8,7 +8,7 @@ async function stablePage(page: Page) {
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() => {
-    window.localStorage.setItem("chemistry-atelier:v1", JSON.stringify({
+    window.localStorage.setItem("atomic-atelier:v1", JSON.stringify({
       version: 1, favorites: [], recentElements: [6], quizScores: {}, completedReactions: [],
       lastElement: 6, lastReaction: "water-synthesis", autoRotate: false,
     }));

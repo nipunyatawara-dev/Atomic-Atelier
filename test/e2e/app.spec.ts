@@ -79,7 +79,7 @@ test("structure guide presents particle details without canvas hotspots", async 
 });
 
 test("element changes use a staged transition", async ({ page }) => {
-  await page.addInitScript(() => window.sessionStorage.setItem("chemistry-atelier:intro-seen", "true"));
+  await page.addInitScript(() => window.sessionStorage.setItem("atomic-atelier:intro-seen", "true"));
   await page.goto("/?element=carbon");
   if ((page.viewportSize()?.width ?? 1200) <= 760) await page.getByRole("button", { name: "Elements", exact: true }).click();
   await page.getByPlaceholder("Name, symbol, number…").fill("nitrogen");
@@ -91,9 +91,9 @@ test("element changes use a staged transition", async ({ page }) => {
 });
 
 test("first-visit choreography completes once per session", async ({ page }) => {
-  await page.addInitScript(() => window.sessionStorage.removeItem("chemistry-atelier:intro-seen"));
+  await page.addInitScript(() => window.sessionStorage.removeItem("atomic-atelier:intro-seen"));
   await page.goto("/?element=carbon");
-  await expect.poll(() => page.evaluate(() => window.sessionStorage.getItem("chemistry-atelier:intro-seen"))).toBe("true");
+  await expect.poll(() => page.evaluate(() => window.sessionStorage.getItem("atomic-atelier:intro-seen"))).toBe("true");
   await expect(page.locator(".viewer-shell")).toHaveCSS("opacity", "1");
 });
 
@@ -118,6 +118,14 @@ test("primary routes render without console errors", async ({ page }) => {
   await page.goto("/reactions?reaction=water-synthesis");
   await expect(page.getByRole("heading", { name: "Making water", exact: true })).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("publishes browser icons and social preview metadata", async ({ page }) => {
+  await page.goto("/?element=carbon");
+  await expect(page.locator('link[rel="icon"][href*="icon.png"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="apple-touch-icon"][href*="apple-icon.png"]')).toHaveCount(1);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /atomic-atelier-share\.png/);
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
 });
 
 test("mobile explorer sustains the release frame-rate floor", async ({ page }, testInfo) => {

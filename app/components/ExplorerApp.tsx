@@ -66,7 +66,7 @@ export function ExplorerApp() {
     if (!root || introPlayedRef.current) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let seen = false;
-    try { seen = window.sessionStorage.getItem("chemistry-atelier:intro-seen") === "true"; } catch { /* Storage can be blocked. */ }
+    try { seen = window.sessionStorage.getItem("atomic-atelier:intro-seen") === "true"; } catch { /* Storage can be blocked. */ }
     if (reducedMotion || seen) { introPlayedRef.current = true; return; }
 
     introPlayedRef.current = true;
@@ -80,7 +80,7 @@ export function ExplorerApp() {
           gsap.set(introTargets, { clearProps: "opacity,visibility,transform" });
           introTimelineRef.current = null;
           completed = true;
-          try { window.sessionStorage.setItem("chemistry-atelier:intro-seen", "true"); } catch { /* Storage can be blocked. */ }
+          try { window.sessionStorage.setItem("atomic-atelier:intro-seen", "true"); } catch { /* Storage can be blocked. */ }
         },
       });
       introTimelineRef.current = timeline;

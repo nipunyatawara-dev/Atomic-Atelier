@@ -4,7 +4,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ProgressV1, QuizScore } from "./types";
 
-export const PROGRESS_KEY = "chemistry-atelier:v1";
+export const PROGRESS_KEY = "atomic-atelier:v1";
+const LEGACY_PROGRESS_KEY = "chemistry-atelier:v1";
 
 export const defaultProgress: ProgressV1 = {
   version: 1,
@@ -44,7 +45,7 @@ export function useProgress() {
 
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(PROGRESS_KEY);
+      const raw = window.localStorage.getItem(PROGRESS_KEY) ?? window.localStorage.getItem(LEGACY_PROGRESS_KEY);
       if (raw) setProgress(sanitizeProgress(JSON.parse(raw)));
     } catch {
       setProgress(defaultProgress);
