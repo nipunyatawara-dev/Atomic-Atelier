@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   Atom,
@@ -9,12 +9,20 @@ import {
   ChevronDown,
   FlaskConical,
   Grid3X3,
+  Menu,
 } from "lucide-react";
 
 type Props = {
   active: "explore" | "reactions";
   onTable: () => void;
   onSaved: () => void;
+  mobileContext?: {
+    label: string;
+    detail: string;
+    action: () => void;
+    expanded: boolean;
+    controls: string;
+  };
 };
 
 const actionItems = (props: Props) => [
@@ -22,7 +30,7 @@ const actionItems = (props: Props) => [
   { label: "Saved", icon: Bookmark, action: props.onSaved },
 ];
 
-export function AppHeader(props: Props) {
+export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader(props, mobileContextRef) {
   const [exploreOpen, setExploreOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -117,6 +125,21 @@ export function AppHeader(props: Props) {
           </Link>
         </nav>
 
+        {props.mobileContext && (
+          <button
+            ref={mobileContextRef}
+            className="mobile-context-action"
+            type="button"
+            onClick={props.mobileContext.action}
+            aria-label={props.mobileContext.label}
+            aria-expanded={props.mobileContext.expanded}
+            aria-controls={props.mobileContext.controls}
+          >
+            <Menu aria-hidden="true" />
+            <span><strong>{props.mobileContext.label}</strong><small>{props.mobileContext.detail}</small></span>
+          </button>
+        )}
+
         <div className="header-actions" aria-label="Quick actions">
           <button type="button" className="header-action" onClick={props.onSaved} aria-label="Saved">
             <Bookmark aria-hidden="true" />
@@ -133,4 +156,4 @@ export function AppHeader(props: Props) {
       </nav>
     </>
   );
-}
+});

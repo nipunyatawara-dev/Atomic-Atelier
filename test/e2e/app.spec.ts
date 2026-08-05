@@ -1,5 +1,22 @@
 import { expect, test } from "@playwright/test";
 
+test.beforeEach(async ({ page }, testInfo) => {
+  if (testInfo.title === "first visit offers a short, dismissible orientation") return;
+  await page.addInitScript(() => window.localStorage.setItem("atomic-atelier:tour-complete:v1", "true"));
+});
+
+test("first visit offers a short, dismissible orientation", async ({ page }) => {
+  await page.goto("/");
+  const tour = page.getByRole("dialog");
+  await expect(tour.getByRole("heading", { name: "Meet matter up close" })).toBeVisible();
+  await tour.getByRole("button", { name: "Next" }).click();
+  await expect(tour.getByRole("heading", { name: "Move from atoms to trends" })).toBeVisible();
+  await tour.getByRole("button", { name: "Next" }).click();
+  await tour.getByRole("button", { name: "Start exploring" }).click();
+  await expect(tour).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem("atomic-atelier:tour-complete:v1"))).toBe("true");
+});
+
 test("explorer synchronizes selection, comparison, and saved progress", async ({ page }) => {
   await page.goto("/?element=carbon");
   await expect(page.getByRole("heading", { name: "Carbon", exact: true })).toBeVisible();
@@ -61,6 +78,8 @@ test("reaction animation remains gated until balanced", async ({ page }) => {
   await expect(animate).toBeEnabled();
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText(/Every atom is conserved/)).toBeVisible();
+  await expect(page.getByText("Developing", { exact: true })).toBeVisible();
+  await expect(page.getByText(/lowest whole-number ratio: 2 : 1 : 2/i)).toBeVisible();
   await animate.click();
   await expect(page.getByText("products", { exact: true })).toBeVisible();
 });
@@ -149,6 +168,16 @@ test("mobile element drawer manages focus and Escape", async ({ page }, testInfo
   await expect(trigger).toBeFocused();
 });
 
+test("saved collection surfaces progress and a next step", async ({ page }) => {
+  await page.goto("/?element=carbon");
+  await page.getByRole("button", { name: "Saved", exact: true }).click();
+  const progress = page.getByRole("dialog");
+  await expect(progress.getByRole("heading", { name: "Your learning progress" })).toBeVisible();
+  await expect(progress.getByText("Continue learning", { exact: true })).toBeVisible();
+  await expect(progress.getByText("Elements explored", { exact: true })).toBeVisible();
+  await expect(progress.getByText("Install Atomic Atelier", { exact: true })).toBeVisible();
+});
+
 test("primary routes render without console errors", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
@@ -171,6 +200,7 @@ test("publishes browser icons and social preview metadata", async ({ page }) => 
   await expect(page.locator('link[rel="apple-touch-icon"][href*="apple-icon.png"]')).toHaveCount(1);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /atomic-atelier-share\.png/);
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", /manifest\.webmanifest/);
 });
 
 test("mobile explorer sustains the release frame-rate floor", async ({ page }, testInfo) => {

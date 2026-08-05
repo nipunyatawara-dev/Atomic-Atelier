@@ -11,8 +11,10 @@ Atomic Atelier is an interactive chemistry learning app for exploring all 118 el
 - Compare element properties and periodic trends side by side.
 - Browse a keyboard-accessible periodic table.
 - Test element knowledge with deterministic quizzes.
-- Balance 12 guided chemical equations and visualize atom conservation.
-- Save favorites, recent elements, quiz scores, and reaction progress locally.
+- Balance 12 guided chemical equations, visualize atom conservation, and receive technique grades with strategy feedback.
+- Follow a short first-visit orientation and continue from a local progress dashboard.
+- Save favorites, explored elements, quiz scores, reaction grades, and recent activity locally.
+- Install the app and revisit the element explorer or reaction lab offline.
 - Use the responsive interface on desktop and mobile, with reduced-motion support.
 
 
@@ -26,7 +28,11 @@ The app reads from the committed snapshot in `app/data/elements.json`, so neithe
 
 Progress is stored only in the browser under the `atomic-atelier:v1` local-storage key. The app has no accounts, analytics payload, database, cloud synchronization, notes, or collection of personally identifiable information.
 
-Stored preferences include favorites, up to eight recent elements, quiz scores, completed reactions, last selections, and the auto-rotate setting. If browser storage is missing, blocked, outdated, or malformed, the app falls back to safe defaults.
+Stored preferences include favorites, explored and recent elements, quiz scores, completed reactions, reaction technique grades, last selections, and the auto-rotate setting. If browser storage is missing, blocked, outdated, or malformed, the app falls back to safe defaults.
+
+## Offline installation
+
+The App Router manifest and production service worker make Atomic Atelier installable. The service worker precaches the two application routes, their generated Next.js assets, and the application icons. Same-origin navigations use a network-first strategy with cached route fallbacks, while hashed static assets use cache-first delivery. Service-worker registration is production-only so local development always reflects current code.
 
 ## Teaching-model limitations
 

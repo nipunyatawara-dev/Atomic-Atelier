@@ -1,6 +1,7 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
 async function stablePage(page: Page) {
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(350);
 }
@@ -8,6 +9,7 @@ async function stablePage(page: Page) {
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() => {
+    window.localStorage.setItem("atomic-atelier:tour-complete:v1", "true");
     window.localStorage.setItem("atomic-atelier:v1", JSON.stringify({
       version: 1, favorites: [], recentElements: [6], quizScores: {}, completedReactions: [],
       lastElement: 6, lastReaction: "water-synthesis", autoRotate: false,

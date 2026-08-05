@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem("atomic-atelier:tour-complete:v1", "true"));
+});
+
 test("desktop navigation is direct while the Explore disclosure stays keyboard friendly", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === "mobile", "desktop navigation uses an Explore disclosure");
   await page.goto("/?element=carbon");

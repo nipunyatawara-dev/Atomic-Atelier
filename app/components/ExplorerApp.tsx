@@ -14,7 +14,6 @@ import {
   FlaskConical,
   Grid3X3,
   History,
-  Menu,
   Search,
   ShieldAlert,
   SlidersHorizontal,
@@ -23,6 +22,7 @@ import {
 } from "lucide-react";
 import { AppHeader } from "./AppHeader";
 import { ComparisonPanel } from "./ComparisonPanel";
+import { FirstVisitTour } from "./FirstVisitTour";
 import { PeriodicTable } from "./PeriodicTable";
 import { QuizModal } from "./QuizModal";
 import { SavedModal } from "./SavedModal";
@@ -213,7 +213,19 @@ export function ExplorerApp() {
 
   return (
     <main ref={appRef} className={`app-shell ${transitioning ? "element-transitioning" : ""}`} aria-busy={transitioning}>
-      <AppHeader active="explore" onTable={() => setTableOpen(true)} onSaved={() => setSavedOpen(true)} />
+      <AppHeader
+        ref={libraryTriggerRef}
+        active="explore"
+        onTable={() => setTableOpen(true)}
+        onSaved={() => setSavedOpen(true)}
+        mobileContext={{
+          label: "Elements",
+          detail: `${element.symbol} · ${element.name}`,
+          action: () => setMobileLibrary(true),
+          expanded: mobileLibrary,
+          controls: "element-library",
+        }}
+      />
 
       <div className="workspace">
         <aside id="element-library" ref={libraryRef} className={`element-library panel ${mobileLibrary ? "open" : ""}`} role={mobileLibrary ? "dialog" : undefined} aria-modal={mobileLibrary ? "true" : undefined} aria-label="Element library">
@@ -270,12 +282,12 @@ export function ExplorerApp() {
         <article><header><div><em>Safety context</em><h3>Form and exposure matter</h3></div><ShieldAlert /></header><p className="resource-copy">{element.safety}</p><a href={element.sourceRefs[0].url} target="_blank" rel="noreferrer">Open source record <ArrowRight /></a></article>
       </section>
 
-      <button ref={libraryTriggerRef} className="mobile-library-trigger" onClick={() => setMobileLibrary(true)} aria-expanded={mobileLibrary} aria-controls="element-library"><Menu size={18} /> Elements</button>
       {mobileLibrary && <button className="drawer-backdrop" onClick={() => setMobileLibrary(false)} aria-label="Close element library" />}
       {tableOpen && <PeriodicTable selected={element.atomicNumber} onSelect={selectElement} onClose={() => setTableOpen(false)} />}
       {quizOpen && <QuizModal title={`${element.name} quick quiz`} questions={createElementQuiz(element)} onClose={() => setQuizOpen(false)} onComplete={(score) => recordQuiz(`element:${element.atomicNumber}`, score)} />}
       {savedOpen && <SavedModal progress={progress} onClose={() => setSavedOpen(false)} onElement={selectElement} />}
       {compareOpen && <ComparisonPanel primary={element} secondary={compareElement} onSelect={changeCompare} onClose={closeCompare} />}
+      <FirstVisitTour />
     </main>
   );
 }

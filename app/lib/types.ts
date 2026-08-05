@@ -49,12 +49,22 @@ export type ElementRecord = {
 
 export type QuizScore = { correct: number; total: number; completedAt: string };
 
+export type ReactionGrade = {
+  score: number;
+  label: "Mastery" | "Strong" | "Developing" | "Guided";
+  attempts: number;
+  hints: number;
+  completedAt: string;
+};
+
 export type ProgressV1 = {
   version: 1;
   favorites: number[];
   recentElements: number[];
+  exploredElements: number[];
   quizScores: Record<string, QuizScore>;
   completedReactions: string[];
+  reactionGrades: Record<string, ReactionGrade>;
   lastElement: number;
   lastReaction: string;
   autoRotate: boolean;
