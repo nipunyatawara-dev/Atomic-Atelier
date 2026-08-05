@@ -149,11 +149,6 @@ export function AppHeader(props: Props) {
                   <span><strong>Reaction lab</strong><small>Balance equations and animate atoms</small></span>
                   <ArrowUpRight className="nav-item-arrow" />
                 </Link>
-                <button type="button" onClick={() => runAction(props.onSaved)}>
-                  <span className="nav-item-icon"><Bookmark /></span>
-                  <span><strong>Saved collection</strong><small>Return to the elements you kept</small></span>
-                  <ArrowUpRight className="nav-item-arrow" />
-                </button>
               </div>
             </div>
           </div>

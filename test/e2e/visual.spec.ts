@@ -36,10 +36,13 @@ test("comparison mode visual", async ({ page }, testInfo: TestInfo) => {
 });
 
 test("periodic table visual", async ({ page }, testInfo: TestInfo) => {
-  test.skip(testInfo.project.name === "mobile", "mobile table behavior is covered functionally");
   await page.goto("/?element=carbon");
-  await page.getByRole("button", { name: "Explore", exact: true }).click();
-  await page.getByRole("group", { name: "Explore menu" }).getByRole("button", { name: /Periodic table/ }).click();
+  if (testInfo.project.name === "mobile") {
+    await page.getByRole("button", { name: "Table", exact: true }).click();
+  } else {
+    await page.getByRole("button", { name: "Explore", exact: true }).click();
+    await page.getByRole("group", { name: "Explore menu" }).getByRole("button", { name: /Periodic table/ }).click();
+  }
   await stablePage(page);
   await expect(page).toHaveScreenshot("periodic-table.png", { fullPage: true, animations: "disabled" });
 });

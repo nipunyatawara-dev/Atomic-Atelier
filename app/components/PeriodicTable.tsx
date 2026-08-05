@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { MoveHorizontal, Search } from "lucide-react";
 import { Dialog } from "./Dialog";
 import { categories, categoryLabels, elementByNumber, elementGridPosition, elements } from "../lib/elements";
 import type { ElementCategory, ElementRecord } from "../lib/types";
@@ -9,6 +9,7 @@ import type { ElementCategory, ElementRecord } from "../lib/types";
 export function PeriodicTable({ selected, onSelect, onClose }: { selected: number; onSelect: (element: ElementRecord) => void; onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ElementCategory | "all">("all");
+  const scrollRef = useRef<HTMLDivElement>(null);
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return new Set(elements.filter((element) => {
@@ -16,6 +17,14 @@ export function PeriodicTable({ selected, onSelect, onClose }: { selected: numbe
       return matchesQuery && (category === "all" || element.category === category);
     }).map((element) => element.atomicNumber));
   }, [query, category]);
+
+  useEffect(() => {
+    const scroller = scrollRef.current;
+    if (!scroller || scroller.scrollWidth <= scroller.clientWidth) return;
+    const cell = scroller.querySelector<HTMLElement>(`[data-element-number="${selected}"]`);
+    if (!cell) return;
+    scroller.scrollLeft = Math.max(0, cell.offsetLeft - (scroller.clientWidth - cell.offsetWidth) / 2);
+  }, [selected]);
 
   const onGridKey = (event: React.KeyboardEvent, atomicNumber: number) => {
     if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].includes(event.key)) return;
@@ -45,8 +54,9 @@ export function PeriodicTable({ selected, onSelect, onClose }: { selected: numbe
           {categories.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
         </select>
       </div>
-      <div className="periodic-scroll">
-        <div className="periodic-grid" role="grid" aria-label="Periodic table of elements">
+      <p className="periodic-scroll-hint" id="periodic-scroll-hint"><MoveHorizontal size={14} /> Swipe sideways to explore all 18 groups</p>
+      <div className="periodic-scroll" ref={scrollRef}>
+        <div className="periodic-grid" role="grid" aria-label="Periodic table of elements" aria-describedby="periodic-scroll-hint">
           <span className="period-label lanthanoid-label">Lanthanoids</span><span className="period-label actinoid-label">Actinoids</span>
           {elements.map((element) => {
             const position = elementGridPosition(element);

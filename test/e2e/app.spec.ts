@@ -23,14 +23,27 @@ test("periodic table supports keyboard navigation and escape", async ({ page }) 
     await page.getByRole("group", { name: "Explore menu" }).getByRole("button", { name: /Periodic table/ }).click();
   }
   const grid = page.getByRole("grid", { name: "Periodic table of elements" });
-  const bounds = await grid.boundingBox();
   const viewport = page.viewportSize();
-  expect(bounds).not.toBeNull();
   expect(viewport).not.toBeNull();
-  expect(bounds!.x).toBeGreaterThanOrEqual(0);
-  expect(bounds!.y).toBeGreaterThanOrEqual(0);
-  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport!.width + 1);
-  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport!.height + 1);
+  if (mobile) {
+    await expect(page.getByText("Swipe sideways to explore all 18 groups")).toBeVisible();
+    const scroller = page.locator(".periodic-scroll");
+    const bounds = await scroller.boundingBox();
+    const metrics = await scroller.evaluate((element) => ({ clientWidth: element.clientWidth, scrollWidth: element.scrollWidth }));
+    expect(bounds).not.toBeNull();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport!.width + 1);
+    expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth * 2);
+    const hydrogenBounds = await page.getByRole("gridcell", { name: /Hydrogen, H, atomic number 1/ }).boundingBox();
+    expect(hydrogenBounds?.width).toBeGreaterThanOrEqual(44);
+  } else {
+    const bounds = await grid.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.y).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport!.width + 1);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport!.height + 1);
+  }
   const carbon = page.getByRole("gridcell", { name: /Carbon, C, atomic number 6/ });
   await carbon.focus();
   await page.keyboard.press("ArrowRight");
@@ -81,6 +94,28 @@ test("structure guide presents particle details without canvas hotspots", async 
   await expect(page.getByRole("tabpanel")).toContainText("3 electrons make the neutral atom electrically balanced.");
   await page.getByRole("button", { name: "Close structure guide" }).click();
   await expect(page.getByRole("tabpanel")).toHaveCount(0);
+});
+
+test("mobile viewer toolbar keeps every tool visible without horizontal clipping", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "mobile-only viewer toolbar layout");
+  await page.goto("/?element=hydrogen");
+  const toolbar = page.locator(".viewer-tools");
+  await expect(toolbar.getByRole("button")).toHaveCount(7);
+  const layout = await toolbar.evaluate((element) => {
+    const parent = element.getBoundingClientRect();
+    const buttons = [...element.querySelectorAll("button")].map((button) => {
+      const bounds = button.getBoundingClientRect();
+      return { left: bounds.left, right: bounds.right, width: bounds.width, height: bounds.height };
+    });
+    return { parent: { left: parent.left, right: parent.right }, clientWidth: element.clientWidth, scrollWidth: element.scrollWidth, buttons };
+  });
+  expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
+  for (const button of layout.buttons) {
+    expect(button.left).toBeGreaterThanOrEqual(layout.parent.left - 0.5);
+    expect(button.right).toBeLessThanOrEqual(layout.parent.right + 0.5);
+    expect(button.width).toBeGreaterThanOrEqual(38);
+    expect(button.height).toBeGreaterThanOrEqual(44);
+  }
 });
 
 test("element changes use a staged transition", async ({ page }) => {
