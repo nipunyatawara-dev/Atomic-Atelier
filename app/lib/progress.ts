@@ -1,0 +1,105 @@
+"use client";
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useCallback, useEffect, useState } from "react";
+import type { ProgressV1, QuizScore } from "./types";
+
+export const PROGRESS_KEY = "chemistry-atelier:v1";
+
+export const defaultProgress: ProgressV1 = {
+  version: 1,
+  favorites: [],
+  recentElements: [6],
+  quizScores: {},
+  completedReactions: [],
+  lastElement: 6,
+  lastReaction: "water-synthesis",
+  autoRotate: true,
+};
+
+export function sanitizeProgress(value: unknown): ProgressV1 {
+  if (!value || typeof value !== "object") return defaultProgress;
+  const record = value as Partial<ProgressV1>;
+  const numbers = (items: unknown, max = 118) =>
+    Array.isArray(items)
+      ? [...new Set(items.filter((item): item is number => Number.isInteger(item) && item >= 1 && item <= max))]
+      : [];
+  return {
+    version: 1,
+    favorites: numbers(record.favorites),
+    recentElements: numbers(record.recentElements).slice(0, 8),
+    quizScores: record.quizScores && typeof record.quizScores === "object" ? record.quizScores : {},
+    completedReactions: Array.isArray(record.completedReactions)
+      ? [...new Set(record.completedReactions.filter((item): item is string => typeof item === "string"))]
+      : [],
+    lastElement: Number.isInteger(record.lastElement) && record.lastElement! >= 1 && record.lastElement! <= 118 ? record.lastElement! : 6,
+    lastReaction: typeof record.lastReaction === "string" ? record.lastReaction : defaultProgress.lastReaction,
+    autoRotate: typeof record.autoRotate === "boolean" ? record.autoRotate : true,
+  };
+}
+
+export function useProgress() {
+  const [progress, setProgress] = useState<ProgressV1>(defaultProgress);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(PROGRESS_KEY);
+      if (raw) setProgress(sanitizeProgress(JSON.parse(raw)));
+    } catch {
+      setProgress(defaultProgress);
+    } finally {
+      setReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    } catch {
+      // Storage may be blocked; the current session remains fully functional.
+    }
+  }, [progress, ready]);
+
+  const update = useCallback((mutator: (current: ProgressV1) => ProgressV1) => setProgress((current) => mutator(current)), []);
+
+  const visitElement = useCallback((atomicNumber: number) => {
+    update((current) => ({
+      ...current,
+      lastElement: atomicNumber,
+      recentElements: [atomicNumber, ...current.recentElements.filter((value) => value !== atomicNumber)].slice(0, 8),
+    }));
+  }, [update]);
+
+  const toggleFavorite = useCallback((atomicNumber: number) => {
+    update((current) => ({
+      ...current,
+      favorites: current.favorites.includes(atomicNumber)
+        ? current.favorites.filter((value) => value !== atomicNumber)
+        : [...current.favorites, atomicNumber],
+    }));
+  }, [update]);
+
+  const recordQuiz = useCallback((key: string, score: QuizScore) => {
+    update((current) => ({ ...current, quizScores: { ...current.quizScores, [key]: score } }));
+  }, [update]);
+
+  const completeReaction = useCallback((slug: string) => {
+    update((current) => ({
+      ...current,
+      lastReaction: slug,
+      completedReactions: current.completedReactions.includes(slug)
+        ? current.completedReactions
+        : [...current.completedReactions, slug],
+    }));
+  }, [update]);
+
+  const visitReaction = useCallback((slug: string) => {
+    update((current) => ({ ...current, lastReaction: slug }));
+  }, [update]);
+
+  const setAutoRotate = useCallback((autoRotate: boolean) => update((current) => ({ ...current, autoRotate })), [update]);
+
+  return { progress, ready, visitElement, visitReaction, toggleFavorite, recordQuiz, completeReaction, setAutoRotate };
+}

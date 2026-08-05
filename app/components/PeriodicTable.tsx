@@ -1,0 +1,75 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { Dialog } from "./Dialog";
+import { categories, categoryLabels, elementByNumber, elementGridPosition, elements } from "../lib/elements";
+import type { ElementCategory, ElementRecord } from "../lib/types";
+
+export function PeriodicTable({ selected, onSelect, onClose }: { selected: number; onSelect: (element: ElementRecord) => void; onClose: () => void }) {
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<ElementCategory | "all">("all");
+  const visible = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return new Set(elements.filter((element) => {
+      const matchesQuery = !normalized || `${element.name} ${element.symbol} ${element.atomicNumber}`.toLowerCase().includes(normalized);
+      return matchesQuery && (category === "all" || element.category === category);
+    }).map((element) => element.atomicNumber));
+  }, [query, category]);
+
+  const onGridKey = (event: React.KeyboardEvent, atomicNumber: number) => {
+    if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].includes(event.key)) return;
+    event.preventDefault();
+    const current = elementByNumber.get(atomicNumber)!;
+    const position = elementGridPosition(current);
+    const horizontal = event.key === "ArrowRight" || event.key === "ArrowLeft";
+    const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+    const candidates = elements
+      .map((element) => ({ element, position: elementGridPosition(element) }))
+      .filter((candidate) => horizontal
+        ? candidate.position.row === position.row && (candidate.position.column - position.column) * direction > 0
+        : candidate.position.column === position.column && (candidate.position.row - position.row) * direction > 0)
+      .sort((a, b) => horizontal
+        ? Math.abs(a.position.column - position.column) - Math.abs(b.position.column - position.column)
+        : Math.abs(a.position.row - position.row) - Math.abs(b.position.row - position.row));
+    const next = candidates[0]?.element.atomicNumber;
+    if (next) event.currentTarget.closest('[role="grid"]')?.querySelector<HTMLElement>(`[data-element-number="${next}"]`)?.focus();
+  };
+
+  return (
+    <Dialog title="The periodic table" eyebrow="118 ways to build matter" onClose={onClose} wide className="periodic-dialog">
+      <div className="table-controls">
+        <label><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, symbol, or number" /></label>
+        <select value={category} onChange={(event) => setCategory(event.target.value as ElementCategory | "all")} aria-label="Filter by category">
+          <option value="all">All categories</option>
+          {categories.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+        </select>
+      </div>
+      <div className="periodic-scroll">
+        <div className="periodic-grid" role="grid" aria-label="Periodic table of elements">
+          <span className="period-label lanthanoid-label">Lanthanoids</span><span className="period-label actinoid-label">Actinoids</span>
+          {elements.map((element) => {
+            const position = elementGridPosition(element);
+            const matches = visible.has(element.atomicNumber);
+            return (
+              <button
+                key={element.atomicNumber}
+                role="gridcell"
+                data-element-number={element.atomicNumber}
+                data-category={element.category}
+                className={`${selected === element.atomicNumber ? "selected" : ""} ${matches ? "" : "muted"}`}
+                style={{ gridColumn: position.column, gridRow: position.row }}
+                onKeyDown={(event) => onGridKey(event, element.atomicNumber)}
+                onClick={() => { onSelect(element); onClose(); }}
+                aria-label={`${element.name}, ${element.symbol}, atomic number ${element.atomicNumber}, ${categoryLabels[element.category]}`}
+              >
+                <small>{element.atomicNumber}</small><b>{element.symbol}</b><span>{element.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="category-legend">{categories.filter(([value]) => value !== "unknown").map(([value, label]) => <button key={value} className={category === value ? "active" : ""} onClick={() => setCategory(category === value ? "all" : value)}><i data-category={value} />{label}</button>)}</div>
+    </Dialog>
+  );
+}
