@@ -24,7 +24,24 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
+*.log
+.eslintcache
+
+# local editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# local AI assistant instructions and state
+/AGENTS.md
+/CLAUDE.md
+/.claude/
+/.codex/
+AGENTS.local.md
+CLAUDE.local.md
 
 # debug
 npm-debug.log*
