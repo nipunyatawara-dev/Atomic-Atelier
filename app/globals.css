@@ -894,3 +894,128 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 @keyframes drift { 0%, 100% { transform: rotate(-7deg) scale(.96); } 50% { transform: rotate(7deg) scale(1.05); } }
+
+/* Quantum Orbital Mode & View Switcher (Atomic Atelier Design System) */
+.viewer-view-switcher {
+  align-items: center;
+  background: rgba(249, 249, 245, 0.92);
+  border: 1px solid #cfd8d2;
+  border-radius: 99px;
+  display: flex;
+  gap: 3px;
+  left: 50%;
+  padding: 3px;
+  position: absolute;
+  top: 17px;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+
+.switcher-btn {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 99px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  font-size: 9px;
+  gap: 6px;
+  padding: 5px 12px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.switcher-btn:hover {
+  color: var(--deep);
+}
+
+.switcher-btn.active {
+  background: #e2eee9;
+  border-color: #bfd6ce;
+  color: var(--deep);
+  font-weight: 600;
+}
+
+.orbital-bar {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  left: 50%;
+  max-width: 90%;
+  position: absolute;
+  top: 54px;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+
+.subshell-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.chip {
+  align-items: center;
+  background: rgba(249, 249, 245, 0.92);
+  border: 1px solid #cfd8d2;
+  border-radius: 9px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 9px;
+  gap: 5px;
+  padding: 5px 9px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  background: #f0f2ec;
+  color: var(--ink);
+}
+
+.chip.active {
+  background: #e2eee9;
+  border-color: #bfd6ce;
+  color: var(--deep);
+  font-weight: 600;
+}
+
+.chip-dot {
+  background: var(--subshell-color, var(--teal));
+  border-radius: 50%;
+  display: inline-block;
+  height: 7px;
+  width: 7px;
+}
+
+.orbital-legend {
+  align-items: center;
+  background: rgba(249, 249, 245, 0.88);
+  border: 1px solid #d8ded8;
+  border-radius: 99px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 4px 12px;
+}
+
+.legend-item {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 8px;
+  gap: 4px;
+  letter-spacing: 0.05em;
+}
+
+.legend-item i {
+  border-radius: 50%;
+  height: 7px;
+  width: 7px;
+}
+
+
+

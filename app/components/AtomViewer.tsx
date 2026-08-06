@@ -11,14 +11,22 @@ import {
   Focus,
   GitCompareArrows,
   Info,
+  Layers,
   Orbit,
   RotateCcw,
   Search,
   X,
 } from "lucide-react";
 import type { ElementRecord } from "../lib/types";
+import {
+  generateOrbitalCloudPoints,
+  parseElectronConfiguration,
+  SUBSHELL_COLORS,
+  type SubshellInfo,
+} from "../lib/orbitals";
 
-type StructureKey = "nucleus" | "proton" | "neutron" | "electron" | "valence";
+type ViewMode = "bohr" | "orbital";
+type StructureKey = "nucleus" | "proton" | "neutron" | "electron" | "valence" | "orbitals";
 
 type ElectronParticle = {
   mesh: THREE.InstancedMesh;
@@ -46,6 +54,7 @@ type ViewerState = {
   nucleusMeshes: THREE.Object3D[];
   innerElectrons: THREE.InstancedMesh | null;
   valenceElectrons: THREE.InstancedMesh | null;
+  orbitalMeshes: Map<string, THREE.Points>;
 };
 
 const structureCopy: Record<StructureKey, { label: string; detail: (element: ElementRecord) => string }> = {
@@ -54,6 +63,7 @@ const structureCopy: Record<StructureKey, { label: string; detail: (element: Ele
   neutron: { label: "Neutron", detail: (element) => element.neutrons === null ? "A representative neutron count is not established for this visualization." : `${element.neutrons} neutrons are shown for the representative isotope.` },
   electron: { label: "Electron", detail: (element) => `${element.atomicNumber} electrons make the neutral atom electrically balanced.` },
   valence: { label: "Valence shell", detail: (element) => element.valenceElectrons === null ? "Outer and d/f electrons can both participate in bonding." : `${element.valenceElectrons} outer-shell electrons strongly influence bonding.` },
+  orbitals: { label: "Quantum Orbitals", detail: (element) => `Subshell electron clouds (s, p, d, f) for ${element.name} show 3D probability distributions (|ψ|²) where electrons are ~90% likely to be located around the nucleus.` },
 };
 
 const dummy = new THREE.Object3D();
@@ -86,7 +96,7 @@ function viewingDistance(state: ViewerState, element: ElementRecord) {
 
 function clearGroup(group: THREE.Group) {
   group.traverse((object) => {
-    if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
+    if (object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points) {
       object.geometry.dispose();
       const materials = Array.isArray(object.material) ? object.material : [object.material];
       materials.forEach((material) => material.dispose());
@@ -134,6 +144,9 @@ export function AtomViewer({
   const [shellsVisible, setShellsVisible] = useState(true);
   const [nucleusFocus, setNucleusFocus] = useState(false);
   const [valenceFocus, setValenceFocus] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("bohr");
+  const [activeSubshell, setActiveSubshell] = useState<string>("all");
+  const [subshells, setSubshells] = useState<SubshellInfo[]>([]);
 
   useEffect(() => { autoRotateRef.current = autoRotate; if (stateRef.current) stateRef.current.dirty = true; }, [autoRotate]);
 
@@ -153,7 +166,7 @@ export function AtomViewer({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
     renderer.domElement.tabIndex = 0;
-    renderer.domElement.setAttribute("aria-label", "Interactive simplified atomic model. Drag or use arrow keys to rotate, scroll or use plus and minus to zoom, and open the Structure guide for particle details.");
+    renderer.domElement.setAttribute("aria-label", "Interactive atomic model. Drag to rotate, scroll to zoom, switch between Bohr Shells and Quantum Orbitals.");
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -187,6 +200,7 @@ export function AtomViewer({
     const state: ViewerState = {
       renderer, scene, camera, controls, atom, timer, frame: 0, visible: true, dirty: true,
       resizeObserver: null!, intersectionObserver: null!, electronData: [], shells: [], nucleusMeshes: [], innerElectrons: null, valenceElectrons: null,
+      orbitalMeshes: new Map(),
     };
     stateRef.current = state;
 
@@ -238,12 +252,13 @@ export function AtomViewer({
           dummy.updateMatrix();
           electron.mesh.setMatrixAt(electron.instance, dummy.matrix);
         });
-        if (state.innerElectrons) {
-          state.innerElectrons.instanceMatrix.needsUpdate = true;
-        }
-        if (state.valenceElectrons) {
-          state.valenceElectrons.instanceMatrix.needsUpdate = true;
-        }
+        if (state.innerElectrons) state.innerElectrons.instanceMatrix.needsUpdate = true;
+        if (state.valenceElectrons) state.valenceElectrons.instanceMatrix.needsUpdate = true;
+        state.orbitalMeshes.forEach((mesh) => {
+          if (mesh.visible) {
+            mesh.rotation.y += delta * 0.12;
+          }
+        });
         state.dirty = true;
       }
       if (controls.update(delta)) state.dirty = true;
@@ -278,6 +293,7 @@ export function AtomViewer({
     state.electronData = [];
     state.shells = [];
     state.nucleusMeshes = [];
+    state.orbitalMeshes.clear();
 
     const neutronCount = element.neutrons ?? 0;
     const nucleusTotal = Math.max(1, element.atomicNumber + neutronCount);
@@ -362,6 +378,31 @@ export function AtomViewer({
     });
     state.innerElectrons.instanceMatrix.needsUpdate = true;
     state.valenceElectrons.instanceMatrix.needsUpdate = true;
+
+    // Create 3D Quantum Orbital Probability Cloud Meshes
+    const parsedSubshells = parseElectronConfiguration(element.electronConfiguration, element);
+    setSubshells(parsedSubshells);
+    setActiveSubshell("all");
+
+    parsedSubshells.forEach((subshell) => {
+      const cloudPositions = generateOrbitalCloudPoints(subshell, 650);
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(cloudPositions, 3));
+      const color = SUBSHELL_COLORS[subshell.type].main;
+      const material = new THREE.PointsMaterial({
+        color,
+        size: 0.07,
+        transparent: true,
+        opacity: 0.72,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const orbitalPoints = new THREE.Points(geometry, material);
+      orbitalPoints.visible = false;
+      state.atom.add(orbitalPoints);
+      state.orbitalMeshes.set(subshell.label, orbitalPoints);
+    });
+
     state.camera.position.set(0, .55, viewingDistance(state, element));
     state.controls.target.set(0, 0, 0);
     state.controls.update();
@@ -373,17 +414,30 @@ export function AtomViewer({
     setValenceFocus(false);
   }, [element]);
 
+  // Update Bohr vs Orbital Mode visibility
   useEffect(() => {
     const state = stateRef.current;
     if (!state) return;
-    state.shells.forEach((shell) => { shell.visible = shellsVisible; });
+
+    const isBohr = viewMode === "bohr";
+
+    // Bohr components
+    state.shells.forEach((shell) => { shell.visible = isBohr && shellsVisible && !nucleusFocus; });
+    if (state.innerElectrons) state.innerElectrons.visible = isBohr && !nucleusFocus;
+    if (state.valenceElectrons) state.valenceElectrons.visible = isBohr && !nucleusFocus;
+
+    // Orbital clouds
+    state.orbitalMeshes.forEach((mesh, label) => {
+      mesh.visible = !isBohr && (activeSubshell === "all" || activeSubshell === label);
+    });
+
     state.dirty = true;
-  }, [shellsVisible]);
+  }, [viewMode, activeSubshell, shellsVisible, nucleusFocus]);
 
   useEffect(() => {
     valenceFocusRef.current = valenceFocus;
     const state = stateRef.current;
-    if (!state) return;
+    if (!state || viewMode !== "bohr") return;
     const innerMaterial = state.innerElectrons?.material as THREE.MeshStandardMaterial | undefined;
     if (innerMaterial) { innerMaterial.transparent = valenceFocus; innerMaterial.opacity = valenceFocus ? 0.13 : 1; }
     state.shells.forEach((shell, index) => {
@@ -391,7 +445,7 @@ export function AtomViewer({
       material.opacity = valenceFocus && index !== state.shells.length - 1 ? .045 : index === state.shells.length - 1 ? .38 : .22;
     });
     state.dirty = true;
-  }, [valenceFocus]);
+  }, [valenceFocus, viewMode]);
 
   const zoom = () => {
     const state = stateRef.current;
@@ -406,9 +460,11 @@ export function AtomViewer({
     setNucleusFocus(next);
     const state = stateRef.current;
     if (!state) return;
-    state.shells.forEach((shell) => { shell.visible = !next && shellsVisible; });
-    if (state.innerElectrons) state.innerElectrons.visible = !next;
-    if (state.valenceElectrons) state.valenceElectrons.visible = !next;
+    if (viewMode === "bohr") {
+      state.shells.forEach((shell) => { shell.visible = !next && shellsVisible; });
+      if (state.innerElectrons) state.innerElectrons.visible = !next;
+      if (state.valenceElectrons) state.valenceElectrons.visible = !next;
+    }
     state.camera.position.set(0, .3, next ? 4.1 : viewingDistance(state, element));
     state.dirty = true;
     if (next) { setSelected("nucleus"); setGuideOpen(true); }
@@ -418,11 +474,12 @@ export function AtomViewer({
   const reset = () => {
     const state = stateRef.current;
     if (!state) return;
-    setShellsVisible(true); setNucleusFocus(false); setValenceFocus(false); setSelected(null); setGuideOpen(false);
+    setViewMode("bohr"); setActiveSubshell("all"); setShellsVisible(true); setNucleusFocus(false); setValenceFocus(false); setSelected(null); setGuideOpen(false);
     state.atom.rotation.set(-.12, -.2, .03);
     state.shells.forEach((shell) => { shell.visible = true; });
     if (state.innerElectrons) state.innerElectrons.visible = true;
     if (state.valenceElectrons) state.valenceElectrons.visible = true;
+    state.orbitalMeshes.forEach((mesh) => { mesh.visible = false; });
     state.camera.position.set(0, .55, viewingDistance(state, element));
     state.controls.target.set(0, 0, 0);
     state.dirty = true;
@@ -431,7 +488,9 @@ export function AtomViewer({
   const tools = [
     { label: "Rotate", icon: RotateCcw, active: autoRotate, action: () => onAutoRotate(!autoRotate) },
     { label: "Zoom", icon: Search, active: false, action: zoom },
-    { label: "Shells", icon: Orbit, active: shellsVisible, action: () => setShellsVisible((value) => !value) },
+    { label: viewMode === "bohr" ? "Shells" : "Orbitals", icon: Orbit, active: viewMode === "bohr" ? shellsVisible : true, action: () => {
+      if (viewMode === "bohr") setShellsVisible((value) => !value);
+    } },
     { label: "Nucleus", icon: Focus, active: nucleusFocus, action: focusNucleus },
     { label: "Valence", icon: CircleDot, active: valenceFocus, action: () => { setValenceFocus((value) => !value); setSelected("valence"); setGuideOpen(true); } },
     { label: "Compare", icon: GitCompareArrows, active: compareActive, action: onCompare },
@@ -441,7 +500,66 @@ export function AtomViewer({
   return (
     <section className="viewer-shell" aria-label={`${element.name} interactive atomic viewer`}>
       <div className="viewer-aura" style={{ "--element-color": element.cpkColor } as React.CSSProperties} />
+
+      {/* Model View Mode Switcher Header */}
+      <div className="viewer-view-switcher" role="tablist" aria-label="Atomic model representation">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewMode === "bohr"}
+          className={`switcher-btn ${viewMode === "bohr" ? "active" : ""}`}
+          onClick={() => setViewMode("bohr")}
+        >
+          <Orbit size={15} /> <span>Bohr Shells</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewMode === "orbital"}
+          className={`switcher-btn ${viewMode === "orbital" ? "active" : ""}`}
+          onClick={() => { setViewMode("orbital"); setSelected("orbitals"); }}
+        >
+          <Layers size={15} /> <span>Quantum Orbitals (s,p,d,f)</span>
+        </button>
+      </div>
+
       <div className="atom-mount" ref={mountRef}>{fallback && <FallbackAtom element={element} />}</div>
+
+      {/* Subshell Chips & Legend overlay when in Orbital Mode */}
+      {viewMode === "orbital" && (
+        <div className="orbital-bar" aria-label="Quantum subshell orbital selector">
+          <div className="subshell-chips">
+            <button
+              type="button"
+              className={`chip ${activeSubshell === "all" ? "active" : ""}`}
+              onClick={() => setActiveSubshell("all")}
+            >
+              All subshells
+            </button>
+            {subshells.map((s) => (
+              <button
+                key={s.label}
+                type="button"
+                className={`chip subshell-${s.type} ${activeSubshell === s.label ? "active" : ""}`}
+                onClick={() => setActiveSubshell(s.label)}
+                style={{ "--subshell-color": SUBSHELL_COLORS[s.type].hex } as React.CSSProperties}
+              >
+                <i className="chip-dot" /> {s.label} <sup>{s.electrons}</sup>
+              </button>
+            ))}
+          </div>
+
+          <div className="orbital-legend">
+            {Object.entries(SUBSHELL_COLORS).map(([type, info]) => (
+              <span key={type} className="legend-item">
+                <i style={{ backgroundColor: info.hex }} />
+                {info.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="viewer-tools" aria-label="Atomic viewer tools">
         {tools.map(({ label, icon: Icon, active, action }) => (
           <button key={label} type="button" onClick={action} className={active ? "active" : ""} aria-pressed={active} title={label}>
@@ -449,15 +567,26 @@ export function AtomViewer({
           </button>
         ))}
       </div>
-      <aside className="viewer-tip"><span><Info size={14} /> Model note</span><p>Shell paths and particle spacing are simplified—not physical scale.</p></aside>
+
+      <aside className="viewer-tip">
+        <span><Info size={14} /> Model note</span>
+        <p>
+          {viewMode === "bohr"
+            ? "Bohr shell orbits show particle counts—not quantum orbital probability shapes."
+            : `Quantum cloud density represents |ψ|² electron probability distributions for ${element.electronConfiguration}.`}
+        </p>
+      </aside>
+
       <aside className={`structure-guide ${guideOpen ? "open" : ""}`} onKeyDown={(event) => { if (event.key === "Escape") { setGuideOpen(false); setSelected(null); } }}>
         {!guideOpen ? (
-          <button className="structure-guide-toggle" onClick={() => { setGuideOpen(true); setSelected("nucleus"); }} aria-expanded="false" aria-controls="structure-guide-panel"><BookOpen size={14} /> Structure guide</button>
+          <button className="structure-guide-toggle" onClick={() => { setGuideOpen(true); setSelected(viewMode === "orbital" ? "orbitals" : "nucleus"); }} aria-expanded="false" aria-controls="structure-guide-panel">
+            <BookOpen size={14} /> Structure guide
+          </button>
         ) : (
           <div id="structure-guide-panel">
             <header><span><BookOpen size={14} /> Structure guide</span><button onClick={() => { setGuideOpen(false); setSelected(null); }} aria-label="Close structure guide"><X size={15} /></button></header>
             <div className="structure-options" role="tablist" aria-label="Atomic structure details">
-              {(["nucleus", "proton", "neutron", "electron", "valence"] as StructureKey[]).filter((key) => key !== "neutron" || (element.neutrons ?? 0) > 0).map((key) => (
+              {(["nucleus", "proton", "neutron", "electron", "valence", "orbitals"] as StructureKey[]).filter((key) => key !== "neutron" || (element.neutrons ?? 0) > 0).map((key) => (
                 <button key={key} role="tab" aria-selected={selected === key} className={`${key} ${selected === key ? "active" : ""}`} onClick={() => setSelected(key)}>{structureCopy[key].label}</button>
               ))}
             </div>
@@ -465,9 +594,14 @@ export function AtomViewer({
           </div>
         )}
       </aside>
-      <div className="viewer-caption"><span>Simplified shell model</span><strong>{element.shells.join(" · ")} electrons</strong></div>
+
+      <div className="viewer-caption">
+        <span>{viewMode === "bohr" ? "Simplified shell model" : "Quantum subshell configuration"}</span>
+        <strong>{viewMode === "bohr" ? `${element.shells.join(" · ")} electrons` : element.electronConfiguration}</strong>
+      </div>
       <button className="auto-rotate" onClick={() => onAutoRotate(!autoRotate)} aria-pressed={autoRotate}><RotateCcw size={14} /> Auto rotate <span className={autoRotate ? "switch on" : "switch"}><i /></span></button>
       <div className="atomic-stamp"><small>{element.atomicNumber}</small><b>{element.symbol}</b><span>{element.name}</span></div>
     </section>
   );
 }
+
