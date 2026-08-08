@@ -201,7 +201,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .workspace {
   display: grid;
   gap: 14px;
-  grid-template-columns: 274px minmax(490px, 1fr) 350px;
+  grid-template-columns: 236px minmax(490px, 1fr) 350px;
   margin-top: 14px;
   min-height: 660px;
 }
@@ -224,9 +224,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   box-shadow: 0 10px 32px rgba(35, 58, 56, .035);
 }
 
-.element-library, .reaction-library { display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 19px 14px 14px; }
-.panel-heading { align-items: center; display: flex; gap: 8px; margin: 0 5px 14px; min-height: 28px; }
-.panel-heading > span { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-right: auto; }
+.element-library, .reaction-library { display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 16px 11px 11px; }
+.panel-heading { align-items: center; display: flex; gap: 8px; margin: 0 4px 12px; min-height: 28px; }
+.panel-heading > span { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-right: auto; }
 .panel-heading > button { align-items: center; background: transparent; border: 1px solid transparent; border-radius: 9px; cursor: pointer; display: flex; height: 31px; justify-content: center; width: 31px; }
 .panel-heading > button:hover, .panel-heading > button.active { background: #e6efeb; border-color: #ceddd7; color: var(--teal); }
 .panel-heading > i { align-items: center; background: #e5eee9; border-radius: 99px; display: flex; font-size: 10px; font-style: normal; height: 25px; justify-content: center; width: 25px; }
@@ -240,55 +240,55 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   color: #84908c;
   display: flex;
   gap: 8px;
-  min-height: 42px;
-  padding: 0 12px;
+  min-height: 38px;
+  padding: 0 10px;
 }
 .library-search:focus-within, .table-controls label:focus-within { background: #fff; border-color: var(--teal); }
 .library-search input, .table-controls input { background: none; border: 0; color: var(--ink); min-width: 0; outline: 0; width: 100%; }
 .library-search input::placeholder, .table-controls input::placeholder { color: #9ca6a1; }
 
-.filter-panel { background: #edf1eb; border: 1px solid #dce1d9; border-radius: 13px; display: grid; gap: 7px; grid-template-columns: 1fr 1fr; margin-top: 9px; padding: 9px; }
+.filter-panel { background: #edf1eb; border: 1px solid #dce1d9; border-radius: 13px; display: grid; gap: 6px; grid-template-columns: 1fr 1fr; margin-top: 8px; padding: 7px; }
 .filter-panel select, .filter-panel button, .table-controls select {
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--ink);
   font-size: 11px;
-  min-height: 33px;
-  padding: 0 8px;
+  min-height: 32px;
+  padding: 0 6px;
 }
 .filter-panel button { cursor: pointer; grid-column: 1 / -1; }
 
-.element-count { align-items: center; color: var(--muted); display: flex; font-size: 10px; letter-spacing: .09em; margin: 14px 7px 7px; text-transform: uppercase; }
+.element-count { align-items: center; color: var(--muted); display: flex; font-size: 9px; letter-spacing: .08em; margin: 10px 4px 6px; text-transform: uppercase; }
 .element-count i { font-style: normal; margin-left: auto; opacity: .68; }
 .element-list, .reaction-list { min-height: 0; overflow: auto; scrollbar-color: #c4ccc6 transparent; scrollbar-width: thin; }
 .element-list > button {
   align-items: center;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 13px;
+  border-radius: 11px;
   cursor: pointer;
   display: grid;
-  gap: 10px;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 8px;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
   margin: 1px 0;
-  padding: 7px;
+  padding: 5px 6px;
   text-align: left;
   transition: background .15s, border-color .15s, transform .15s;
   width: 100%;
 }
 .element-list > button:hover { background: #f0f2ec; transform: translateX(2px); }
 .element-list > button.active { background: #e9f1ed; border-color: #c8ded6; }
-.mini-tile { background: color-mix(in srgb, var(--category) 24%, white); border: 1px solid color-mix(in srgb, var(--category) 52%, white); border-radius: 8px; display: grid; height: 42px; padding: 4px 6px; position: relative; width: 42px; }
+.mini-tile { background: color-mix(in srgb, var(--category) 24%, white); border: 1px solid color-mix(in srgb, var(--category) 52%, white); border-radius: 7px; display: grid; height: 38px; padding: 3px 5px; position: relative; width: 38px; }
 .mini-tile small { font-family: var(--font-mono); font-size: 7px; }
-.mini-tile b { align-self: end; font-family: var(--font-display); font-size: 20px; line-height: 1; }
+.mini-tile b { align-self: end; font-family: var(--font-display); font-size: 18px; line-height: 1; }
 .element-list > button > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
-.element-list > button > span:nth-child(2) strong { font-size: 12px; font-weight: 600; }
-.element-list > button > span:nth-child(2) small { color: var(--muted); font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.element-list > button > span:nth-child(2) strong { font-size: 11.5px; font-weight: 600; }
+.element-list > button > span:nth-child(2) small { color: var(--muted); font-size: 8.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .element-list .favorite { color: var(--teal); }
 .no-results { align-items: center; color: var(--muted); display: flex; flex-direction: column; gap: 8px; padding: 50px 12px; text-align: center; }
 .no-results button { background: none; border: 0; color: var(--teal); cursor: pointer; text-decoration: underline; }
-.view-table { align-items: center; background: var(--deep); border: 0; border-radius: 11px; color: #fff; cursor: pointer; display: flex; gap: 8px; justify-content: center; margin-top: 10px; min-height: 42px; padding: 0 12px; }
+.view-table { align-items: center; background: var(--deep); border: 0; border-radius: 11px; color: #fff; cursor: pointer; display: flex; font-size: 12.5px; gap: 6px; justify-content: center; margin-top: 10px; min-height: 38px; padding: 0 10px; }
 .view-table svg:last-child { margin-left: auto; }
 
 .viewer-shell, .reaction-viewer {
@@ -682,7 +682,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .offline-banner svg { color: #9fdbcd; height: 14px; width: 14px; }
 
 @media (max-width: 1450px) {
-  .workspace { grid-template-columns: 245px minmax(450px, 1fr) 320px; }
+  .workspace { grid-template-columns: 215px minmax(450px, 1fr) 320px; }
   .reaction-workspace { grid-template-columns: 240px minmax(500px, 1fr) 315px; }
   .learning-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .learning-cards .curiosity-card { grid-row: span 1; }
@@ -693,7 +693,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .topbar { grid-template-columns: minmax(190px, 1fr) auto minmax(110px, 1fr); }
   .header-action span { display: none; }
   .header-action { justify-content: center; padding: 0; width: 39px; }
-  .workspace { grid-template-columns: 220px minmax(420px, 1fr); }
+  .workspace { grid-template-columns: 195px minmax(420px, 1fr); }
   .info-panel { grid-column: 1 / -1; max-height: none; }
   .reaction-workspace { grid-template-columns: 220px 1fr; }
   .reaction-info { grid-column: 1 / -1; }
