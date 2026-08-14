@@ -60,30 +60,46 @@ export function createElementQuiz(element: ElementRecord): QuizQuestion[] {
     correct: string,
     explanation: string,
   ): QuizQuestion => ({ id, prompt, options, answer: options.indexOf(correct), explanation });
+
   const symbols = seededOptions(element, samePeriod.length >= 4 ? samePeriod : elements, (item) => item.symbol);
   const numbers = seededOptions(element, samePeriod.length >= 4 ? samePeriod : elements, (item) => String(item.atomicNumber));
-  const periods = [element.period, ...[1, 2, 3, 4, 5, 6, 7].filter((value) => value !== element.period).slice(0, 3)]
-    .map(String)
-    .sort();
-  const shells = [element.shells.length, ...[1, 2, 3, 4, 5, 6, 7].filter((value) => value !== element.shells.length).slice(0, 3)]
-    .map(String)
-    .sort();
-  const categoryPool = [
-    element.categoryLabel,
-    ...categories
-      .map(([value, label]) => ({ value, label }))
-      .filter(({ value }) => value !== element.category)
-      .sort((a, b) => a.label.localeCompare(b.label))
-      .slice(0, 3)
-      .map(({ label }) => label),
+
+  // Proximity-based period options (e.g. 5, 7, 4 for period 6)
+  const periodCandidates = [1, 2, 3, 4, 5, 6, 7]
+    .filter((p) => p !== element.period)
+    .sort((a, b) => Math.abs(a - element.period) - Math.abs(b - element.period));
+  const periodValues = [element.period, ...periodCandidates.slice(0, 3)].map(String);
+  const periodRotation = element.atomicNumber % periodValues.length;
+  const periods = [...periodValues.slice(periodRotation), ...periodValues.slice(0, periodRotation)];
+
+  // Proximity-based shell count options
+  const shellCount = element.shells.length;
+  const shellCandidates = [1, 2, 3, 4, 5, 6, 7]
+    .filter((s) => s !== shellCount)
+    .sort((a, b) => Math.abs(a - shellCount) - Math.abs(b - shellCount));
+  const shellValues = [shellCount, ...shellCandidates.slice(0, 3)].map(String);
+  const shellRotation = (element.atomicNumber + 1) % shellValues.length;
+  const shells = [...shellValues.slice(shellRotation), ...shellValues.slice(0, shellRotation)];
+
+  // Diverse category distractors varying across atomic numbers
+  const otherCategories = categories
+    .filter(([value]) => value !== element.category && value !== "unknown")
+    .map(([, label]) => label);
+  const seededCategoryOffset = element.atomicNumber % otherCategories.length;
+  const categoryDistractors = [
+    otherCategories[seededCategoryOffset],
+    otherCategories[(seededCategoryOffset + 3) % otherCategories.length],
+    otherCategories[(seededCategoryOffset + 6) % otherCategories.length],
   ];
+  const categoryPool = [element.categoryLabel, ...categoryDistractors];
   const categoryRotation = element.atomicNumber % categoryPool.length;
   const categoriesForQuiz = [...categoryPool.slice(categoryRotation), ...categoryPool.slice(0, categoryRotation)];
+
   return [
     question("symbol", `What is the symbol for ${element.name}?`, symbols, element.symbol, `${element.name} uses the symbol ${element.symbol}.`),
     question("number", `What is ${element.name}’s atomic number?`, numbers, String(element.atomicNumber), `Atomic number ${element.atomicNumber} means every ${element.name.toLowerCase()} atom has ${element.atomicNumber} protons.`),
     question("period", `Which period contains ${element.name}?`, periods, String(element.period), `${element.name} appears in period ${element.period}.`),
-    question("shells", `How many occupied electron shells are shown for ${element.name}?`, shells, String(element.shells.length), `Its shell distribution is ${element.shells.join("–")}.`),
+    question("shells", `How many occupied electron shells are shown for ${element.name}?`, shells, String(element.shells.length), `${element.name} has ${element.shells.length} occupied electron shells (${element.shells.join("–")}).`),
     question("category", `How is ${element.name} classified?`, categoriesForQuiz, element.categoryLabel, `${element.name} is classified as ${element.categoryLabel.toLowerCase()}.`),
   ];
 }

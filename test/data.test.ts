@@ -30,15 +30,25 @@ describe("element snapshot", () => {
     expect(oganesson.neutrons).toBe(176);
   });
 
-  it("generates five answerable questions with unique choices", () => {
-    for (const element of [elements[0], elements[5], elements[78], elements[117]]) {
+  it("generates five answerable questions with 4 unique choices for all 118 elements", () => {
+    for (const element of elements) {
       const quiz = createElementQuiz(element);
       expect(quiz).toHaveLength(5);
       for (const question of quiz) {
-        expect(new Set(question.options).size).toBe(question.options.length);
+        expect(question.options).toHaveLength(4);
+        expect(new Set(question.options).size).toBe(4);
         expect(question.answer).toBeGreaterThanOrEqual(0);
-        expect(question.answer).toBeLessThan(question.options.length);
+        expect(question.answer).toBeLessThan(4);
+        expect(question.explanation.length).toBeGreaterThan(10);
       }
+      // Period question verification
+      const periodQ = quiz.find((q) => q.id === "period")!;
+      expect(periodQ.options[periodQ.answer]).toBe(String(element.period));
+
+      // Shells question verification
+      const shellQ = quiz.find((q) => q.id === "shells")!;
+      expect(shellQ.options[shellQ.answer]).toBe(String(element.shells.length));
+      expect(shellQ.explanation).toContain(`${element.shells.length} occupied electron shells`);
     }
   });
 });

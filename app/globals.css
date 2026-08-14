@@ -460,6 +460,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .period-label { align-self: center; color: var(--muted); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
 .lanthanoid-label { grid-column: 1 / 3; grid-row: 9; }
 .actinoid-label { grid-column: 1 / 3; grid-row: 10; }
+.periodic-grid > .fblock-anchor-marker { align-content: center; background: rgba(22, 50, 51, .04); border: 1px dashed var(--line); border-radius: 8px; cursor: pointer; display: grid; padding: 4px; text-align: center; transition: background .15s, border-color .15s; }
+.periodic-grid > .fblock-anchor-marker:hover { background: rgba(22, 50, 51, .09); border-color: var(--muted); }
+.periodic-grid > .fblock-anchor-marker small { color: var(--muted); font-family: var(--font-mono); font-size: 7.5px; }
+.periodic-grid > .fblock-anchor-marker b { color: var(--ink); font-family: var(--font-display); font-size: 13px; line-height: 1; }
+.periodic-grid > .fblock-anchor-marker span { color: var(--muted); font-size: 6.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .category-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 15px; }
 .category-legend button { align-items: center; background: none; border: 0; border-radius: 99px; color: var(--muted); cursor: pointer; display: flex; font-size: 9px; gap: 5px; padding: 5px 7px; }
 .category-legend button.active { background: #e5ece7; color: var(--ink); }
@@ -474,6 +479,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .periodic-dialog .periodic-grid button small { font-size: clamp(5px, .55cqw, 7px); }
 .periodic-dialog .periodic-grid button b { font-size: clamp(8px, 1.5cqw, 22px); }
 .periodic-dialog .periodic-grid button span { font-size: clamp(5px, .5cqw, 6.5px); }
+.periodic-dialog .periodic-grid > .fblock-anchor-marker { padding: clamp(1px, .35cqw, 4px); }
+.periodic-dialog .periodic-grid .fblock-anchor-marker small { font-size: clamp(5px, .55cqw, 6.5px); }
+.periodic-dialog .periodic-grid .fblock-anchor-marker b { font-size: clamp(7px, 1.1cqw, 13px); }
+.periodic-dialog .periodic-grid .fblock-anchor-marker span { font-size: clamp(4.5px, .45cqw, 6px); }
 .periodic-dialog .category-legend { flex: 0 0 auto; margin-top: 8px; }
 .periodic-scroll-hint { display: none; }
 
@@ -568,6 +577,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .compare-values span { color: #abc1bd; font-size: 8px; }
 .compare-values b { color: #fff; display: block; font-family: var(--font-mono); font-size: 9px; margin-top: 2px; }
 .compare-values span:last-child { text-align: right; }
+.compare-values i[data-element] { border-radius: 50%; display: inline-block; height: 6px; vertical-align: middle; width: 6px; }
+.compare-values i[data-element="primary"] { background: #82cfc3; margin-right: 4px; }
+.compare-values i[data-element="secondary"] { background: #d6b45b; margin-left: 4px; }
 .compare-bars { display: grid; gap: 3px; }
 .compare-bars > i { border-radius: 99px; display: block; height: 4px; }
 .compare-bars > i[data-element="primary"] { background: #82cfc3; }

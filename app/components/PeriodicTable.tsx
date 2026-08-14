@@ -58,6 +58,28 @@ export function PeriodicTable({ selected, onSelect, onClose }: { selected: numbe
       <div className="periodic-scroll" ref={scrollRef}>
         <div className="periodic-grid" role="grid" aria-label="Periodic table of elements" aria-describedby="periodic-scroll-hint">
           <span className="period-label lanthanoid-label">Lanthanoids</span><span className="period-label actinoid-label">Actinoids</span>
+          <button
+            type="button"
+            className="fblock-anchor-marker"
+            style={{ gridColumn: 3, gridRow: 7 }}
+            onClick={() => setCategory(category === "lanthanoid" ? "all" : "lanthanoid")}
+            aria-label="Lanthanoids series 57 to 71"
+          >
+            <small>57–71</small>
+            <b>La–Lu</b>
+            <span>Lanthanoids</span>
+          </button>
+          <button
+            type="button"
+            className="fblock-anchor-marker"
+            style={{ gridColumn: 3, gridRow: 8 }}
+            onClick={() => setCategory(category === "actinoid" ? "all" : "actinoid")}
+            aria-label="Actinoids series 89 to 103"
+          >
+            <small>89–103</small>
+            <b>Ac–Lr</b>
+            <span>Actinoids</span>
+          </button>
           {elements.map((element) => {
             const position = elementGridPosition(element);
             const matches = visible.has(element.atomicNumber);

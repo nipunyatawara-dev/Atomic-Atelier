@@ -81,7 +81,7 @@ export const SUBSHELL_COLORS: Record<SubshellType, { main: number; hex: string; 
 };
 
 /**
- * Parses an electron configuration string (e.g. "[Ne] 3s² 3p²" or "1s² 2s² 2p⁶")
+ * Parses an electron configuration string (e.g. "[Ne] 3s² 3p²", "[He]2s1", or "1s² 2s² 2p⁶")
  * into a structured array of occupied subshells.
  */
 export function parseElectronConfiguration(configStr: string, element?: ElementRecord): SubshellInfo[] {
@@ -89,8 +89,14 @@ export function parseElectronConfiguration(configStr: string, element?: ElementR
     return fallbackSubshellsFromShells(element);
   }
 
+  // Normalize tokens: ensure spaces around noble gas cores and subshell definitions
+  const normalized = configStr
+    .replace(/(\[[A-Za-z]+\])/g, " $1 ")
+    .replace(/([1-7][spdf])([0-9²³⁴⁵⁶⁷⁸⁹⁰¹]+)?/gi, " $1$2 ")
+    .trim();
+
   const subshells: SubshellInfo[] = [];
-  const parts = configStr.trim().split(/\s+/);
+  const parts = normalized.split(/\s+/).filter(Boolean);
 
   for (const part of parts) {
     if (NOBLE_GAS_CONFIGS[part]) {
@@ -161,13 +167,21 @@ export function subshellRadius(n: number, type: SubshellType): number {
   return 0.9 + (n - 1) * 0.7 + typeOffset;
 }
 
+const pointCloudCache = new Map<string, Float32Array>();
+
 /**
- * Generates point cloud positions for a given subshell orbital cloud.
+ * Generates point cloud positions for a given subshell orbital cloud (cached).
  */
 export function generateOrbitalCloudPoints(
   subshell: SubshellInfo,
   totalPoints = 800,
 ): Float32Array {
+  const cacheKey = `${subshell.label}_${subshell.electrons}_${subshell.maxElectrons}_${totalPoints}`;
+  const cached = pointCloudCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const positions = new Float32Array(totalPoints * 3);
   const rBase = subshellRadius(subshell.n, subshell.type);
   const occupancyRatio = Math.max(0.2, subshell.electrons / subshell.maxElectrons);
@@ -189,6 +203,7 @@ export function generateOrbitalCloudPoints(
     positions[idx++] = 0;
   }
 
+  pointCloudCache.set(cacheKey, positions);
   return positions;
 }
 

@@ -145,10 +145,12 @@ export function AtomViewer({
   const [nucleusFocus, setNucleusFocus] = useState(false);
   const [valenceFocus, setValenceFocus] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("bohr");
+  const viewModeRef = useRef<ViewMode>("bohr");
   const [activeSubshell, setActiveSubshell] = useState<string>("all");
   const [subshells, setSubshells] = useState<SubshellInfo[]>([]);
 
   useEffect(() => { autoRotateRef.current = autoRotate; if (stateRef.current) stateRef.current.dirty = true; }, [autoRotate]);
+  useEffect(() => { viewModeRef.current = viewMode; if (stateRef.current) stateRef.current.dirty = true; }, [viewMode]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -166,7 +168,7 @@ export function AtomViewer({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
     renderer.domElement.tabIndex = 0;
-    renderer.domElement.setAttribute("aria-label", "Interactive atomic model. Drag to rotate, scroll to zoom, switch between Bohr Shells and Quantum Orbitals.");
+    renderer.domElement.setAttribute("aria-label", "Interactive simplified atomic model. Drag to rotate, scroll to zoom, switch between Bohr Shells and Quantum Orbitals.");
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -243,22 +245,25 @@ export function AtomViewer({
       const moving = autoRotateRef.current && !reducedMotionRef.current;
       if (moving) {
         state.atom.rotation.y += delta * 0.18;
-        state.electronData.forEach((electron) => {
-          electron.angle += delta * electron.speed;
-          dummy.position
-            .set(Math.cos(electron.angle) * electron.radius, Math.sin(electron.angle) * electron.radius, 0)
-            .applyQuaternion(electron.orbit);
-          dummy.scale.setScalar(electron.mesh === state.valenceElectrons && valenceFocusRef.current ? 1.42 : 1);
-          dummy.updateMatrix();
-          electron.mesh.setMatrixAt(electron.instance, dummy.matrix);
-        });
-        if (state.innerElectrons) state.innerElectrons.instanceMatrix.needsUpdate = true;
-        if (state.valenceElectrons) state.valenceElectrons.instanceMatrix.needsUpdate = true;
-        state.orbitalMeshes.forEach((mesh) => {
-          if (mesh.visible) {
-            mesh.rotation.y += delta * 0.12;
-          }
-        });
+        if (viewModeRef.current === "bohr") {
+          state.electronData.forEach((electron) => {
+            electron.angle += delta * electron.speed;
+            dummy.position
+              .set(Math.cos(electron.angle) * electron.radius, Math.sin(electron.angle) * electron.radius, 0)
+              .applyQuaternion(electron.orbit);
+            dummy.scale.setScalar(electron.mesh === state.valenceElectrons && valenceFocusRef.current ? 1.42 : 1);
+            dummy.updateMatrix();
+            electron.mesh.setMatrixAt(electron.instance, dummy.matrix);
+          });
+          if (state.innerElectrons) state.innerElectrons.instanceMatrix.needsUpdate = true;
+          if (state.valenceElectrons) state.valenceElectrons.instanceMatrix.needsUpdate = true;
+        } else {
+          state.orbitalMeshes.forEach((mesh) => {
+            if (mesh.visible) {
+              mesh.rotation.y += delta * 0.12;
+            }
+          });
+        }
         state.dirty = true;
       }
       if (controls.update(delta)) state.dirty = true;
