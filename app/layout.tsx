@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Mono, DM_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { PWAProvider } from "./components/PWAClient";
 import "./globals.css";
 
@@ -63,7 +64,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`} data-scroll-behavior="smooth">
-      <body><PWAProvider>{children}</PWAProvider></body>
+      <body>
+        <PWAProvider>{children}</PWAProvider>
+        <Analytics />
+      </body>
     </html>
   );
 }
