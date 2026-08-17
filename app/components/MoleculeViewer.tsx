@@ -214,14 +214,25 @@ export function MoleculeViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneStateRef = useRef<SceneState | null>(null);
   const autoRotateRef = useRef(autoRotate);
+  const onAngleMeasuredRef = useRef(onAngleMeasured);
 
   useEffect(() => {
     autoRotateRef.current = autoRotate;
   }, [autoRotate]);
 
+  useEffect(() => {
+    onAngleMeasuredRef.current = onAngleMeasured;
+  }, [onAngleMeasured]);
+
   const [selectedAtoms, setSelectedAtoms] = useState<MoleculeAtom[]>([]);
   const [hoveredAtom, setHoveredAtom] = useState<MoleculeAtom | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+
+  const [prevKey, setPrevKey] = useState(`${molecule.slug}:${measureMode}`);
+  if (prevKey !== `${molecule.slug}:${measureMode}`) {
+    setPrevKey(`${molecule.slug}:${measureMode}`);
+    setSelectedAtoms([]);
+  }
 
   // Initialize Three.js Scene
   useEffect(() => {
@@ -423,7 +434,7 @@ export function MoleculeViewer({
       const c = selectedAtoms[2].position;
 
       const angle = calculateAngleDegrees(a, b, c);
-      onAngleMeasured?.(angle, selectedAtoms);
+      onAngleMeasuredRef.current?.(angle, selectedAtoms);
 
       // Draw connecting lines and apex arc
       const pA = new THREE.Vector3(...a);
@@ -436,9 +447,9 @@ export function MoleculeViewer({
       line.computeLineDistances();
       state.measureGroup.add(line);
     } else {
-      onAngleMeasured?.(null, selectedAtoms);
+      onAngleMeasuredRef.current?.(null, selectedAtoms);
     }
-  }, [selectedAtoms, onAngleMeasured]);
+  }, [selectedAtoms]);
 
   // Click & Pointer Interaction (Raycasting)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {

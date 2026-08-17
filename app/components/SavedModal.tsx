@@ -12,12 +12,14 @@ import {
   Layers,
   Smartphone,
   Trophy,
+  TrendingUp,
 } from "lucide-react";
 import { Dialog } from "./Dialog";
 import { usePWA } from "./PWAClient";
 import { elementByNumber, elements } from "../lib/elements";
 import { reactionBySlug, reactions } from "../lib/reactions";
 import { curatedMolecules, moleculeBySlug } from "../lib/molecules";
+import { TREND_PROPERTIES } from "../lib/trends";
 import type { ElementRecord, MoleculeRecord, ProgressV1 } from "../lib/types";
 
 function percent(value: number, total: number) {
@@ -80,6 +82,7 @@ export function SavedModal({
         <div className="continue-grid">
           <button onClick={() => openElement(lastElement)} data-category={lastElement.category}><Atom /><span><small>Resume explorer</small><b>{lastElement.name}</b><em>{lastElement.symbol} · element {lastElement.atomicNumber}</em></span><ArrowRight /></button>
           <Link href={`/molecules?molecule=${safeProgress.lastMolecule ?? "water"}`} onClick={onClose}><Layers /><span><small>Explore 3D geometry</small><b>{moleculeBySlug.get(safeProgress.lastMolecule ?? "water")?.name ?? "Molecules"}</b><em>VSEPR Studio</em></span><ArrowRight /></Link>
+          <Link href={`/trends?property=${safeProgress.lastTrend ?? "electronegativity"}`} onClick={onClose}><TrendingUp /><span><small>Explore trends</small><b>Periodic Trends</b><em>3D Elevation Matrix</em></span><ArrowRight /></Link>
           <Link href={`/reactions?reaction=${nextReaction.slug}`} onClick={onClose}><FlaskConical /><span><small>{safeProgress.completedReactions.includes(nextReaction.slug) ? "Practice again" : "Next reaction"}</small><b>{nextReaction.title}</b><em>{nextReaction.type}</em></span><ArrowRight /></Link>
         </div>
       </section>
@@ -87,6 +90,7 @@ export function SavedModal({
       <section className="progress-overview" aria-label="Progress overview">
         <article><header><Atom /><span><b>{safeProgress.exploredElements.length}</b> / 118</span></header><strong>Elements explored</strong><i><span style={{ width: `${percent(safeProgress.exploredElements.length, 118)}%` }} /></i><small>{percent(safeProgress.exploredElements.length, 118)}% of the table</small></article>
         <article><header><Layers /><span><b>{(safeProgress.exploredMolecules ?? []).length}</b> / {curatedMolecules.length}</span></header><strong>Molecules explored</strong><i><span style={{ width: `${percent((safeProgress.exploredMolecules ?? []).length, curatedMolecules.length)}%` }} /></i><small>VSEPR 3D structures</small></article>
+        <article><header><TrendingUp /><span><b>{(safeProgress.exploredTrends ?? []).length}</b> / {TREND_PROPERTIES.length}</span></header><strong>Trends mapped</strong><i><span style={{ width: `${percent((safeProgress.exploredTrends ?? []).length, TREND_PROPERTIES.length)}%` }} /></i><small>Heatmaps & 3D matrices</small></article>
         <article><header><FlaskConical /><span><b>{safeProgress.completedReactions.length}</b> / {reactions.length}</span></header><strong>Reactions balanced</strong><i><span style={{ width: `${percent(safeProgress.completedReactions.length, reactions.length)}%` }} /></i><small>{reactions.length - safeProgress.completedReactions.length} still to explore</small></article>
         <article><header><Trophy /><span><b>{quizAverage || "—"}</b>{quizAverage ? "%" : ""}</span></header><strong>Quiz average</strong><i><span style={{ width: `${quizAverage}%` }} /></i><small>{scores.length} knowledge check{scores.length === 1 ? "" : "s"}</small></article>
       </section>

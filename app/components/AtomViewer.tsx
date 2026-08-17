@@ -148,6 +148,24 @@ export function AtomViewer({
   const viewModeRef = useRef<ViewMode>("bohr");
   const [activeSubshell, setActiveSubshell] = useState<string>("all");
   const [subshells, setSubshells] = useState<SubshellInfo[]>([]);
+  const [tipOpen, setTipOpen] = useState(false);
+  const tipRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!tipOpen) return;
+    const closeFromOutside = (event: PointerEvent) => {
+      if (!tipRef.current?.contains(event.target as Node)) setTipOpen(false);
+    };
+    const closeFromEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setTipOpen(false);
+    };
+    document.addEventListener("pointerdown", closeFromOutside);
+    document.addEventListener("keydown", closeFromEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeFromOutside);
+      document.removeEventListener("keydown", closeFromEscape);
+    };
+  }, [tipOpen]);
 
   useEffect(() => { autoRotateRef.current = autoRotate; if (stateRef.current) stateRef.current.dirty = true; }, [autoRotate]);
   useEffect(() => { viewModeRef.current = viewMode; if (stateRef.current) stateRef.current.dirty = true; }, [viewMode]);
@@ -573,14 +591,28 @@ export function AtomViewer({
         ))}
       </div>
 
-      <aside className="viewer-tip">
-        <span><Info size={14} /> Model note</span>
-        <p>
-          {viewMode === "bohr"
-            ? "Bohr shell orbits show particle counts—not quantum orbital probability shapes."
-            : `Quantum cloud density represents |ψ|² electron probability distributions for ${element.electronConfiguration}.`}
-        </p>
-      </aside>
+      <div className="viewer-tip" ref={tipRef}>
+        <button
+          type="button"
+          className={`viewer-tip-trigger ${tipOpen ? "active" : ""}`}
+          onClick={() => setTipOpen((value) => !value)}
+          aria-expanded={tipOpen}
+          aria-label="Toggle model note tooltip"
+        >
+          <Info size={13} />
+          <span>Model note</span>
+        </button>
+        <div className={`viewer-tip-popover ${tipOpen ? "open" : ""}`} role="tooltip">
+          <span className="viewer-tip-title">
+            <Info size={12} /> Model note
+          </span>
+          <p>
+            {viewMode === "bohr"
+              ? "Bohr shell orbits show particle counts—not quantum orbital probability shapes."
+              : `Quantum cloud density represents |ψ|² electron probability distributions for ${element.electronConfiguration}.`}
+          </p>
+        </div>
+      </div>
 
       <aside className={`structure-guide ${guideOpen ? "open" : ""}`} onKeyDown={(event) => { if (event.key === "Escape") { setGuideOpen(false); setSelected(null); } }}>
         {!guideOpen ? (

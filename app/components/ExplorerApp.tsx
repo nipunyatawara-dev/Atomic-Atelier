@@ -285,7 +285,21 @@ export function ExplorerApp() {
       <section className="learning-cards" aria-label={`${element.name} learning resources`}>
         <article className="curiosity-card"><Atom /><p>Everything begins<br />with particles.</p><em>Keep questioning!</em></article>
         <article><header><div><em>Atomic structure</em><h3>{element.shells.join("–")} shell distribution</h3></div><Atom /></header><div className="card-visual shell-visual">{element.shells.map((count, index) => <i key={index} style={{ width: `${44 + index * 18}px`, height: `${44 + index * 18}px` }}><b>{count}</b></i>)}<strong>{element.symbol}</strong></div><button onClick={() => setQuizOpen(true)}>Test this structure <ArrowRight /></button></article>
-        <article><header><div><em>Periodic trend</em><h3>{element.name} vs. {neighbor.name}</h3></div><TrendingUp /></header><div className="card-visual trend-visual"><span><b>{element.symbol}</b><small>{formatValue(element.electronegativity)}</small></span><i>→</i><span><b>{neighbor.symbol}</b><small>{formatValue(neighbor.electronegativity)}</small></span></div><button onClick={() => changeCompare(neighbor)}>Compare properties <ArrowRight /></button></article>
+        <article>
+          <header>
+            <div><em>Periodic trend</em><h3>{element.name} vs. {neighbor.name}</h3></div>
+            <TrendingUp />
+          </header>
+          <div className="card-visual trend-visual">
+            <span><b>{element.symbol}</b><small>{formatValue(element.electronegativity)}</small></span>
+            <i>→</i>
+            <span><b>{neighbor.symbol}</b><small>{formatValue(neighbor.electronegativity)}</small></span>
+          </div>
+          <div className="card-actions-split">
+            <button onClick={() => changeCompare(neighbor)}>Compare properties <ArrowRight /></button>
+            <Link href={`/trends?property=electronegativity&element=${element.slug}`}>Open Trends 3D Studio <ArrowRight /></Link>
+          </div>
+        </article>
         <article><header><div><em>Compounds & 3D Shapes</em><h3>How it combines</h3></div><Boxes /></header><p className="resource-copy">{element.compounds}</p>{relatedMolecule ? <Link href={`/molecules?molecule=${relatedMolecule.slug}`}>Explore {relatedMolecule.name} ({relatedMolecule.formula}) in 3D <ArrowRight /></Link> : <Link href="/molecules">Open Molecule Studio <ArrowRight /></Link>}</article>
         <article><header><div><em>Uses & occurrence</em><h3>Where it matters</h3></div><Beaker /></header><p className="resource-copy">{element.uses}</p><button onClick={() => setSavedOpen(true)}>Save for later <ArrowRight /></button></article>
         <article><header><div><em>History</em><h3>{element.yearDiscovered ?? "A continuing story"}</h3></div><History /></header><p className="resource-copy">{element.history}</p><button onClick={() => setTableOpen(true)}>Place it in the table <ArrowRight /></button></article>

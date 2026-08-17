@@ -68,6 +68,8 @@ export function sanitizeProgress(value: unknown): ProgressV1 {
     exploredMolecules: strings(record.exploredMolecules).length ? strings(record.exploredMolecules) : ["water"],
     favoriteMolecules: strings(record.favoriteMolecules),
     lastMolecule: typeof record.lastMolecule === "string" ? record.lastMolecule : "water",
+    exploredTrends: strings(record.exploredTrends).length ? strings(record.exploredTrends) : ["electronegativity"],
+    lastTrend: typeof record.lastTrend === "string" ? record.lastTrend : "electronegativity",
   };
 }
 
@@ -160,6 +162,17 @@ export function useProgress() {
     update((current) => ({ ...current, lastReaction: slug }));
   }, [update]);
 
+  const visitTrend = useCallback((propertyId: string) => {
+    update((current) => {
+      const explored = current.exploredTrends ?? [];
+      return {
+        ...current,
+        lastTrend: propertyId,
+        exploredTrends: explored.includes(propertyId) ? explored : [...explored, propertyId],
+      };
+    });
+  }, [update]);
+
   const setAutoRotate = useCallback((autoRotate: boolean) => update((current) => ({ ...current, autoRotate })), [update]);
 
   return {
@@ -168,6 +181,7 @@ export function useProgress() {
     visitElement,
     visitReaction,
     visitMolecule,
+    visitTrend,
     toggleFavorite,
     toggleFavoriteMolecule,
     recordQuiz,

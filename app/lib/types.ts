@@ -71,6 +71,52 @@ export type ProgressV1 = {
   exploredMolecules?: string[];
   favoriteMolecules?: string[];
   lastMolecule?: string;
+  exploredTrends?: string[];
+  lastTrend?: string;
+};
+
+export type TrendPropertyId =
+  | "electronegativity"
+  | "atomicRadius"
+  | "ionizationEnergy"
+  | "electronAffinity"
+  | "meltingPoint"
+  | "boilingPoint"
+  | "density"
+  | "valenceElectrons"
+  | "atomicMass";
+
+export type TrendPaletteId = "viridis" | "magma" | "spectral" | "sunset" | "emerald";
+
+export type TrendViewMode = "elevation-3d" | "heatmap-2d" | "graphs" | "anomalies";
+
+export type TrendAnomaly = {
+  id: string;
+  title: string;
+  subtitle: string;
+  property: TrendPropertyId;
+  elementsInvolved: number[];
+  explanation: string;
+  principle: string;
+  keyObservation: string;
+};
+
+export type TrendPropertyDefinition = {
+  id: TrendPropertyId;
+  name: string;
+  shortName: string;
+  unit: string;
+  symbol: string;
+  description: string;
+  periodRule: string;
+  groupRule: string;
+  underlyingPhysics: string;
+  min: number;
+  max: number;
+  scaleType: "linear" | "log";
+  defaultPalette: TrendPaletteId;
+  accessor: (e: ElementRecord) => number | null;
+  format: (val: number | null) => string;
 };
 
 export type SpeciesRecord = {

@@ -105,6 +105,24 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
   const reactantRef = useRef(reactantCoefficients);
   const productRef = useRef(productCoefficients);
   const [fallback, setFallback] = useState(false);
+  const [tipOpen, setTipOpen] = useState(false);
+  const tipRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!tipOpen) return;
+    const closeFromOutside = (event: PointerEvent) => {
+      if (!tipRef.current?.contains(event.target as Node)) setTipOpen(false);
+    };
+    const closeFromEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setTipOpen(false);
+    };
+    document.addEventListener("pointerdown", closeFromOutside);
+    document.addEventListener("keydown", closeFromEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeFromOutside);
+      document.removeEventListener("keydown", closeFromEscape);
+    };
+  }, [tipOpen]);
 
   useEffect(() => { reactionRef.current = reaction; reactantRef.current = reactantCoefficients; productRef.current = productCoefficients; }, [reaction, reactantCoefficients, productCoefficients]);
 
@@ -200,7 +218,24 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
   return (
     <section className="reaction-viewer" aria-label={`${reaction.title} particle viewer`}>
       <div ref={mountRef} className="reaction-mount">{fallback && <div className="reaction-fallback" role="img" aria-label={`Schematic formula view for ${reaction.title}`}>{(side === "reactants" ? reaction.reactants : reaction.products).map((item) => <span key={item.formula}><b>{item.formula}</b><small>{item.label} · {item.representation}</small></span>)}</div>}</div>
-      <aside className="viewer-tip"><span><Info size={14} /> Schematic</span><p>Particles are rearranged for counting—not a reaction mechanism.</p></aside>
+      <div className="viewer-tip" ref={tipRef}>
+        <button
+          type="button"
+          className={`viewer-tip-trigger ${tipOpen ? "active" : ""}`}
+          onClick={() => setTipOpen((value) => !value)}
+          aria-expanded={tipOpen}
+          aria-label="Toggle schematic info tooltip"
+        >
+          <Info size={13} />
+          <span>Schematic</span>
+        </button>
+        <div className={`viewer-tip-popover ${tipOpen ? "open" : ""}`} role="tooltip">
+          <span className="viewer-tip-title">
+            <Info size={12} /> Schematic
+          </span>
+          <p>Particles are rearranged for counting—not a reaction mechanism.</p>
+        </div>
+      </div>
       <div className="reaction-side"><small>Viewing</small><strong>{side}</strong></div>
       <div className="representation-legend">{(side === "reactants" ? reaction.reactants : reaction.products).map((item) => <span key={`${side}-${item.formula}`}><b>{item.formula}</b>{item.representation === "ions" ? "labeled ion field" : item.representation === "lattice" ? "lattice model" : "ball-and-stick"}</span>)}</div>
       <button className="reaction-reset-view" onClick={() => { const state = stateRef.current; if (!state) return; state.camera.position.set(0, .6, 10); state.controls.target.set(0,0,0); state.root.rotation.set(0,0,0); }}><RotateCcw size={14} /> Reset view</button>

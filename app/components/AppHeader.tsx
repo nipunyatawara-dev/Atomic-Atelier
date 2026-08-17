@@ -11,10 +11,11 @@ import {
   Grid3X3,
   Layers,
   Menu,
+  TrendingUp,
 } from "lucide-react";
 
 type Props = {
-  active: "explore" | "reactions" | "molecules";
+  active: "explore" | "reactions" | "molecules" | "trends";
   onTable: () => void;
   onSaved: () => void;
   mobileContext?: {
@@ -111,6 +112,11 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
                   <span><strong>Molecules & VSEPR</strong><small>3D molecular geometry & builder</small></span>
                   <ArrowUpRight className="nav-item-arrow" />
                 </Link>
+                <Link className={props.active === "trends" ? "current" : ""} href="/trends" onClick={() => setExploreOpen(false)}>
+                  <span className="nav-item-icon"><TrendingUp /></span>
+                  <span><strong>Periodic Trends</strong><small>3D elevation matrix & heatmaps</small></span>
+                  <ArrowUpRight className="nav-item-arrow" />
+                </Link>
                 <button type="button" onClick={() => runAction(props.onTable)}>
                   <span className="nav-item-icon"><Grid3X3 /></span>
                   <span><strong>Periodic table</strong><small>See families and patterns at a glance</small></span>
@@ -123,6 +129,11 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
           <Link className={`nav-link ${props.active === "molecules" ? "active" : ""}`} href="/molecules" onClick={() => setExploreOpen(false)}>
             <Layers aria-hidden="true" />
             <span>Molecules</span>
+          </Link>
+
+          <Link className={`nav-link ${props.active === "trends" ? "active" : ""}`} href="/trends" onClick={() => setExploreOpen(false)}>
+            <TrendingUp aria-hidden="true" />
+            <span>Trends</span>
           </Link>
 
           <Link className={`nav-link ${props.active === "reactions" ? "active" : ""}`} href="/reactions" onClick={() => setExploreOpen(false)}>
@@ -157,6 +168,7 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
       <nav className="mobile-nav" aria-label="Mobile navigation">
         <Link className={props.active === "explore" ? "active" : ""} href="/"><Atom /><span>Explore</span></Link>
         <Link className={props.active === "molecules" ? "active" : ""} href="/molecules"><Layers /><span>Molecules</span></Link>
+        <Link className={props.active === "trends" ? "active" : ""} href="/trends"><TrendingUp /><span>Trends</span></Link>
         <Link className={props.active === "reactions" ? "active" : ""} href="/reactions"><FlaskConical /><span>React</span></Link>
         <button type="button" onClick={props.onTable}><Grid3X3 /><span>Table</span></button>
         <button type="button" onClick={props.onSaved}><Bookmark /><span>Saved</span></button>

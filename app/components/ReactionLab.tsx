@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, X } from "lucide-react";
 import { AppHeader } from "./AppHeader";
 import { PeriodicTable } from "./PeriodicTable";
 import { QuizModal } from "./QuizModal";
@@ -164,7 +164,7 @@ export function ReactionLab() {
             <div className="attempt-tracker" aria-label={`${attempts} checks and ${hintsUsed} hints used`}><span>Checks <b>{attempts}</b></span><span>Hints <b>{hintsUsed}</b></span><em>Start at 100% · −10 per extra check · −15 per hint</em></div>
             {message && <div className={`balance-message ${message.type}`}>{message.type === "success" ? <Check /> : message.type === "hint" ? <Lightbulb /> : <CircleHelp />}<span>{message.text}</span></div>}
           </div>
-          {performance && <section className="reaction-result-card" aria-label="Reaction grade and balancing strategy"><div className="reaction-grade"><Sparkles /><span><small>Your technique grade</small><strong>{performance.score}%</strong><b>{performance.label}</b></span></div><div className="reaction-strategy"><small>Balancing strategy</small><h2>Use the lowest whole-number ratio: {[...reaction.coefficients.reactants, ...reaction.coefficients.products].join(" : ")}</h2><p>Change coefficients only—changing a subscript would create a different substance.</p><ol>{reaction.steps.map((step) => <li key={step}>{step}</li>)}</ol></div></section>}
+          {performance && <section className="reaction-result-card" aria-label="Reaction grade and balancing strategy"><div className="reaction-grade"><span><small>Your technique grade</small><strong>{performance.score}%</strong><b>{performance.label}</b></span></div><div className="reaction-strategy"><small>Balancing strategy</small><h2>Use the lowest whole-number ratio: {[...reaction.coefficients.reactants, ...reaction.coefficients.products].join(" : ")}</h2><p>Change coefficients only—changing a subscript would create a different substance.</p><ol>{reaction.steps.map((step) => <li key={step}>{step}</li>)}</ol></div></section>}
         </section>
 
         <aside className="reaction-info panel">

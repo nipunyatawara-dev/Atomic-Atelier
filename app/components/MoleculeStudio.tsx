@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   Atom,
@@ -16,7 +16,6 @@ import {
   Orbit,
   Plus,
   Search,
-  Sparkles,
   Trash2,
   Wrench,
   X,
@@ -75,6 +74,19 @@ export function MoleculeStudio() {
     angle: null,
     atoms: [],
   });
+
+  const handleAngleMeasured = useCallback((angle: number | null, atoms: MoleculeAtom[]) => {
+    setMeasuredAngle((prev) => {
+      if (
+        prev.angle === angle &&
+        prev.atoms.length === atoms.length &&
+        prev.atoms.every((a, i) => a.id === atoms[i]?.id)
+      ) {
+        return prev;
+      }
+      return { angle, atoms };
+    });
+  }, []);
 
   // Modals & Navigation
   const [builderOpen, setBuilderOpen] = useState(false);
@@ -325,7 +337,7 @@ export function MoleculeStudio() {
               showDipole={showDipole}
               measureMode={measureMode}
               autoRotate={progress.autoRotate}
-              onAngleMeasured={(angle, atoms) => setMeasuredAngle({ angle, atoms })}
+              onAngleMeasured={handleAngleMeasured}
             />
 
             {/* Display Controls Toolbar */}
@@ -421,7 +433,7 @@ export function MoleculeStudio() {
           {/* VSEPR & Geometry Specs Card */}
           <div className="inspector-card vsepr-specs">
             <div className="card-heading">
-              <Sparkles size={16} />
+              <Compass size={16} />
               <h3>VSEPR & Geometry</h3>
               <span className="axe-badge">{currentMolecule.vsepr.axeNotation}</span>
             </div>
@@ -689,7 +701,6 @@ export function MoleculeStudio() {
                 className="btn-primary"
                 onClick={applyCustomMolecule}
               >
-                <Sparkles size={15} />
                 <span>Render in 3D Stage</span>
               </button>
             </div>
