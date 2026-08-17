@@ -14,6 +14,7 @@ import {
   FlaskConical,
   Grid3X3,
   History,
+  Layers,
   Search,
   ShieldAlert,
   SlidersHorizontal,
@@ -28,6 +29,7 @@ import { QuizModal } from "./QuizModal";
 import { SavedModal } from "./SavedModal";
 import { CARBON, categories, categoryLabels, createElementQuiz, elementByNumber, elements, formatValue, resolveElement } from "../lib/elements";
 import { reactions } from "../lib/reactions";
+import { curatedMolecules } from "../lib/molecules";
 import { useProgress } from "../lib/progress";
 import type { ElementCategory, ElementRecord } from "../lib/types";
 
@@ -208,6 +210,7 @@ export function ExplorerApp() {
   };
 
   const relatedReaction = reactions.find((reaction) => reaction.relatedElements.includes(element.atomicNumber));
+  const relatedMolecule = curatedMolecules.find((mol) => mol.relatedElements.includes(element.atomicNumber));
   const neighbor = elementByNumber.get(Math.min(118, element.atomicNumber + 1)) ?? CARBON;
   const filtersActive = Object.values(filters).some((value) => value !== "all");
 
@@ -267,7 +270,14 @@ export function ExplorerApp() {
           </dl>
           <div className="isotope-note"><Atom size={16} /><p><b>Representative nucleus</b>{element.representativeMassNumber ? `${element.symbol}-${element.representativeMassNumber}: ${element.atomicNumber} protons and ${element.neutrons} neutrons.` : "No representative isotope is asserted in the visualization."}</p></div>
           <div className="discovery-note"><History size={15} /><p><b>Discovery</b>{element.yearDiscovered ?? "Date not established"}</p></div>
-          <div className="panel-actions"><button className="primary-button" onClick={() => setQuizOpen(true)}>Take the element quiz <ArrowRight size={16} /></button><button onClick={() => changeCompare(neighbor)}><TrendingUp size={15} /> Compare</button><Link href={relatedReaction ? `/reactions?reaction=${relatedReaction.slug}` : "/reactions"}><FlaskConical size={15} /> Reaction</Link></div>
+          <div className="panel-actions">
+            <button className="primary-button" onClick={() => setQuizOpen(true)}>Take the element quiz <ArrowRight size={16} /></button>
+            <button onClick={() => changeCompare(neighbor)}><TrendingUp size={15} /> Compare</button>
+            {relatedMolecule && (
+              <Link href={`/molecules?molecule=${relatedMolecule.slug}`} title={`Explore ${relatedMolecule.name} in 3D`}><Layers size={15} /> {relatedMolecule.formula}</Link>
+            )}
+            <Link href={relatedReaction ? `/reactions?reaction=${relatedReaction.slug}` : "/reactions"}><FlaskConical size={15} /> Reaction</Link>
+          </div>
           <div className="source-links"><span>Sources</span>{element.sourceRefs.map((source) => <a key={source.label} href={source.url} target="_blank" rel="noreferrer">{source.label}</a>)}</div>
         </aside>
       </div>
@@ -276,7 +286,7 @@ export function ExplorerApp() {
         <article className="curiosity-card"><Atom /><p>Everything begins<br />with particles.</p><em>Keep questioning!</em></article>
         <article><header><div><em>Atomic structure</em><h3>{element.shells.join("–")} shell distribution</h3></div><Atom /></header><div className="card-visual shell-visual">{element.shells.map((count, index) => <i key={index} style={{ width: `${44 + index * 18}px`, height: `${44 + index * 18}px` }}><b>{count}</b></i>)}<strong>{element.symbol}</strong></div><button onClick={() => setQuizOpen(true)}>Test this structure <ArrowRight /></button></article>
         <article><header><div><em>Periodic trend</em><h3>{element.name} vs. {neighbor.name}</h3></div><TrendingUp /></header><div className="card-visual trend-visual"><span><b>{element.symbol}</b><small>{formatValue(element.electronegativity)}</small></span><i>→</i><span><b>{neighbor.symbol}</b><small>{formatValue(neighbor.electronegativity)}</small></span></div><button onClick={() => changeCompare(neighbor)}>Compare properties <ArrowRight /></button></article>
-        <article><header><div><em>Compounds</em><h3>How it combines</h3></div><Boxes /></header><p className="resource-copy">{element.compounds}</p><Link href={relatedReaction ? `/reactions?reaction=${relatedReaction.slug}` : "/reactions"}>See it react <ArrowRight /></Link></article>
+        <article><header><div><em>Compounds & 3D Shapes</em><h3>How it combines</h3></div><Boxes /></header><p className="resource-copy">{element.compounds}</p>{relatedMolecule ? <Link href={`/molecules?molecule=${relatedMolecule.slug}`}>Explore {relatedMolecule.name} ({relatedMolecule.formula}) in 3D <ArrowRight /></Link> : <Link href="/molecules">Open Molecule Studio <ArrowRight /></Link>}</article>
         <article><header><div><em>Uses & occurrence</em><h3>Where it matters</h3></div><Beaker /></header><p className="resource-copy">{element.uses}</p><button onClick={() => setSavedOpen(true)}>Save for later <ArrowRight /></button></article>
         <article><header><div><em>History</em><h3>{element.yearDiscovered ?? "A continuing story"}</h3></div><History /></header><p className="resource-copy">{element.history}</p><button onClick={() => setTableOpen(true)}>Place it in the table <ArrowRight /></button></article>
         <article><header><div><em>Safety context</em><h3>Form and exposure matter</h3></div><ShieldAlert /></header><p className="resource-copy">{element.safety}</p><a href={element.sourceRefs[0].url} target="_blank" rel="noreferrer">Open source record <ArrowRight /></a></article>

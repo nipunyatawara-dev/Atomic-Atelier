@@ -9,11 +9,12 @@ import {
   ChevronDown,
   FlaskConical,
   Grid3X3,
+  Layers,
   Menu,
 } from "lucide-react";
 
 type Props = {
-  active: "explore" | "reactions";
+  active: "explore" | "reactions" | "molecules";
   onTable: () => void;
   onSaved: () => void;
   mobileContext?: {
@@ -24,11 +25,6 @@ type Props = {
     controls: string;
   };
 };
-
-const actionItems = (props: Props) => [
-  { label: "Periodic table", icon: Grid3X3, action: props.onTable },
-  { label: "Saved", icon: Bookmark, action: props.onSaved },
-];
 
 export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader(props, mobileContextRef) {
   const [exploreOpen, setExploreOpen] = useState(false);
@@ -110,6 +106,11 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
                   <span><strong>Element explorer</strong><small>Inspect all 118 elements in 3D</small></span>
                   <ArrowUpRight className="nav-item-arrow" />
                 </Link>
+                <Link className={props.active === "molecules" ? "current" : ""} href="/molecules" onClick={() => setExploreOpen(false)}>
+                  <span className="nav-item-icon"><Layers /></span>
+                  <span><strong>Molecules & VSEPR</strong><small>3D molecular geometry & builder</small></span>
+                  <ArrowUpRight className="nav-item-arrow" />
+                </Link>
                 <button type="button" onClick={() => runAction(props.onTable)}>
                   <span className="nav-item-icon"><Grid3X3 /></span>
                   <span><strong>Periodic table</strong><small>See families and patterns at a glance</small></span>
@@ -118,6 +119,11 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
               </div>
             </div>
           </div>
+
+          <Link className={`nav-link ${props.active === "molecules" ? "active" : ""}`} href="/molecules" onClick={() => setExploreOpen(false)}>
+            <Layers aria-hidden="true" />
+            <span>Molecules</span>
+          </Link>
 
           <Link className={`nav-link ${props.active === "reactions" ? "active" : ""}`} href="/reactions" onClick={() => setExploreOpen(false)}>
             <FlaskConical aria-hidden="true" />
@@ -150,10 +156,12 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
 
       <nav className="mobile-nav" aria-label="Mobile navigation">
         <Link className={props.active === "explore" ? "active" : ""} href="/"><Atom /><span>Explore</span></Link>
-        {actionItems(props).slice(0, 1).map(({ label, icon: Icon, action }) => <button key={label} type="button" onClick={action}><Icon /><span>Table</span></button>)}
+        <Link className={props.active === "molecules" ? "active" : ""} href="/molecules"><Layers /><span>Molecules</span></Link>
         <Link className={props.active === "reactions" ? "active" : ""} href="/reactions"><FlaskConical /><span>React</span></Link>
-        {actionItems(props).slice(1).map(({ label, icon: Icon, action }) => <button key={label} type="button" onClick={action}><Icon /><span>{label}</span></button>)}
+        <button type="button" onClick={props.onTable}><Grid3X3 /><span>Table</span></button>
+        <button type="button" onClick={props.onSaved}><Bookmark /><span>Saved</span></button>
       </nav>
     </>
   );
 });
+

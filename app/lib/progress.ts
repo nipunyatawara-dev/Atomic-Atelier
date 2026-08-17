@@ -18,6 +18,9 @@ export const defaultProgress: ProgressV1 = {
   lastElement: 6,
   lastReaction: "water-synthesis",
   autoRotate: true,
+  exploredMolecules: ["water"],
+  favoriteMolecules: [],
+  lastMolecule: "water",
 };
 
 export function sanitizeProgress(value: unknown): ProgressV1 {
@@ -26,6 +29,10 @@ export function sanitizeProgress(value: unknown): ProgressV1 {
   const numbers = (items: unknown, max = 118) =>
     Array.isArray(items)
       ? [...new Set(items.filter((item): item is number => Number.isInteger(item) && item >= 1 && item <= max))]
+      : [];
+  const strings = (items: unknown) =>
+    Array.isArray(items)
+      ? [...new Set(items.filter((item): item is string => typeof item === "string" && item.length > 0))]
       : [];
   const recentElements = numbers(record.recentElements).slice(0, 8);
   const lastElement = Number.isInteger(record.lastElement) && record.lastElement! >= 1 && record.lastElement! <= 118 ? record.lastElement! : 6;
@@ -53,13 +60,14 @@ export function sanitizeProgress(value: unknown): ProgressV1 {
       ? numbers(record.exploredElements)
       : numbers([lastElement, ...recentElements]),
     quizScores: record.quizScores && typeof record.quizScores === "object" ? record.quizScores : {},
-    completedReactions: Array.isArray(record.completedReactions)
-      ? [...new Set(record.completedReactions.filter((item): item is string => typeof item === "string"))]
-      : [],
+    completedReactions: strings(record.completedReactions),
     reactionGrades,
     lastElement,
     lastReaction: typeof record.lastReaction === "string" ? record.lastReaction : defaultProgress.lastReaction,
     autoRotate: typeof record.autoRotate === "boolean" ? record.autoRotate : true,
+    exploredMolecules: strings(record.exploredMolecules).length ? strings(record.exploredMolecules) : ["water"],
+    favoriteMolecules: strings(record.favoriteMolecules),
+    lastMolecule: typeof record.lastMolecule === "string" ? record.lastMolecule : "water",
   };
 }
 
@@ -109,6 +117,28 @@ export function useProgress() {
     }));
   }, [update]);
 
+  const visitMolecule = useCallback((slug: string) => {
+    update((current) => ({
+      ...current,
+      lastMolecule: slug,
+      exploredMolecules: (current.exploredMolecules ?? []).includes(slug)
+        ? current.exploredMolecules
+        : [...(current.exploredMolecules ?? []), slug],
+    }));
+  }, [update]);
+
+  const toggleFavoriteMolecule = useCallback((slug: string) => {
+    update((current) => {
+      const favs = current.favoriteMolecules ?? [];
+      return {
+        ...current,
+        favoriteMolecules: favs.includes(slug)
+          ? favs.filter((item) => item !== slug)
+          : [...favs, slug],
+      };
+    });
+  }, [update]);
+
   const recordQuiz = useCallback((key: string, score: QuizScore) => {
     update((current) => ({ ...current, quizScores: { ...current.quizScores, [key]: score } }));
   }, [update]);
@@ -132,5 +162,17 @@ export function useProgress() {
 
   const setAutoRotate = useCallback((autoRotate: boolean) => update((current) => ({ ...current, autoRotate })), [update]);
 
-  return { progress, ready, visitElement, visitReaction, toggleFavorite, recordQuiz, completeReaction, setAutoRotate };
+  return {
+    progress,
+    ready,
+    visitElement,
+    visitReaction,
+    visitMolecule,
+    toggleFavorite,
+    toggleFavoriteMolecule,
+    recordQuiz,
+    completeReaction,
+    setAutoRotate,
+  };
 }
+

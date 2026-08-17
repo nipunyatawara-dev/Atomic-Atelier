@@ -1,7 +1,7 @@
 const CACHE_PREFIX = "atomic-atelier";
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VERSION}`;
-const ROUTES = ["/", "/reactions"];
+const ROUTES = ["/", "/molecules", "/reactions"];
 const STABLE_ASSETS = ["/icon.png", "/icon-192.png", "/apple-icon.png", "/manifest.webmanifest"];
 
 async function cacheResponse(cache, request) {
@@ -52,7 +52,12 @@ self.addEventListener("fetch", (event) => {
         if (response.ok) await cache.put(url.pathname, response.clone());
         return response;
       } catch {
-        return (await cache.match(url.pathname)) || (await cache.match(url.pathname.startsWith("/reactions") ? "/reactions" : "/")) || Response.error();
+        const routeFallback = url.pathname.startsWith("/molecules")
+          ? "/molecules"
+          : url.pathname.startsWith("/reactions")
+            ? "/reactions"
+            : "/";
+        return (await cache.match(url.pathname)) || (await cache.match(routeFallback)) || Response.error();
       }
     })());
     return;

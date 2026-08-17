@@ -68,6 +68,9 @@ export type ProgressV1 = {
   lastElement: number;
   lastReaction: string;
   autoRotate: boolean;
+  exploredMolecules?: string[];
+  favoriteMolecules?: string[];
+  lastMolecule?: string;
 };
 
 export type SpeciesRecord = {
@@ -112,3 +115,111 @@ export type QuizQuestion = {
   answer: number;
   explanation: string;
 };
+
+export type MoleculeCategory =
+  | "vsepr-essential"
+  | "inorganic"
+  | "organic"
+  | "biomolecule"
+  | "atmospheric"
+  | "custom";
+
+export type VseprElectronGeometry =
+  | "Linear"
+  | "Trigonal Planar"
+  | "Tetrahedral"
+  | "Trigonal Bipyramidal"
+  | "Octahedral";
+
+export type VseprMolecularGeometry =
+  | "Linear"
+  | "Bent (120°)"
+  | "Bent (104.5°)"
+  | "Trigonal Planar"
+  | "Trigonal Pyramidal"
+  | "T-shaped"
+  | "Tetrahedral"
+  | "Seesaw"
+  | "Square Planar"
+  | "Trigonal Bipyramidal"
+  | "Square Pyramidal"
+  | "Octahedral";
+
+export type VseprInfo = {
+  axeNotation: string;
+  stericNumber: number;
+  bondingPairs: number;
+  lonePairs: number;
+  electronGeometry: VseprElectronGeometry;
+  molecularGeometry: VseprMolecularGeometry;
+  idealBondAngle: string;
+  predictedBondAngle: string;
+  hybridization: string;
+  polarity: "Polar" | "Non-polar";
+  dipoleMomentDebye: number;
+  dipoleVector: [number, number, number];
+};
+
+export type LonePairRecord = {
+  id: string;
+  centralAtomId: string;
+  position: [number, number, number];
+};
+
+export type LewisDotGroup = {
+  atomId: string;
+  symbol: string;
+  x: number;
+  y: number;
+  lonePairAngles: number[];
+};
+
+export type LewisBond = {
+  fromAtomId: string;
+  toAtomId: string;
+  order: 1 | 2 | 3;
+};
+
+export type LewisStructure = {
+  atoms: LewisDotGroup[];
+  bonds: LewisBond[];
+};
+
+export type MoleculeAtom = {
+  id: string;
+  symbol: string;
+  atomicNumber: number;
+  position: [number, number, number];
+  formalCharge?: number;
+  isCentral?: boolean;
+};
+
+export type MoleculeBond = {
+  from: string;
+  to: string;
+  order: 1 | 2 | 3;
+};
+
+export type MoleculeRecord = {
+  slug: string;
+  name: string;
+  iupacName: string;
+  formula: string;
+  category: MoleculeCategory;
+  categoryLabel: string;
+  description: string;
+  molarMass: number;
+  standardState: "gas" | "liquid" | "solid";
+  meltingPoint?: number | null;
+  boilingPoint?: number | null;
+  density?: string | null;
+  vsepr: VseprInfo;
+  atoms: MoleculeAtom[];
+  bonds: MoleculeBond[];
+  lonePairs: LonePairRecord[];
+  lewis: LewisStructure;
+  applications: string;
+  safety: string;
+  relatedElements: number[];
+};
+
