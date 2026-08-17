@@ -1,21 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, DM_Mono, DM_Sans } from "next/font/google";
+import { DM_Mono } from "next/font/google";
 import { PWAProvider } from "./components/PWAClient";
 import "./globals.css";
+import "./apple-overhaul.css";
 
 const configuredHost = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL ?? "http://localhost:3000";
 const metadataBase = new URL(configuredHost.startsWith("http") ? configuredHost : `https://${configuredHost}`);
-
-const display = Cormorant_Garamond({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
-
-const sans = DM_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
 
 const mono = DM_Mono({
   variable: "--font-mono",
@@ -62,7 +52,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" className={mono.variable} data-scroll-behavior="smooth">
       <body><PWAProvider>{children}</PWAProvider></body>
     </html>
   );

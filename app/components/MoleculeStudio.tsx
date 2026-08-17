@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Atom,
@@ -94,6 +94,8 @@ export function MoleculeStudio() {
   const [tableOpen, setTableOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [mobileLibrary, setMobileLibrary] = useState(false);
+  const libraryRef = useRef<HTMLElement>(null);
+  const libraryTriggerRef = useRef<HTMLButtonElement>(null);
 
   // Custom Builder State
   const [builderCentral, setBuilderCentral] = useState("C");
@@ -126,6 +128,21 @@ export function MoleculeStudio() {
       visitMolecule(currentMolecule.slug);
     }
   }, [currentMolecule, ready, visitMolecule]);
+
+  useEffect(() => {
+    if (!mobileLibrary) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const trigger = libraryTriggerRef.current;
+    libraryRef.current?.querySelector<HTMLInputElement>("input")?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileLibrary(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      (previous ?? trigger)?.focus();
+    };
+  }, [mobileLibrary]);
 
   const chooseMolecule = (mol: MoleculeRecord) => {
     setCurrentMolecule(mol);
@@ -184,13 +201,14 @@ export function MoleculeStudio() {
   return (
     <main className="app-shell molecule-workspace">
       <AppHeader
+        ref={libraryTriggerRef}
         active="molecules"
         onTable={() => setTableOpen(true)}
         onSaved={() => setSavedOpen(true)}
         mobileContext={{
           label: "Molecules",
           detail: currentMolecule.name,
-          action: () => setMobileLibrary((v) => !v),
+          action: () => setMobileLibrary(true),
           expanded: mobileLibrary,
           controls: "molecule-library-panel",
         }}
@@ -200,7 +218,11 @@ export function MoleculeStudio() {
         {/* Left Sidebar: Molecule Library */}
         <aside
           id="molecule-library-panel"
+          ref={libraryRef}
           className={`molecule-library ${mobileLibrary ? "mobile-open" : ""}`}
+          role={mobileLibrary ? "dialog" : undefined}
+          aria-modal={mobileLibrary ? "true" : undefined}
+          aria-label="Molecule library"
         >
           <div className="library-header">
             <div className="library-title-row">
@@ -214,6 +236,14 @@ export function MoleculeStudio() {
             >
               <Wrench size={14} />
               <span>Custom Builder</span>
+            </button>
+            <button
+              type="button"
+              className="molecule-library-close"
+              onClick={() => setMobileLibrary(false)}
+              aria-label="Close molecule library"
+            >
+              <X size={17} />
             </button>
           </div>
 
@@ -541,6 +571,8 @@ export function MoleculeStudio() {
           </div>
         </aside>
       </div>
+
+      {mobileLibrary && <button className="drawer-backdrop" onClick={() => setMobileLibrary(false)} aria-label="Close molecule library" />}
 
       {/* Custom VSEPR Builder Modal */}
       {builderOpen && (

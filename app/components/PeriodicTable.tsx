@@ -54,7 +54,7 @@ export function PeriodicTable({ selected, onSelect, onClose }: { selected: numbe
           <option value="all">All categories</option>
           {categories.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
         </select>
-        <Link href="/trends" className="periodic-3d-link" onClick={onClose} aria-label="View Periodic Trends in 3D">
+        <Link href="/trends" className="periodic-3d-link" onClick={onClose} aria-label="View 3D Periodic Trends">
           <Boxes size={15} />
           <span>View in 3D / Trends</span>
           <ArrowRight size={13} />

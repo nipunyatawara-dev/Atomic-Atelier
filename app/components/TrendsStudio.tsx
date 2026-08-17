@@ -117,6 +117,12 @@ export function TrendsStudio() {
         active="trends"
         onTable={() => setTableOpen(true)}
         onSaved={() => setSavedOpen(true)}
+        mobileContext={{
+          label: "Trends",
+          detail: currentProperty.name,
+          action: () => document.getElementById("trend-property-selector")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+          controls: "trend-property-selector",
+        }}
       />
 
       {/* Top Header & Property Tabs */}
@@ -148,7 +154,7 @@ export function TrendsStudio() {
       </section>
 
       {/* Property Selector Bar */}
-      <div className="property-selector-strip">
+      <div id="trend-property-selector" className="property-selector-strip">
         <div className="property-chips-scroll">
           {TREND_PROPERTIES.map((prop) => {
             const isActive = selectedPropertyId === prop.id;

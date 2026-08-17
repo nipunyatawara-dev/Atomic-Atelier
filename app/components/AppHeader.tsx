@@ -20,8 +20,8 @@ type Props = {
     label: string;
     detail: string;
     action: () => void;
-    expanded: boolean;
-    controls: string;
+    expanded?: boolean;
+    controls?: string;
   };
 };
 
@@ -35,22 +35,22 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
         </Link>
 
         <nav className="main-nav" aria-label="Primary navigation">
-          <Link className={`nav-link ${props.active === "explore" ? "active" : ""}`} href="/">
+          <Link className={`nav-link ${props.active === "explore" ? "active" : ""}`} href="/" aria-current={props.active === "explore" ? "page" : undefined}>
             <Atom aria-hidden="true" />
             <span>Elements</span>
           </Link>
 
-          <Link className={`nav-link ${props.active === "molecules" ? "active" : ""}`} href="/molecules">
+          <Link className={`nav-link ${props.active === "molecules" ? "active" : ""}`} href="/molecules" aria-current={props.active === "molecules" ? "page" : undefined}>
             <Layers aria-hidden="true" />
             <span>Molecules</span>
           </Link>
 
-          <Link className={`nav-link ${props.active === "trends" ? "active" : ""}`} href="/trends">
+          <Link className={`nav-link ${props.active === "trends" ? "active" : ""}`} href="/trends" aria-current={props.active === "trends" ? "page" : undefined}>
             <TrendingUp aria-hidden="true" />
             <span>Trends</span>
           </Link>
 
-          <Link className={`nav-link ${props.active === "reactions" ? "active" : ""}`} href="/reactions">
+          <Link className={`nav-link ${props.active === "reactions" ? "active" : ""}`} href="/reactions" aria-current={props.active === "reactions" ? "page" : undefined}>
             <FlaskConical aria-hidden="true" />
             <span>Reactions</span>
           </Link>
@@ -81,18 +81,23 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
             <span>Saved</span>
           </button>
         </div>
+
+        <div className="mobile-utilities" aria-label="Quick actions">
+          <button type="button" onClick={props.onTable} aria-label="Table">
+            <Grid3X3 aria-hidden="true" />
+          </button>
+          <button type="button" onClick={props.onSaved} aria-label="Saved">
+            <Bookmark aria-hidden="true" />
+          </button>
+        </div>
       </header>
 
       <nav className="mobile-nav" aria-label="Mobile navigation">
-        <Link className={props.active === "explore" ? "active" : ""} href="/"><Atom /><span>Elements</span></Link>
-        <Link className={props.active === "molecules" ? "active" : ""} href="/molecules"><Layers /><span>Molecules</span></Link>
-        <Link className={props.active === "trends" ? "active" : ""} href="/trends"><TrendingUp /><span>Trends</span></Link>
-        <Link className={props.active === "reactions" ? "active" : ""} href="/reactions"><FlaskConical /><span>React</span></Link>
-        <button type="button" onClick={props.onTable}><Grid3X3 /><span>Table</span></button>
-        <button type="button" onClick={props.onSaved}><Bookmark /><span>Saved</span></button>
+        <Link className={props.active === "explore" ? "active" : ""} href="/" aria-current={props.active === "explore" ? "page" : undefined}><Atom /><span>Elements</span></Link>
+        <Link className={props.active === "molecules" ? "active" : ""} href="/molecules" aria-current={props.active === "molecules" ? "page" : undefined}><Layers /><span>Molecules</span></Link>
+        <Link className={props.active === "trends" ? "active" : ""} href="/trends" aria-current={props.active === "trends" ? "page" : undefined}><TrendingUp /><span>Trends</span></Link>
+        <Link className={props.active === "reactions" ? "active" : ""} href="/reactions" aria-current={props.active === "reactions" ? "page" : undefined}><FlaskConical /><span>Reactions</span></Link>
       </nav>
     </>
   );
 });
-
-
