@@ -157,37 +157,44 @@ function createLonePairLobe(pos: THREE.Vector3, center: THREE.Vector3) {
   return group;
 }
 
-function createDipoleVectorMesh(vector: [number, number, number], length = 2.4) {
+function createDipoleVectorMesh(vector: [number, number, number], length = 2.5) {
   const group = new THREE.Group();
   if (Math.hypot(...vector) < 0.001) return group;
 
   const dir = new THREE.Vector3(...vector).normalize();
-  const shaftLength = length * 0.75;
-  const headLength = length * 0.25;
+  const halfLength = length * 0.5;
+  const headLength = 0.42;
+  const shaftLength = length - headLength;
 
   const arrowMat = new THREE.MeshStandardMaterial({
     color: 0xe11d48,
     emissive: 0x9f1239,
-    emissiveIntensity: 0.5,
+    emissiveIntensity: 0.55,
     roughness: 0.3,
   });
 
-  const shaftGeo = new THREE.CylinderGeometry(0.04, 0.04, shaftLength, 12);
+  // Shaft positioned through the center of the molecule
+  const shaftGeo = new THREE.CylinderGeometry(0.038, 0.038, shaftLength, 12);
   const shaft = new THREE.Mesh(shaftGeo, arrowMat);
-  shaft.position.copy(dir.clone().multiplyScalar(shaftLength / 2));
+  const shaftCenterDist = -halfLength + shaftLength * 0.5;
+  shaft.position.copy(dir.clone().multiplyScalar(shaftCenterDist));
   shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
   group.add(shaft);
 
-  const crossGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.38, 8);
+  // Positive cross (+) near the positive tail of the arrow (delta+)
+  const crossGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.36, 8);
   const cross = new THREE.Mesh(crossGeo, arrowMat);
-  cross.position.copy(dir.clone().multiplyScalar(0.1));
+  const crossDist = -halfLength + 0.32;
+  cross.position.copy(dir.clone().multiplyScalar(crossDist));
   const side = new THREE.Vector3(1, 0, 0).applyQuaternion(shaft.quaternion);
   cross.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), side);
   group.add(cross);
 
-  const headGeo = new THREE.ConeGeometry(0.12, headLength, 16);
+  // Arrowhead pointing in the direction of negative charge (delta-)
+  const headGeo = new THREE.ConeGeometry(0.11, headLength, 16);
   const head = new THREE.Mesh(headGeo, arrowMat);
-  head.position.copy(dir.clone().multiplyScalar(shaftLength + headLength / 2));
+  const headCenterDist = halfLength - headLength * 0.5;
+  head.position.copy(dir.clone().multiplyScalar(headCenterDist));
   head.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
   group.add(head);
 
