@@ -208,12 +208,12 @@ export function AtomViewer({
     reducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !window.matchMedia("(max-width: 760px)").matches, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
     } catch {
       setFallback(true);
       return;
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 760 ? 1.25 : 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
@@ -222,14 +222,14 @@ export function AtomViewer({
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.add(new THREE.HemisphereLight(0xf8fbf8, 0x18363a, 1.9));
-    const key = new THREE.DirectionalLight(0xffffff, 3.5);
+    scene.add(new THREE.HemisphereLight(0xf8fbf8, 0x18363a, 1.8));
+    const key = new THREE.DirectionalLight(0xffffff, 2.8);
     key.position.set(4, 6, 7);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0x9ce0d5, 1.7);
+    const fill = new THREE.DirectionalLight(0x9ce0d5, 1.4);
     fill.position.set(-4, -1, 4);
     scene.add(fill);
-    const rim = new THREE.PointLight(0x8f79ff, 13, 18);
+    const rim = new THREE.PointLight(0x8f79ff, 6.5, 18);
     rim.position.set(-4, 2, -4);
     scene.add(rim);
 
@@ -360,9 +360,9 @@ export function AtomViewer({
       if (d > maxClusterRadius) maxClusterRadius = d;
     });
 
-    const particleGeometry = new THREE.SphereGeometry(particleSize, nucleusTotal > 120 ? 12 : 16, nucleusTotal > 120 ? 8 : 11);
-    const protonMaterial = new THREE.MeshPhysicalMaterial({ color: 0xef7765, roughness: .25, metalness: .03, clearcoat: .55, clearcoatRoughness: .32 });
-    const neutronMaterial = new THREE.MeshPhysicalMaterial({ color: 0x587583, roughness: .3, metalness: .08, clearcoat: .42, clearcoatRoughness: .38 });
+    const particleGeometry = new THREE.SphereGeometry(particleSize, 32, 24);
+    const protonMaterial = new THREE.MeshPhysicalMaterial({ color: 0xef7765, roughness: 0.38, metalness: 0.02, clearcoat: 0.25, clearcoatRoughness: 0.45 });
+    const neutronMaterial = new THREE.MeshPhysicalMaterial({ color: 0x587583, roughness: 0.42, metalness: 0.05, clearcoat: 0.20, clearcoatRoughness: 0.50 });
     const protons = new THREE.InstancedMesh(particleGeometry, protonMaterial, element.atomicNumber);
     const neutrons = new THREE.InstancedMesh(particleGeometry.clone(), neutronMaterial, neutronCount);
     let protonIndex = 0;
@@ -371,8 +371,8 @@ export function AtomViewer({
       const expectedProtons = Math.round(((slot + 1) * element.atomicNumber) / nucleusTotal);
       const isProton = protonIndex < expectedProtons && protonIndex < element.atomicNumber;
       dummy.position.copy(positions[slot]);
-      dummy.rotation.set(slot * .31, slot * .19, slot * .13);
-      dummy.scale.setScalar(.98 + seededFraction(slot + element.atomicNumber) * .04);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.setScalar(1);
       dummy.updateMatrix();
       if (isProton) {
         protons.setMatrixAt(protonIndex++, dummy.matrix);
@@ -381,19 +381,19 @@ export function AtomViewer({
       }
     }
     const nucleusGlow = new THREE.Mesh(
-      new THREE.SphereGeometry(maxClusterRadius * 1.12, 24, 18),
+      new THREE.SphereGeometry(maxClusterRadius * 1.12, 36, 28),
       new THREE.MeshBasicMaterial({ color: 0x9bd8d0, transparent: true, opacity: .055, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide }),
     );
-    const nucleusLight = new THREE.PointLight(0xf4a291, 2.6, 5.5, 2);
+    const nucleusLight = new THREE.PointLight(0xf4a291, 1.8, 5.5, 2);
     state.atom.add(nucleusGlow, nucleusLight, protons, neutrons);
     state.nucleusMeshes = [nucleusGlow, protons, neutrons];
 
     const innerCount = element.shells.slice(0, -1).reduce((sum, count) => sum + count, 0);
     const outerCount = element.shells.at(-1) ?? 0;
     const electronSize = THREE.MathUtils.clamp(.128 - element.atomicNumber * .00035, .082, .124);
-    const electronGeometry = new THREE.SphereGeometry(electronSize, 16, 11);
-    const innerMaterial = new THREE.MeshPhysicalMaterial({ color: 0x78c9e8, emissive: 0x1a7199, emissiveIntensity: 1.7, roughness: .18, clearcoat: .75, clearcoatRoughness: .2 });
-    const valenceMaterial = new THREE.MeshPhysicalMaterial({ color: 0xb68af0, emissive: 0x6840b1, emissiveIntensity: 2.15, roughness: .16, clearcoat: .8, clearcoatRoughness: .18 });
+    const electronGeometry = new THREE.SphereGeometry(electronSize, 28, 20);
+    const innerMaterial = new THREE.MeshPhysicalMaterial({ color: 0x78c9e8, emissive: 0x1a7199, emissiveIntensity: 1.4, roughness: 0.30, clearcoat: 0.35, clearcoatRoughness: 0.35 });
+    const valenceMaterial = new THREE.MeshPhysicalMaterial({ color: 0xb68af0, emissive: 0x6840b1, emissiveIntensity: 1.8, roughness: 0.28, clearcoat: 0.40, clearcoatRoughness: 0.35 });
     state.innerElectrons = new THREE.InstancedMesh(electronGeometry, innerMaterial, innerCount);
     state.valenceElectrons = new THREE.InstancedMesh(electronGeometry.clone(), valenceMaterial, outerCount);
     state.atom.add(state.innerElectrons, state.valenceElectrons);
@@ -407,12 +407,13 @@ export function AtomViewer({
         return new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
       });
       const ringGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const isValence = shellIndex === element.shells.length - 1;
       const ring = new THREE.LineLoop(
         ringGeometry,
         new THREE.LineBasicMaterial({
-          color: shellIndex === element.shells.length - 1 ? 0x9d75d7 : 0x73a7b8,
+          color: isValence ? 0xae7aff : 0x38bdf8,
           transparent: true,
-          opacity: shellIndex === element.shells.length - 1 ? .38 : .22,
+          opacity: isValence ? 0.68 : 0.58,
           depthWrite: false,
         }),
       );
@@ -501,8 +502,9 @@ export function AtomViewer({
     const innerMaterial = state.innerElectrons?.material as THREE.MeshStandardMaterial | undefined;
     if (innerMaterial) { innerMaterial.transparent = valenceFocus; innerMaterial.opacity = valenceFocus ? 0.13 : 1; }
     state.shells.forEach((shell, index) => {
+      const isValence = index === state.shells.length - 1;
       const material = (shell as THREE.Line).material as THREE.LineBasicMaterial;
-      material.opacity = valenceFocus && index !== state.shells.length - 1 ? .045 : index === state.shells.length - 1 ? .38 : .22;
+      material.opacity = valenceFocus && !isValence ? 0.12 : isValence ? 0.80 : 0.58;
     });
     state.dirty = true;
   }, [valenceFocus, viewMode]);

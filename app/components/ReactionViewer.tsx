@@ -64,7 +64,7 @@ function buildMolecule(species: SpeciesRecord, seed: number, identityPrefix: str
     const symbol = recipe.symbol;
     const radius = symbol === "H" ? 0.17 : symbol === "C" ? 0.27 : 0.235;
     const atom = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 18, 14),
+      new THREE.SphereGeometry(radius, 32, 24),
       new THREE.MeshStandardMaterial({ color: colors[symbol] ?? 0xd39b6a, roughness: 0.36, metalness: ["Fe", "Zn", "Ag", "Al", "Mg"].includes(symbol) ? 0.28 : 0 }),
     );
     atom.position.copy(positions.get(recipe.id)!);

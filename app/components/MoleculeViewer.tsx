@@ -124,7 +124,7 @@ function createLonePairLobe(pos: THREE.Vector3, center: THREE.Vector3) {
   const dir = pos.clone().sub(center).normalize();
   const group = new THREE.Group();
 
-  const geom = new THREE.SphereGeometry(0.26, 16, 16);
+  const geom = new THREE.SphereGeometry(0.26, 24, 20);
   geom.scale(0.7, 1.25, 0.7);
 
   const mat = new THREE.MeshPhysicalMaterial({
@@ -144,7 +144,7 @@ function createLonePairLobe(pos: THREE.Vector3, center: THREE.Vector3) {
   group.add(mesh);
 
   const dotMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
-  const dotGeo = new THREE.SphereGeometry(0.04, 8, 8);
+  const dotGeo = new THREE.SphereGeometry(0.04, 16, 12);
 
   const d1 = new THREE.Mesh(dotGeo, dotMat);
   const d2 = new THREE.Mesh(dotGeo, dotMat);
@@ -382,7 +382,7 @@ export function MoleculeViewer({
       const isSelected = selectedAtoms.some((a) => a.id === atom.id);
       const isHovered = hoveredAtom?.id === atom.id;
 
-      const geom = new THREE.SphereGeometry(radius, 24, 20);
+      const geom = new THREE.SphereGeometry(radius, 32, 24);
       const mat = new THREE.MeshStandardMaterial({
         color: isSelected ? 0x38bdf8 : isHovered ? 0x67e8f9 : cpk,
         roughness: 0.3,
