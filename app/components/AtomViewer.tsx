@@ -148,24 +148,7 @@ export function AtomViewer({
   const viewModeRef = useRef<ViewMode>("bohr");
   const [activeSubshell, setActiveSubshell] = useState<string>("all");
   const [subshells, setSubshells] = useState<SubshellInfo[]>([]);
-  const [tipOpen, setTipOpen] = useState(false);
-  const tipRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!tipOpen) return;
-    const closeFromOutside = (event: PointerEvent) => {
-      if (!tipRef.current?.contains(event.target as Node)) setTipOpen(false);
-    };
-    const closeFromEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setTipOpen(false);
-    };
-    document.addEventListener("pointerdown", closeFromOutside);
-    document.addEventListener("keydown", closeFromEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeFromOutside);
-      document.removeEventListener("keydown", closeFromEscape);
-    };
-  }, [tipOpen]);
+  const [hoveredMode, setHoveredMode] = useState<ViewMode | null>(null);
 
   useEffect(() => { autoRotateRef.current = autoRotate; if (stateRef.current) stateRef.current.dirty = true; }, [autoRotate]);
   useEffect(() => { viewModeRef.current = viewMode; if (stateRef.current) stateRef.current.dirty = true; }, [viewMode]);
@@ -524,14 +507,23 @@ export function AtomViewer({
     <section className="viewer-shell" aria-label={`${element.name} interactive atomic viewer`}>
       <div className="viewer-aura" style={{ "--element-color": element.cpkColor } as React.CSSProperties} />
 
-      {/* Model View Mode Switcher Header */}
-      <div className="viewer-view-switcher" role="tablist" aria-label="Atomic model representation">
+      {/* Model View Mode Switcher Header with integrated Model Note tooltip */}
+      <div
+        className="viewer-view-switcher"
+        role="tablist"
+        aria-label="Atomic model representation"
+        onMouseLeave={() => setHoveredMode(null)}
+      >
         <button
           type="button"
           role="tab"
           aria-selected={viewMode === "bohr"}
           className={`switcher-btn ${viewMode === "bohr" ? "active" : ""}`}
-          onClick={() => setViewMode("bohr")}
+          onClick={(e) => {
+            setViewMode("bohr");
+            e.currentTarget.blur();
+          }}
+          onMouseEnter={() => setHoveredMode("bohr")}
         >
           <Orbit size={15} /> <span>Bohr Shells</span>
         </button>
@@ -540,10 +532,30 @@ export function AtomViewer({
           role="tab"
           aria-selected={viewMode === "orbital"}
           className={`switcher-btn ${viewMode === "orbital" ? "active" : ""}`}
-          onClick={() => { setViewMode("orbital"); setSelected("orbitals"); }}
+          onClick={(e) => {
+            setViewMode("orbital");
+            setSelected("orbitals");
+            e.currentTarget.blur();
+          }}
+          onMouseEnter={() => setHoveredMode("orbital")}
         >
           <Layers size={15} /> <span>Quantum Orbitals</span>
         </button>
+
+        <div
+          className="switcher-tooltip"
+          role="tooltip"
+          aria-live="polite"
+        >
+          <span className="switcher-tooltip-title">
+            <Info size={11} /> Model note · {(hoveredMode ?? viewMode) === "bohr" ? "Bohr Shells" : "Quantum Orbitals"}
+          </span>
+          <p>
+            {(hoveredMode ?? viewMode) === "bohr"
+              ? "Bohr shell orbits show particle counts—not quantum orbital probability shapes."
+              : `Quantum cloud density represents |ψ|² electron probability distributions for ${element.electronConfiguration}.`}
+          </p>
+        </div>
       </div>
 
       <div className="atom-mount" ref={mountRef}>{fallback && <FallbackAtom element={element} />}</div>
@@ -589,29 +601,6 @@ export function AtomViewer({
             <Icon size={18} /><span>{label}</span>
           </button>
         ))}
-      </div>
-
-      <div className="viewer-tip" ref={tipRef}>
-        <button
-          type="button"
-          className={`viewer-tip-trigger ${tipOpen ? "active" : ""}`}
-          onClick={() => setTipOpen((value) => !value)}
-          aria-expanded={tipOpen}
-          aria-label="Toggle model note tooltip"
-        >
-          <Info size={13} />
-          <span>Model note</span>
-        </button>
-        <div className={`viewer-tip-popover ${tipOpen ? "open" : ""}`} role="tooltip">
-          <span className="viewer-tip-title">
-            <Info size={12} /> Model note
-          </span>
-          <p>
-            {viewMode === "bohr"
-              ? "Bohr shell orbits show particle counts—not quantum orbital probability shapes."
-              : `Quantum cloud density represents |ψ|² electron probability distributions for ${element.electronConfiguration}.`}
-          </p>
-        </div>
       </div>
 
       <aside className={`structure-guide ${guideOpen ? "open" : ""}`} onKeyDown={(event) => { if (event.key === "Escape") { setGuideOpen(false); setSelected(null); } }}>

@@ -283,8 +283,7 @@ export function ExplorerApp() {
       </div>
 
       <section className="learning-cards" aria-label={`${element.name} learning resources`}>
-        <article className="curiosity-card"><Atom /><p>Everything begins<br />with particles.</p><em>Keep questioning!</em></article>
-        <article><header><div><em>Atomic structure</em><h3>{element.shells.join("–")} shell distribution</h3></div><Atom /></header><div className="card-visual shell-visual">{element.shells.map((count, index) => <i key={index} style={{ width: `${44 + index * 18}px`, height: `${44 + index * 18}px` }}><b>{count}</b></i>)}<strong>{element.symbol}</strong></div><button onClick={() => setQuizOpen(true)}>Test this structure <ArrowRight /></button></article>
+        <article><header><div><em>Atomic structure</em><h3>{element.shells.join("–")} shell distribution</h3></div><Atom /></header><div className="card-visual shell-visual">{element.shells.map((count, index) => <i key={index} style={{ width: `${52 + index * 20}px`, height: `${52 + index * 20}px` }}><b>{count}</b></i>)}<strong>{element.symbol}</strong></div><button onClick={() => setQuizOpen(true)}>Test this structure <ArrowRight /></button></article>
         <article>
           <header>
             <div><em>Periodic trend</em><h3>{element.name} vs. {neighbor.name}</h3></div>
