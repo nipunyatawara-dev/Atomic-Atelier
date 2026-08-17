@@ -11,7 +11,6 @@ import {
   Compass,
   Eye,
   GraduationCap,
-  Layers,
   Minus,
   Orbit,
   Plus,
@@ -226,7 +225,6 @@ export function MoleculeStudio() {
         >
           <div className="library-header">
             <div className="library-title-row">
-              <Layers size={18} />
               <h2>Molecules & VSEPR</h2>
             </div>
             <button

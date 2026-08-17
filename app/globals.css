@@ -1447,7 +1447,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   left: 50%;
   max-width: 90%;
   position: absolute;
-  top: 54px;
+  top: 60px;
   transform: translateX(-50%);
   z-index: 4;
 }

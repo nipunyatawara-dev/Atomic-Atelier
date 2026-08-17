@@ -825,6 +825,8 @@ select:focus-visible {
   .workspace,
   .molecule-grid,
   .reaction-workspace,
+  .trends-topbar,
+  .property-selector-strip,
   .trends-grid {
     animation: none;
     display: flex;
@@ -893,6 +895,88 @@ select:focus-visible {
 
   .viewer-shell {
     min-height: min(68dvh, 580px);
+  }
+
+  .viewer-view-switcher {
+    gap: 2px;
+    padding: 2.5px;
+    top: 8px;
+    z-index: 6;
+  }
+
+  .switcher-btn {
+    font-size: 9.5px;
+    gap: 4px;
+    min-height: 28px;
+    padding: 3px 8px;
+  }
+
+  .orbital-bar {
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    left: 8px;
+    max-width: none;
+    position: absolute;
+    right: 8px;
+    top: 58px;
+    transform: none;
+    z-index: 5;
+  }
+
+  .subshell-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    justify-content: flex-start;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 2px 2px 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .subshell-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip {
+    flex: 0 0 auto;
+    font-size: 9.5px;
+    min-height: 28px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  .orbital-legend {
+    align-items: center;
+    background: rgba(249, 249, 245, 0.88);
+    border: 1px solid #d8ded8;
+    border-radius: 99px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    justify-content: flex-start;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 3px 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .orbital-legend::-webkit-scrollbar {
+    display: none;
+  }
+
+  .legend-item {
+    flex: 0 0 auto;
+    font-size: 8.5px;
+    gap: 4px;
+    white-space: nowrap;
   }
 
   .info-panel,
@@ -985,12 +1069,12 @@ select:focus-visible {
     margin-inline: -10px;
     margin-top: 13px;
     overflow: hidden;
-    padding-inline: 10px;
+    padding-inline: 0;
     scroll-margin-top: 5rem;
   }
 
   .property-chips-scroll {
-    margin-inline: -10px;
+    margin-inline: 0;
     overflow-x: auto;
     padding: 2px 10px 7px;
     scroll-padding-inline: 10px;
@@ -1076,6 +1160,21 @@ select:focus-visible {
 @media (max-width: 430px) {
   .app-shell {
     padding-inline: 8px;
+  }
+
+  .property-selector-strip {
+    margin-inline: -8px;
+  }
+
+  .property-chips-scroll {
+    padding-inline: 8px;
+    scroll-padding-inline: 8px;
+  }
+
+  .orbital-bar {
+    left: 6px;
+    right: 6px;
+    top: 57px;
   }
 
   .topbar {

@@ -72,13 +72,62 @@ function seededFraction(value: number) {
   return Math.abs(Math.sin(value * 12.9898) * 43758.5453) % 1;
 }
 
-function particlePosition(index: number, total: number, seed: number, maxRadius: number) {
-  const t = (index + .5) / Math.max(total, 1);
-  const y = 1 - 2 * t;
-  const ring = Math.sqrt(Math.max(0, 1 - y * y));
-  const theta = (index + seed * .17) * 2.399963;
-  const fill = .46 + .54 * Math.cbrt(seededFraction((index + 1) * (seed + 17)));
-  return new THREE.Vector3(Math.cos(theta) * ring, y, Math.sin(theta) * ring).multiplyScalar(maxRadius * fill);
+export function generateNucleusPositions(total: number, particleSize: number, seed: number): THREE.Vector3[] {
+  const contactDist = particleSize * 1.80; // snug contact distance with minimal gap
+  let rawPoints: THREE.Vector3[] = [];
+
+  if (total <= 1) {
+    rawPoints = [new THREE.Vector3(0, 0, 0)];
+  } else if (total === 2) {
+    const d = contactDist * 0.5;
+    rawPoints = [new THREE.Vector3(-d, 0, 0), new THREE.Vector3(d, 0, 0)];
+  } else if (total === 3) {
+    const r = contactDist / Math.sqrt(3);
+    rawPoints = [
+      new THREE.Vector3(0, r, 0),
+      new THREE.Vector3(-r * Math.cos(Math.PI / 6), -r * Math.sin(Math.PI / 6), 0),
+      new THREE.Vector3(r * Math.cos(Math.PI / 6), -r * Math.sin(Math.PI / 6), 0),
+    ];
+  } else if (total === 4) {
+    const s = contactDist / Math.sqrt(8);
+    rawPoints = [
+      new THREE.Vector3(s, s, s),
+      new THREE.Vector3(s, -s, -s),
+      new THREE.Vector3(-s, s, -s),
+      new THREE.Vector3(-s, -s, s),
+    ];
+  } else {
+    // Face-Centered Cubic (FCC) close packing for optimal dense sphere clustering
+    const a = contactDist * Math.SQRT2;
+    const maxLayers = Math.ceil(Math.cbrt(total)) + 3;
+    const candidates: { x: number; y: number; z: number; distSq: number }[] = [];
+
+    for (let i = -maxLayers; i <= maxLayers; i++) {
+      for (let j = -maxLayers; j <= maxLayers; j++) {
+        for (let k = -maxLayers; k <= maxLayers; k++) {
+          if ((i + j + k) % 2 === 0) {
+            const x = (i * a) / 2;
+            const y = (j * a) / 2;
+            const z = (k * a) / 2;
+            const distSq = x * x + y * y + z * z;
+            candidates.push({ x, y, z, distSq });
+          }
+        }
+      }
+    }
+
+    candidates.sort((p1, p2) => p1.distSq - p2.distSq);
+    rawPoints = candidates.slice(0, total).map((p) => new THREE.Vector3(p.x, p.y, p.z));
+  }
+
+  // Apply deterministic organic orientation based on element seed
+  const rotation = new THREE.Euler(
+    seededFraction(seed * 2.37 + 1.1) * Math.PI * 2,
+    seededFraction(seed * 4.71 + 3.3) * Math.PI * 2,
+    seededFraction(seed * 6.19 + 7.7) * Math.PI * 2,
+  );
+
+  return rawPoints.map((p) => p.applyEuler(rotation));
 }
 
 function shellRadius(element: ElementRecord, shellIndex: number) {
@@ -304,7 +353,13 @@ export function AtomViewer({
     const neutronCount = element.neutrons ?? 0;
     const nucleusTotal = Math.max(1, element.atomicNumber + neutronCount);
     const particleSize = THREE.MathUtils.clamp(.245 - Math.log10(nucleusTotal + 1) * .052, .108, .215);
-    const clusterRadius = THREE.MathUtils.clamp(.38 + Math.cbrt(nucleusTotal) * .105, .58, 1.08);
+    const positions = generateNucleusPositions(nucleusTotal, particleSize, element.atomicNumber);
+    let maxClusterRadius = particleSize;
+    positions.forEach((pos) => {
+      const d = pos.length() + particleSize;
+      if (d > maxClusterRadius) maxClusterRadius = d;
+    });
+
     const particleGeometry = new THREE.SphereGeometry(particleSize, nucleusTotal > 120 ? 12 : 16, nucleusTotal > 120 ? 8 : 11);
     const protonMaterial = new THREE.MeshPhysicalMaterial({ color: 0xef7765, roughness: .25, metalness: .03, clearcoat: .55, clearcoatRoughness: .32 });
     const neutronMaterial = new THREE.MeshPhysicalMaterial({ color: 0x587583, roughness: .3, metalness: .08, clearcoat: .42, clearcoatRoughness: .38 });
@@ -315,10 +370,9 @@ export function AtomViewer({
     for (let slot = 0; slot < nucleusTotal; slot += 1) {
       const expectedProtons = Math.round(((slot + 1) * element.atomicNumber) / nucleusTotal);
       const isProton = protonIndex < expectedProtons && protonIndex < element.atomicNumber;
-      const position = particlePosition(slot, nucleusTotal, element.atomicNumber, clusterRadius);
-      dummy.position.copy(position);
+      dummy.position.copy(positions[slot]);
       dummy.rotation.set(slot * .31, slot * .19, slot * .13);
-      dummy.scale.setScalar(.94 + seededFraction(slot + element.atomicNumber) * .12);
+      dummy.scale.setScalar(.98 + seededFraction(slot + element.atomicNumber) * .04);
       dummy.updateMatrix();
       if (isProton) {
         protons.setMatrixAt(protonIndex++, dummy.matrix);
@@ -327,7 +381,7 @@ export function AtomViewer({
       }
     }
     const nucleusGlow = new THREE.Mesh(
-      new THREE.SphereGeometry(clusterRadius * 1.13, 24, 18),
+      new THREE.SphereGeometry(maxClusterRadius * 1.12, 24, 18),
       new THREE.MeshBasicMaterial({ color: 0x9bd8d0, transparent: true, opacity: .055, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide }),
     );
     const nucleusLight = new THREE.PointLight(0xf4a291, 2.6, 5.5, 2);
