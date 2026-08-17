@@ -524,7 +524,7 @@ export function AtomViewer({
           className={`switcher-btn ${viewMode === "orbital" ? "active" : ""}`}
           onClick={() => { setViewMode("orbital"); setSelected("orbitals"); }}
         >
-          <Layers size={15} /> <span>Quantum Orbitals (s,p,d,f)</span>
+          <Layers size={15} /> <span>Quantum Orbitals</span>
         </button>
       </div>
 
