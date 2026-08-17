@@ -182,7 +182,7 @@ export function MoleculeStudio() {
   };
 
   return (
-    <main className="molecule-workspace">
+    <main className="app-shell molecule-workspace">
       <AppHeader
         active="molecules"
         onTable={() => setTableOpen(true)}

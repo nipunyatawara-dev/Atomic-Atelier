@@ -36,8 +36,7 @@ test("periodic table supports keyboard navigation and escape", async ({ page }) 
   if (mobile) {
     await page.getByRole("button", { name: "Table", exact: true }).click();
   } else {
-    await page.getByRole("button", { name: "Explore", exact: true }).click();
-    await page.getByRole("group", { name: "Explore menu" }).getByRole("button", { name: /Periodic table/ }).click();
+    await page.getByRole("button", { name: "Periodic table", exact: true }).click();
   }
   const grid = page.getByRole("grid", { name: "Periodic table of elements" });
   const viewport = page.viewportSize();

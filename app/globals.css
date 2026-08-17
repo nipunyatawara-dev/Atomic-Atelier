@@ -119,6 +119,49 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .app-shell { margin: 0 auto; max-width: 1920px; min-height: 100dvh; padding: 10px 26px calc(40px + env(safe-area-inset-bottom)); }
 
+.page-transition-veil {
+  background: radial-gradient(circle at 50% -10%, rgba(142, 214, 203, .13), transparent 35rem), var(--paper);
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 60;
+}
+
+@keyframes contentReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.workspace,
+.molecule-grid,
+.trends-topbar,
+.property-selector-strip,
+.trends-grid,
+.reaction-workspace {
+  animation: contentReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-veil {
+    display: none !important;
+  }
+  .workspace,
+  .molecule-grid,
+  .trends-topbar,
+  .property-selector-strip,
+  .trends-grid,
+  .reaction-workspace {
+    animation: none !important;
+  }
+}
+
 .topbar {
   align-items: center;
   background: rgba(249, 248, 243, .74);
@@ -561,7 +604,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .tour-actions button:active { transform: scale(.97); }
 .tour-actions button.primary-button { background: var(--deep); border-color: var(--deep); color: #fff; }
 .tour-actions svg { height: 14px; width: 14px; }
-.table-controls { display: grid; gap: 9px; grid-template-columns: minmax(240px, 1fr) 190px; margin-bottom: 18px; }
+.table-controls { display: grid; gap: 9px; grid-template-columns: minmax(220px, 1fr) 180px auto; margin-bottom: 18px; }
+.periodic-3d-link {
+  align-items: center;
+  background: var(--deep);
+  border: 1px solid var(--deep);
+  border-radius: 11px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 600;
+  gap: 7px;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 13px;
+  text-decoration: none;
+  transition: background-color .16s ease, border-color .16s ease, transform .1s ease-out;
+  white-space: nowrap;
+}
+.periodic-3d-link:hover {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.periodic-3d-link:active {
+  transform: scale(.97);
+}
+.periodic-3d-link svg {
+  flex-shrink: 0;
+}
 .periodic-scroll { overflow: auto; padding-bottom: 9px; }
 .periodic-grid { display: grid; gap: 5px; grid-auto-rows: 67px; grid-template-columns: repeat(18, minmax(52px, 1fr)); min-width: 1080px; padding: 2px; }
 .periodic-grid > button { background: color-mix(in srgb, var(--category) 20%, white); border: 1px solid color-mix(in srgb, var(--category) 55%, white); border-radius: 8px; cursor: pointer; display: grid; padding: 5px; text-align: left; transition: opacity .2s, transform .15s, box-shadow .15s; }
@@ -993,7 +1066,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .periodic-dialog .dialog-close { height: 28px; right: 10px; top: 10px; width: 28px; }
   .periodic-dialog .dialog-eyebrow { font-size: 8px; margin-bottom: 3px; }
   .periodic-dialog > h2 { font-size: 20px; margin-bottom: 6px; }
-  .periodic-dialog .table-controls { gap: 5px; grid-template-columns: minmax(0, 1fr) 112px; margin-bottom: 6px; }
+  .periodic-dialog .table-controls { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+  .periodic-dialog .table-controls label { flex: 1 1 120px; }
+  .periodic-dialog .table-controls select { flex: 0 1 105px; }
+  .periodic-dialog .table-controls .periodic-3d-link { flex: 0 0 auto; font-size: 9px; min-height: 34px; padding: 4px 8px; gap: 4px; }
   .periodic-dialog .table-controls label, .periodic-dialog .table-controls select { font-size: 9px; min-height: 34px; padding: 6px 8px; }
   .periodic-dialog .periodic-scroll-hint { align-items: center; color: var(--muted); display: flex; flex: 0 0 auto; font-size: 9px; font-weight: 600; gap: 5px; letter-spacing: .02em; margin: 0 0 5px; }
   .periodic-dialog .periodic-scroll {
@@ -1247,10 +1323,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    ========================================================================== */
 
 .molecule-workspace {
-  margin: 0 auto;
-  max-width: 1720px;
-  min-height: 100dvh;
-  padding: 0 16px 24px;
+  width: 100%;
 }
 
 .molecule-grid {
@@ -2438,10 +2511,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    ========================================================================== */
 
 .trends-workspace {
-  margin: 0 auto;
-  max-width: 1720px;
-  min-height: 100dvh;
-  padding: 0 16px 28px;
+  width: 100%;
 }
 
 .trends-topbar {

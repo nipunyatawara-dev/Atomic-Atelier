@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MoveHorizontal, Search } from "lucide-react";
+import { ArrowRight, Boxes, MoveHorizontal, Search } from "lucide-react";
 import { Dialog } from "./Dialog";
 import { categories, categoryLabels, elementByNumber, elementGridPosition, elements } from "../lib/elements";
 import type { ElementCategory, ElementRecord } from "../lib/types";
@@ -53,6 +54,11 @@ export function PeriodicTable({ selected, onSelect, onClose }: { selected: numbe
           <option value="all">All categories</option>
           {categories.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
         </select>
+        <Link href="/trends" className="periodic-3d-link" onClick={onClose} aria-label="View Periodic Trends in 3D">
+          <Boxes size={15} />
+          <span>View in 3D / Trends</span>
+          <ArrowRight size={13} />
+        </Link>
       </div>
       <p className="periodic-scroll-hint" id="periodic-scroll-hint"><MoveHorizontal size={14} /> Swipe sideways to explore all 18 groups</p>
       <div className="periodic-scroll" ref={scrollRef}>

@@ -27,7 +27,7 @@ export default function TrendsPage() {
   return (
     <Suspense
       fallback={
-        <main className="trends-workspace">
+        <main className="app-shell trends-workspace">
           <div className="empty-search-state" style={{ minHeight: "80vh", justifyContent: "center" }}>
             <p>Loading Periodic Trends Studio...</p>
           </div>

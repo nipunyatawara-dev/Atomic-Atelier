@@ -112,7 +112,7 @@ export function TrendsStudio() {
   };
 
   return (
-    <main className="trends-workspace">
+    <main className="app-shell trends-workspace">
       <AppHeader
         active="trends"
         onTable={() => setTableOpen(true)}
