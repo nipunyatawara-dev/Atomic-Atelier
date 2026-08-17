@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "atomic-atelier";
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VERSION}`;
 const ROUTES = ["/", "/molecules", "/trends", "/reactions"];
 const STABLE_ASSETS = ["/icon.png", "/icon-192.png", "/apple-icon.png", "/manifest.webmanifest"];
