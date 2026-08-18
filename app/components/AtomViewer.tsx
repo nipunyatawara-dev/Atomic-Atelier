@@ -17,6 +17,7 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { formatElectronConfig } from "../lib/formula";
 import type { ElementRecord } from "../lib/types";
 import {
   generateOrbitalCloudPoints,
@@ -28,13 +29,21 @@ import {
 type ViewMode = "bohr" | "orbital";
 type StructureKey = "nucleus" | "proton" | "neutron" | "electron" | "valence" | "orbitals";
 
-type ElectronParticle = {
-  mesh: THREE.InstancedMesh;
-  instance: number;
-  radius: number;
-  angle: number;
-  speed: number;
-  orbit: THREE.Quaternion;
+type SceneState = {
+  container: HTMLDivElement;
+  renderer: THREE.WebGLRenderer;
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  controls: OrbitControls;
+  atom: THREE.Group;
+  resizeObserver: ResizeObserver;
+  intersectionObserver: IntersectionObserver;
+  electronData: Array<{ mesh: THREE.InstancedMesh; shellRadius: number; speed: number; angle: number; inclination: number; phase: number }>;
+  shells: THREE.LineLoop[];
+  nucleusMeshes: THREE.Mesh[];
+  innerElectrons: THREE.InstancedMesh | null;
+  valenceElectrons: THREE.InstancedMesh | null;
+  orbitalMeshes: Map<string, THREE.Points>;
 };
 
 type ViewerState = {
@@ -57,12 +66,21 @@ type ViewerState = {
   orbitalMeshes: Map<string, THREE.Points>;
 };
 
+type ElectronParticle = {
+  mesh: THREE.InstancedMesh;
+  instance: number;
+  radius: number;
+  angle: number;
+  speed: number;
+  orbit: THREE.Quaternion;
+};
+
 const structureCopy: Record<StructureKey, { label: string; detail: (element: ElementRecord) => string }> = {
-  nucleus: { label: "Nucleus", detail: (element) => `${element.atomicNumber} protons${element.neutrons === null ? "" : ` and ${element.neutrons} neutrons`} form the dense center.` },
-  proton: { label: "Proton", detail: (element) => `The ${element.atomicNumber} protons define this atom as ${element.name}.` },
-  neutron: { label: "Neutron", detail: (element) => element.neutrons === null ? "A representative neutron count is not established for this visualization." : `${element.neutrons} neutrons are shown for the representative isotope.` },
-  electron: { label: "Electron", detail: (element) => `${element.atomicNumber} electrons make the neutral atom electrically balanced.` },
-  valence: { label: "Valence shell", detail: (element) => element.valenceElectrons === null ? "Outer and d/f electrons can both participate in bonding." : `${element.valenceElectrons} outer-shell electrons strongly influence bonding.` },
+  nucleus: { label: "Nucleus", detail: (element) => `${element.atomicNumber} ${element.atomicNumber === 1 ? "proton" : "protons"}${element.neutrons === null ? "" : ` and ${element.neutrons} ${element.neutrons === 1 ? "neutron" : "neutrons"}`} form the dense center.` },
+  proton: { label: "Proton", detail: (element) => `The ${element.atomicNumber} ${element.atomicNumber === 1 ? "proton defines" : "protons define"} this atom as ${element.name}.` },
+  neutron: { label: "Neutron", detail: (element) => element.neutrons === null ? "A representative neutron count is not established for this visualization." : `${element.neutrons} ${element.neutrons === 1 ? "neutron is" : "neutrons are"} shown for the representative isotope.` },
+  electron: { label: "Electron", detail: (element) => `${element.atomicNumber} ${element.atomicNumber === 1 ? "electron makes" : "electrons make"} the neutral atom electrically balanced.` },
+  valence: { label: "Valence shell", detail: (element) => element.valenceElectrons === null ? "Outer and d/f electrons can both participate in bonding." : `${element.valenceElectrons} outer-shell ${element.valenceElectrons === 1 ? "electron strongly influences" : "electrons strongly influence"} bonding.` },
   orbitals: { label: "Quantum Orbitals", detail: (element) => `Subshell electron clouds (s, p, d, f) for ${element.name} show 3D probability distributions (|ψ|²) where electrons are ~90% likely to be located around the nucleus.` },
 };
 
@@ -679,7 +697,7 @@ export function AtomViewer({
 
       <div className="viewer-caption">
         <span>{viewMode === "bohr" ? "Simplified shell model" : "Quantum subshell configuration"}</span>
-        <strong>{viewMode === "bohr" ? `${element.shells.join(" · ")} electrons` : element.electronConfiguration}</strong>
+        <strong>{viewMode === "bohr" ? `${element.shells.join(" · ")} ${element.atomicNumber === 1 ? "electron" : "electrons"}` : formatElectronConfig(element.electronConfiguration)}</strong>
       </div>
       <button className="auto-rotate" onClick={() => onAutoRotate(!autoRotate)} aria-pressed={autoRotate}><RotateCcw size={14} /> Auto rotate <span className={autoRotate ? "switch on" : "switch"}><i /></span></button>
       <div className="atomic-stamp"><small>{element.atomicNumber}</small><b>{element.symbol}</b><span>{element.name}</span></div>

@@ -74,9 +74,29 @@ const SUBSCRIPT_MAP: Record<string, string> = {
   "9": "₉",
 };
 
+const SUPERSCRIPT_MAP: Record<string, string> = {
+  "0": "⁰",
+  "1": "¹",
+  "2": "²",
+  "3": "³",
+  "4": "⁴",
+  "5": "⁵",
+  "6": "⁶",
+  "7": "⁷",
+  "8": "⁸",
+  "9": "⁹",
+};
+
 export function formatFormulaSubscripts(formula: string): string {
   return formula.replace(/\d+/g, (digits) =>
     digits.split("").map((d) => SUBSCRIPT_MAP[d] ?? d).join(""),
   );
+}
+
+export function formatElectronConfig(config: string): string {
+  return config.replace(/([spdf])(\d+)/g, (_, orbital, count) => {
+    const superCount = count.split("").map((d: string) => SUPERSCRIPT_MAP[d] ?? d).join("");
+    return `${orbital}${superCount}`;
+  });
 }
 

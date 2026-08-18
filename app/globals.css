@@ -2692,6 +2692,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .molecule-grid {
     display: flex;
     flex-direction: column;
+    margin-bottom: 24px;
   }
 
   .molecule-library {
@@ -3884,6 +3885,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .trends-grid {
     display: flex;
     flex-direction: column;
+    margin-bottom: 24px;
   }
 
   .stage-viewport-shell {

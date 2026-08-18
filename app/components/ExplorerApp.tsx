@@ -28,6 +28,7 @@ import { PeriodicTable } from "./PeriodicTable";
 import { QuizModal } from "./QuizModal";
 import { SavedModal } from "./SavedModal";
 import { CARBON, categories, categoryLabels, createElementQuiz, elementByNumber, elements, formatValue, resolveElement } from "../lib/elements";
+import { formatElectronConfig } from "../lib/formula";
 import { reactions } from "../lib/reactions";
 import { curatedMolecules } from "../lib/molecules";
 import { useProgress } from "../lib/progress";
@@ -263,12 +264,12 @@ export function ExplorerApp() {
             <div><dt>Atomic mass</dt><dd>{element.atomicMass} u</dd></div>
             <div><dt>Period / group</dt><dd>{element.period} / {element.group ?? "f-block"}</dd></div>
             <div><dt>Standard state</dt><dd>{element.standardState ?? "Not established"}</dd></div>
-            <div><dt>Configuration</dt><dd className="configuration">{element.electronConfiguration}</dd></div>
+            <div><dt>Configuration</dt><dd className="configuration">{formatElectronConfig(element.electronConfiguration)}</dd></div>
             <div><dt>Electronegativity</dt><dd>{formatValue(element.electronegativity)}</dd></div>
             <div><dt>Ionization energy</dt><dd>{formatValue(element.ionizationEnergy, " eV")}</dd></div>
             <div><dt>Oxidation states</dt><dd>{element.oxidationStates.length ? element.oxidationStates.join(", ") : "Not established"}</dd></div>
           </dl>
-          <div className="isotope-note"><Atom size={16} /><p><b>Representative nucleus</b>{element.representativeMassNumber ? `${element.symbol}-${element.representativeMassNumber}: ${element.atomicNumber} protons and ${element.neutrons} neutrons.` : "No representative isotope is asserted in the visualization."}</p></div>
+          <div className="isotope-note"><Atom size={16} /><p><b>Representative nucleus</b>{element.representativeMassNumber ? `${element.symbol}-${element.representativeMassNumber}: ${element.atomicNumber} ${element.atomicNumber === 1 ? "proton" : "protons"} and ${element.neutrons} ${element.neutrons === 1 ? "neutron" : "neutrons"}.` : "No representative isotope is asserted in the visualization."}</p></div>
           <div className="discovery-note"><History size={15} /><p><b>Discovery</b>{element.yearDiscovered ?? "Date not established"}</p></div>
           <div className="panel-actions">
             <button className="primary-button" onClick={() => setQuizOpen(true)}>Take the element quiz <ArrowRight size={16} /></button>
