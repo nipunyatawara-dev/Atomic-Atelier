@@ -60,3 +60,23 @@ export function isBalanced(
   const symbols = new Set([...Object.keys(left), ...Object.keys(right)]);
   return [...symbols].every((symbol) => left[symbol] === right[symbol]);
 }
+
+const SUBSCRIPT_MAP: Record<string, string> = {
+  "0": "₀",
+  "1": "₁",
+  "2": "₂",
+  "3": "₃",
+  "4": "₄",
+  "5": "₅",
+  "6": "₆",
+  "7": "₇",
+  "8": "₈",
+  "9": "₉",
+};
+
+export function formatFormulaSubscripts(formula: string): string {
+  return formula.replace(/\d+/g, (digits) =>
+    digits.split("").map((d) => SUBSCRIPT_MAP[d] ?? d).join(""),
+  );
+}
+

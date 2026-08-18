@@ -96,6 +96,9 @@ export function TrendsGraph({
     return Math.min(...scatterData.map((d) => d.valB), propB.min || 0);
   }, [scatterData, propB]);
 
+  const minValY = graphMode === "scatter" ? minValB : minValA;
+  const maxValY = graphMode === "scatter" ? maxValB : maxValA;
+
   // Continuous Waveform Path
   const continuousPath = useMemo(() => {
     if (continuousData.length === 0) return "";
@@ -181,7 +184,7 @@ export function TrendsGraph({
           {/* Grid lines */}
           {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
             const y = padTop + chartH * (1 - pct);
-            const val = minValA + (maxValA - minValA) * pct;
+            const val = minValY + (maxValY - minValY) * pct;
             return (
               <g key={`gy-${pct}`}>
                 <line

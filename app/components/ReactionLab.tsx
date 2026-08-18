@@ -8,7 +8,7 @@ import { AppHeader } from "./AppHeader";
 import { PeriodicTable } from "./PeriodicTable";
 import { QuizModal } from "./QuizModal";
 import { SavedModal } from "./SavedModal";
-import { countSide, isBalanced } from "../lib/formula";
+import { countSide, formatFormulaSubscripts, isBalanced } from "../lib/formula";
 import { elementByNumber } from "../lib/elements";
 import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "../lib/reactions";
 import { useProgress } from "../lib/progress";
@@ -128,7 +128,7 @@ export function ReactionLab() {
   const coefficientControl = (side: "reactants" | "products", item: ReactionRecord["reactants"][number], index: number) => (
     <div className="species-control" key={`${side}-${item.formula}`}>
       <div className="coefficient-stepper"><button onClick={() => updateCoefficient(side, index, 1)} aria-label={`Increase coefficient for ${item.label}`}><ChevronUp /></button><b>{coefficients[side][index]}</b><button onClick={() => updateCoefficient(side, index, -1)} aria-label={`Decrease coefficient for ${item.label}`}><ChevronDown /></button></div>
-      <span><strong>{item.formula}</strong><small>{item.label} · ({item.state})</small></span>
+      <span><strong>{formatFormulaSubscripts(item.formula)}</strong><small>{item.label} · ({item.state})</small></span>
     </div>
   );
 

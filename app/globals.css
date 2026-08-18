@@ -840,7 +840,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .continue-heading span { color: #a9c4bf; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; }
 .continue-heading h3 { font-family: var(--font-display); font-size: 23px; letter-spacing: -.02em; margin: 4px 0 14px; }
 .continue-heading > svg { color: #9fdbcd; height: 23px; width: 23px; }
-.continue-grid { display: grid; gap: 8px; grid-template-columns: repeat(3, 1fr); }
+.continue-grid { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); }
 .continue-grid > button, .continue-grid > a { align-items: center; background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.13); border-radius: 13px; color: #fff; cursor: pointer; display: grid; gap: 10px; grid-template-columns: 28px minmax(0, 1fr) 16px; min-height: 88px; padding: 11px; text-align: left; transition: background-color .16s ease, transform .1s ease-out; }
 .continue-grid > button:hover, .continue-grid > a:hover { background: rgba(255,255,255,.12); }
 .continue-grid > button:active, .continue-grid > a:active { transform: scale(.985); }
@@ -850,7 +850,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .continue-grid small { color: #9fbab5; font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
 .continue-grid b { font-family: var(--font-display); font-size: 17px; margin: 3px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .continue-grid em { color: #c2d2cf; font-size: 9px; font-style: normal; }
-.progress-overview { display: grid; gap: 8px; grid-template-columns: repeat(4, 1fr); margin-top: 12px; }
+.progress-overview { display: grid; gap: 8px; grid-template-columns: repeat(5, 1fr); margin-top: 12px; }
 .progress-overview article { background: #eef1ec; border: 1px solid #e1e5de; border-radius: 13px; padding: 13px; }
 .progress-overview header { align-items: center; color: var(--teal); display: flex; justify-content: space-between; }
 .progress-overview header svg { height: 17px; width: 17px; }
@@ -2380,7 +2380,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  max-height: 90dvh;
+  max-height: min(90dvh, 740px);
   max-width: 600px;
   overflow: hidden;
   width: 100%;
@@ -2390,6 +2390,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   align-items: center;
   border-bottom: 1px solid var(--line);
   display: flex;
+  flex-shrink: 0;
   justify-content: space-between;
   padding: 16px 20px;
 }
@@ -2428,8 +2429,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .builder-body {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 16px;
+  min-height: 0;
   overflow-y: auto;
   padding: 18px 20px;
 }
@@ -2643,6 +2646,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   align-items: center;
   border-top: 1px solid var(--line);
   display: flex;
+  flex-shrink: 0;
   gap: 10px;
   justify-content: flex-end;
   padding: 14px 20px;

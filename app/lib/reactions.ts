@@ -1,5 +1,5 @@
 import type { ReactionRecord, SpeciesRecord } from "./types";
-import { parseFormula } from "./formula";
+import { formatFormulaSubscripts, parseFormula } from "./formula";
 
 function species(formula: string, label: string, state: SpeciesRecord["state"]): SpeciesRecord {
   const composition = parseFormula(formula);
@@ -256,6 +256,11 @@ export function resolveReaction(slug: string | null | undefined) {
 
 export function formatEquation(reaction: ReactionRecord, coefficients = reaction.coefficients) {
   const side = (items: SpeciesRecord[], values: number[]) =>
-    items.map((item, index) => `${values[index] === 1 ? "" : values[index]}${item.formula}(${item.state})`).join(" + ");
+    items
+      .map(
+        (item, index) =>
+          `${values[index] === 1 ? "" : values[index]}${formatFormulaSubscripts(item.formula)}(${item.state})`,
+      )
+      .join(" + ");
   return `${side(reaction.reactants, coefficients.reactants)} → ${side(reaction.products, coefficients.products)}`;
 }
