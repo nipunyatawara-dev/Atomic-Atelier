@@ -12,6 +12,7 @@ import { countSide, formatFormulaSubscripts, isBalanced } from "../lib/formula";
 import { elementByNumber } from "../lib/elements";
 import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "../lib/reactions";
 import { useProgress } from "../lib/progress";
+import { useSheetGesture } from "../lib/useSheetGesture";
 import type { ElementRecord, QuizQuestion, ReactionGrade, ReactionRecord } from "../lib/types";
 
 const ReactionViewer = dynamic(() => import("./ReactionViewer").then((module) => module.ReactionViewer), { ssr: false, loading: () => <section className="reaction-viewer viewer-loading"><FlaskConical /><strong>Preparing particles…</strong></section> });
@@ -42,7 +43,7 @@ export function ReactionLab() {
   const [quizOpen, setQuizOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [mobileLibrary, setMobileLibrary] = useState(false);
-  const libraryRef = useRef<HTMLElement>(null);
+  const libraryRef = useSheetGesture<HTMLElement>({ isOpen: mobileLibrary, onClose: () => setMobileLibrary(false) });
   const libraryTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {

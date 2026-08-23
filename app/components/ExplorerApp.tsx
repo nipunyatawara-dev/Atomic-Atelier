@@ -32,6 +32,7 @@ import { formatElectronConfig } from "../lib/formula";
 import { reactions } from "../lib/reactions";
 import { curatedMolecules } from "../lib/molecules";
 import { useProgress } from "../lib/progress";
+import { useSheetGesture } from "../lib/useSheetGesture";
 import type { ElementCategory, ElementRecord } from "../lib/types";
 
 const AtomViewer = dynamic(() => import("./AtomViewer").then((module) => module.AtomViewer), {
@@ -57,7 +58,7 @@ export function ExplorerApp() {
   const [savedOpen, setSavedOpen] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const appRef = useRef<HTMLElement>(null);
-  const libraryRef = useRef<HTMLElement>(null);
+  const libraryRef = useSheetGesture<HTMLElement>({ isOpen: mobileLibrary, onClose: () => setMobileLibrary(false) });
   const libraryTriggerRef = useRef<HTMLButtonElement>(null);
   const introPlayedRef = useRef(false);
   const introTimelineRef = useRef<gsap.core.Timeline | null>(null);

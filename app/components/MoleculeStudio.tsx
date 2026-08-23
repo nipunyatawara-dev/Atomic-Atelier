@@ -35,6 +35,7 @@ import {
 } from "../lib/molecules";
 import { elementByNumber } from "../lib/elements";
 import { useProgress } from "../lib/progress";
+import { useSheetGesture } from "../lib/useSheetGesture";
 import type { MoleculeAtom, MoleculeRecord } from "../lib/types";
 
 const MoleculeViewer = dynamic(
@@ -93,7 +94,7 @@ export function MoleculeStudio() {
   const [tableOpen, setTableOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [mobileLibrary, setMobileLibrary] = useState(false);
-  const libraryRef = useRef<HTMLElement>(null);
+  const libraryRef = useSheetGesture<HTMLElement>({ isOpen: mobileLibrary, onClose: () => setMobileLibrary(false) });
   const libraryTriggerRef = useRef<HTMLButtonElement>(null);
 
   // Custom Builder State

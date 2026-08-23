@@ -1066,20 +1066,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .brand-mark { border-radius: 10px; height: 34px; width: 34px; }
   .brand-mark svg { height: 17px; width: 17px; }
   .brand strong { font-size: 18px; }
-  .brand em { font-size: 7px; margin-top: 2px; }
+  .brand em { font-size: 9.5px; margin-top: 2px; }
   .main-nav, .header-actions { display: none; }
-  .mobile-context-action { align-items: center; background: #e5ede8; border: 1px solid #d1ddd6; border-radius: 12px; cursor: pointer; display: flex; gap: 7px; margin-left: auto; max-width: 140px; min-height: 38px; padding: 4px 8px; text-align: left; }
+  .mobile-context-action { align-items: center; background: #e5ede8; border: 1px solid #d1ddd6; border-radius: 12px; cursor: pointer; display: flex; gap: 7px; margin-left: auto; max-width: 140px; min-height: 42px; padding: 4px 8px; text-align: left; }
   .mobile-context-action:active { transform: scale(.96); }
   .mobile-context-action > svg { color: var(--teal); flex: 0 0 auto; height: 15px; width: 15px; }
   .mobile-context-action > span { display: flex; flex-direction: column; min-width: 0; }
-  .mobile-context-action strong { font-size: 10px; }
-  .mobile-context-action small { color: var(--muted); font-size: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-context-action strong { font-size: 11.5px; }
+  .mobile-context-action small { color: var(--muted); font-size: 10.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .mobile-nav { align-items: center; background: rgba(249,248,243,.82); border: 1px solid rgba(255,255,255,.8); border-radius: 18px; bottom: max(7px, env(safe-area-inset-bottom)); box-shadow: 0 14px 40px rgba(18,44,45,.17), 0 1px 0 rgba(255,255,255,.86) inset; -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%); display: grid; gap: 2px; grid-template-columns: repeat(4, 1fr); left: 7px; padding: 4px; position: fixed; right: 7px; z-index: 80; }
-  .mobile-nav a, .mobile-nav button { align-items: center; background: transparent; border: 0; border-radius: 13px; color: #687773; cursor: pointer; display: flex; flex-direction: column; font-size: 9px; font-weight: 600; gap: 2px; justify-content: center; min-height: 46px; padding: 4px; transition: background-color .16s ease, color .16s ease, transform .1s ease-out; }
+  .mobile-nav a, .mobile-nav button { align-items: center; background: transparent; border: 0; border-radius: 13px; color: #687773; cursor: pointer; display: flex; flex-direction: column; font-size: 10px; font-weight: 600; gap: 2px; justify-content: center; min-height: 50px; padding: 4px; transition: background-color .16s ease, color .16s ease, transform .1s ease-out; }
   .mobile-nav a.active { background: var(--deep); box-shadow: 0 5px 14px rgba(23,57,58,.22), 0 1px 0 rgba(255,255,255,.16) inset; color: #fff; }
   .mobile-nav a:active, .mobile-nav button:active { background: #dce9e3; color: var(--deep); transform: scale(.92); }
   .mobile-nav a.active:active { background: var(--deep); color: #fff; }
-  .mobile-nav svg { height: 17px; width: 17px; }
+  .mobile-nav svg { height: 18px; width: 18px; }
   
   .workspace, .reaction-workspace { display: flex; flex-direction: column; margin-top: 10px; min-height: 0; }
   
@@ -1096,14 +1096,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   
   /* View switcher at top center */
   .viewer-view-switcher { top: 12px; z-index: 6; }
-  .switcher-btn { font-size: 9.5px; padding: 4px 10px; }
+  .switcher-btn { font-size: 11px; padding: 4px 10px; min-height: 36px; }
   
   /* Orbital bar & horizontally scrollable chips */
   .orbital-bar { top: 48px; left: 8px; right: 8px; max-width: none; transform: none; z-index: 6; }
   .subshell-chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; max-width: 100%; padding: 2px; justify-content: flex-start; }
   .subshell-chips::-webkit-scrollbar { display: none; }
-  .chip { flex: 0 0 auto; font-size: 9px; padding: 4px 7px; }
-  .orbital-legend { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 3px 8px; font-size: 8px; gap: 6px; }
+  .chip { flex: 0 0 auto; font-size: 11px; padding: 4px 10px; min-height: 34px; }
+  .orbital-legend { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 4px 10px; font-size: 10.5px; gap: 6px; }
   .orbital-legend::-webkit-scrollbar { display: none; }
   
   /* Floating dock for 7 viewer tools */
@@ -1145,7 +1145,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .viewer-tools button svg { flex: 0 0 auto; height: 16px; width: 16px; }
   .viewer-tools button span {
     clip-path: none;
-    font-size: 8px;
+    font-size: 9.5px;
     font-weight: 650;
     height: auto;
     line-height: 1;
@@ -1205,14 +1205,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .dialog-card.periodic-dialog { border-radius: 16px; height: calc(100dvh - 12px); max-height: none; max-width: calc(100vw - 12px); padding: 12px 10px 10px; }
   .dialog-card.periodic-dialog::before { display: none; }
   .periodic-dialog .dialog-close { height: 28px; right: 10px; top: 10px; width: 28px; }
-  .periodic-dialog .dialog-eyebrow { font-size: 8px; margin-bottom: 3px; }
+  .periodic-dialog .dialog-eyebrow { font-size: 10px; margin-bottom: 3px; }
   .periodic-dialog > h2 { font-size: 20px; margin-bottom: 6px; }
   .periodic-dialog .table-controls { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
   .periodic-dialog .table-controls label { flex: 1 1 120px; }
   .periodic-dialog .table-controls select { flex: 0 1 105px; }
-  .periodic-dialog .table-controls .periodic-3d-link { flex: 0 0 auto; font-size: 9px; min-height: 34px; padding: 4px 8px; gap: 4px; }
-  .periodic-dialog .table-controls label, .periodic-dialog .table-controls select { font-size: 9px; min-height: 34px; padding: 6px 8px; }
-  .periodic-dialog .periodic-scroll-hint { align-items: center; color: var(--muted); display: flex; flex: 0 0 auto; font-size: 9px; font-weight: 600; gap: 5px; letter-spacing: .02em; margin: 0 0 5px; }
+  .periodic-dialog .table-controls .periodic-3d-link { flex: 0 0 auto; font-size: 11px; min-height: 38px; padding: 5px 10px; gap: 5px; }
+  .periodic-dialog .table-controls label, .periodic-dialog .table-controls select { font-size: 11px; min-height: 38px; padding: 6px 10px; }
+  .periodic-dialog .periodic-scroll-hint { align-items: center; color: var(--muted); display: flex; flex: 0 0 auto; font-size: 11px; font-weight: 600; gap: 5px; letter-spacing: .02em; margin: 0 0 5px; }
   .periodic-dialog .periodic-scroll {
     -webkit-overflow-scrolling: touch;
     background: #f4f5ef;
@@ -1241,14 +1241,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   }
   .periodic-dialog .periodic-grid > button { border-radius: 7px; min-height: 44px; overflow: hidden; padding: 4px; touch-action: manipulation; }
   .periodic-dialog .periodic-grid > button:active { transform: scale(.94); }
-  .periodic-dialog .periodic-grid button small { font-size: 8px; }
+  .periodic-dialog .periodic-grid button small { font-size: 9px; }
   .periodic-dialog .periodic-grid button b { font-size: 18px; }
-  .periodic-dialog .periodic-grid button span { display: block; font-size: 7px; }
-  .periodic-dialog .period-label { display: block; font-size: 8px; }
-  .periodic-dialog .category-legend { flex-wrap: nowrap; gap: 3px; margin-top: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .periodic-dialog .periodic-grid button span { display: block; font-size: 9px; }
+  .periodic-dialog .period-label { display: block; font-size: 10px; }
+  .periodic-dialog .category-legend { flex-wrap: nowrap; gap: 4px; margin-top: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
   .periodic-dialog .category-legend::-webkit-scrollbar { display: none; }
-  .periodic-dialog .category-legend button { flex: 0 0 auto; font-size: 8px; gap: 4px; min-height: 28px; padding: 4px 6px; touch-action: manipulation; }
-  .periodic-dialog .category-legend i { height: 7px; width: 7px; }
+  .periodic-dialog .category-legend button { flex: 0 0 auto; font-size: 10.5px; gap: 5px; min-height: 34px; padding: 4px 8px; touch-action: manipulation; }
+  .periodic-dialog .category-legend i { height: 8px; width: 8px; }
   
   .tour-dialog { border-radius: 24px 24px 0 0; }
   .tour-visual { height: 130px; }
@@ -1281,14 +1281,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .reaction-title > span { font-size: 0; padding: 8px; }
   .equation-card { grid-template-columns: 1fr; gap: 6px; padding: 8px; }
   .equation-side { overflow-x: auto; }
-  .coefficient-stepper button { min-height: 26px; min-width: 30px; display: flex; align-items: center; justify-content: center; }
+  .coefficient-stepper button { min-height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
   .reaction-arrow { justify-self: center; transform: rotate(90deg); margin: 2px 0; }
   .reaction-viewer { min-height: 360px; }
   .reaction-viewer .viewer-tip { top: 12px; }
   .balance-panel { grid-template-columns: 1fr; }
-  .lab-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-  .lab-actions .check-button { grid-column: 1 / -1; order: -1; min-height: 40px; font-weight: 700; font-size: 11.5px; }
-  .lab-actions button { justify-content: center; min-height: 36px; padding: 0 4px; }
+  .lab-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .lab-actions .check-button { grid-column: 1 / -1; order: -1; min-height: 44px; font-weight: 700; font-size: 12.5px; }
+  .lab-actions button { justify-content: center; min-height: 40px; font-size: 11.5px; padding: 0 6px; }
   .reaction-result-card { grid-template-columns: 1fr; gap: 12px; }
   .reaction-grade { min-height: 110px; }
   .attempt-tracker { flex-wrap: wrap; }
