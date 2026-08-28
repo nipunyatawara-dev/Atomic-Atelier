@@ -262,6 +262,7 @@ export function Periodic3DElevation({
       pillars.forEach((p) => {
         p.mesh.material.dispose();
       });
+      controls.dispose();
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
       sceneStateRef.current = null;
