@@ -1,5 +1,6 @@
 // Common & Layout Shell
 export { AppHeader } from "./common/AppHeader";
+export { AppFooter } from "./common/AppFooter";
 export { Dialog } from "./common/Dialog";
 export { PWAProvider, usePWA } from "./common/PWAClient";
 

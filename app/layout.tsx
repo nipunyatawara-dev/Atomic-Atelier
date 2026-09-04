@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Mono } from "next/font/google";
 import { PWAProvider } from "./components/common/PWAClient";
+import { AppFooter } from "./components/common/AppFooter";
 import "./globals.css";
 import "./apple-overhaul.css";
 
@@ -54,7 +55,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={mono.variable} data-scroll-behavior="smooth">
-      <body><PWAProvider>{children}</PWAProvider></body>
+      <body>
+        <PWAProvider>
+          {children}
+          <AppFooter />
+        </PWAProvider>
+      </body>
     </html>
   );
 }
