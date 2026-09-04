@@ -32,19 +32,15 @@ describe("AppFooter", () => {
   it("renders source code GitHub link with secure target and rel attributes", () => {
     render(<AppFooter />);
 
-    const githubLinks = screen.getAllByRole("link", {
-      name: /Atomic Atelier on GitHub|Source on GitHub/i,
+    const githubLink = screen.getByRole("link", {
+      name: /Atomic Atelier on GitHub/i,
     });
-    expect(githubLinks.length).toBeGreaterThanOrEqual(1);
-
-    for (const link of githubLinks) {
-      expect(link).toHaveAttribute(
-        "href",
-        "https://github.com/nipunyatawara-dev/Atomic-Atelier"
-      );
-      expect(link).toHaveAttribute("target", "_blank");
-      expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    }
+    expect(githubLink).toHaveAttribute(
+      "href",
+      "https://github.com/nipunyatawara-dev/Atomic-Atelier"
+    );
+    expect(githubLink).toHaveAttribute("target", "_blank");
+    expect(githubLink).toHaveAttribute("rel", "noopener noreferrer");
   });
 
   it("renders scientific reference and standard links", () => {
@@ -69,11 +65,12 @@ describe("AppFooter", () => {
     );
   });
 
-  it("renders privacy and offline badges", () => {
+  it("renders offline and element pills without bottom bar telemetry or secondary button", () => {
     render(<AppFooter />);
 
-    expect(screen.getByText(/Zero telemetry · 100% private local storage/i)).toBeInTheDocument();
     expect(screen.getByText("Offline Ready")).toBeInTheDocument();
     expect(screen.getByText("118 Elements")).toBeInTheDocument();
+    expect(screen.queryByText(/Zero telemetry · 100% private local storage/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Source on GitHub")).not.toBeInTheDocument();
   });
 });

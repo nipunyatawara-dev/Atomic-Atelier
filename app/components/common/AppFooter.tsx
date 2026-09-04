@@ -4,7 +4,6 @@ import {
   ExternalLink,
   FlaskConical,
   Layers,
-  ShieldCheck,
   TrendingUp,
 } from "lucide-react";
 
@@ -181,22 +180,6 @@ export function AppFooter() {
           <p className="footer-copyright">
             © {currentYear} Atomic Atelier. Designed for students, educators, and curious minds.
           </p>
-
-          <div className="footer-privacy-badge">
-            <ShieldCheck size={14} aria-hidden="true" />
-            <span>Zero telemetry · 100% private local storage</span>
-          </div>
-
-          <a
-            href="https://github.com/nipunyatawara-dev/Atomic-Atelier"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-bottom-github"
-            aria-label="GitHub repository"
-          >
-            <GithubIcon size={14} />
-            <span>Source on GitHub</span>
-          </a>
         </div>
       </div>
     </footer>
