@@ -204,9 +204,11 @@ export function Periodic3DElevation({
     });
     resizeObserver.observe(mount);
 
-    let visible = true;
     const intersectionObserver = new IntersectionObserver((entries) => {
-      visible = entries[0]?.isIntersecting ?? true;
+      const isVisible = entries[0]?.isIntersecting ?? true;
+      if (sceneStateRef.current) {
+        sceneStateRef.current.visible = isVisible;
+      }
     });
     intersectionObserver.observe(mount);
 
@@ -221,7 +223,7 @@ export function Periodic3DElevation({
       root,
       timer,
       frame: 0,
-      visible,
+      visible: true,
       reduced,
       resizeObserver,
       intersectionObserver,
@@ -259,10 +261,18 @@ export function Periodic3DElevation({
       unitBoxGeo.dispose();
       groundGeo.dispose();
       groundMat.dispose();
+      gridHelper.geometry.dispose();
+      if (Array.isArray(gridHelper.material)) {
+        gridHelper.material.forEach((m) => m.dispose());
+      } else {
+        gridHelper.material.dispose();
+      }
       pillars.forEach((p) => {
         p.mesh.material.dispose();
       });
       controls.dispose();
+      state.timer.dispose();
+      renderer.forceContextLoss();
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
       sceneStateRef.current = null;

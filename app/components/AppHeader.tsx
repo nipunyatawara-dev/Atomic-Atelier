@@ -29,7 +29,7 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
   return (
     <>
       <header className="topbar">
-        <Link href="/" className="brand" aria-label="Atomic Atelier home">
+        <Link href="/" className="brand" aria-label="Atomic Atelier: See matter differently">
           <span className="brand-mark" aria-hidden="true"><Atom /></span>
           <span className="brand-copy"><strong>Atomic Atelier</strong><em>See matter differently</em></span>
         </Link>

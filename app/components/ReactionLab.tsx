@@ -73,7 +73,7 @@ export function ReactionLab() {
       document.removeEventListener("keydown", closeOnEscape);
       (previous ?? trigger)?.focus();
     };
-  }, [mobileLibrary]);
+  }, [mobileLibrary, libraryRef]);
 
   const balanced = isBalanced(reaction.reactants, reaction.products, coefficients.reactants, coefficients.products);
   const leftCounts = useMemo(() => countSide(reaction.reactants, coefficients.reactants), [reaction, coefficients.reactants]);

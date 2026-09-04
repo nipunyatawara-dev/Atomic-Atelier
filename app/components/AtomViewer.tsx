@@ -29,23 +29,6 @@ import {
 type ViewMode = "bohr" | "orbital";
 type StructureKey = "nucleus" | "proton" | "neutron" | "electron" | "valence" | "orbitals";
 
-type SceneState = {
-  container: HTMLDivElement;
-  renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  controls: OrbitControls;
-  atom: THREE.Group;
-  resizeObserver: ResizeObserver;
-  intersectionObserver: IntersectionObserver;
-  electronData: Array<{ mesh: THREE.InstancedMesh; shellRadius: number; speed: number; angle: number; inclination: number; phase: number }>;
-  shells: THREE.LineLoop[];
-  nucleusMeshes: THREE.Mesh[];
-  innerElectrons: THREE.InstancedMesh | null;
-  valenceElectrons: THREE.InstancedMesh | null;
-  orbitalMeshes: Map<string, THREE.Points>;
-};
-
 type ViewerState = {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
@@ -162,11 +145,22 @@ function viewingDistance(state: ViewerState, element: ElementRecord) {
 }
 
 function clearGroup(group: THREE.Group) {
+  const disposedGeometries = new Set<THREE.BufferGeometry>();
+  const disposedMaterials = new Set<THREE.Material>();
+
   group.traverse((object) => {
     if (object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points) {
-      object.geometry.dispose();
+      if (object.geometry && !disposedGeometries.has(object.geometry)) {
+        disposedGeometries.add(object.geometry);
+        object.geometry.dispose();
+      }
       const materials = Array.isArray(object.material) ? object.material : [object.material];
-      materials.forEach((material) => material.dispose());
+      materials.forEach((material) => {
+        if (material && !disposedMaterials.has(material)) {
+          disposedMaterials.add(material);
+          material.dispose();
+        }
+      });
     }
   });
   group.clear();
@@ -223,15 +217,15 @@ export function AtomViewer({
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
-    reducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobileViewport = typeof window !== "undefined" && (window.innerWidth <= 768 || window.matchMedia("(max-width: 768px)").matches);
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !isMobileViewport, powerPreference: "high-performance" });
     } catch {
       setFallback(true);
       return;
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(isMobileViewport ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
@@ -247,7 +241,9 @@ export function AtomViewer({
     const fill = new THREE.DirectionalLight(0x9ce0d5, 1.4);
     fill.position.set(-4, -1, 4);
     scene.add(fill);
-    const rim = new THREE.PointLight(0x8f79ff, 6.5, 18);
+    const rim = isMobileViewport
+      ? new THREE.DirectionalLight(0x8f79ff, 1.2)
+      : new THREE.PointLight(0x8f79ff, 6.5, 18);
     rim.position.set(-4, 2, -4);
     scene.add(rim);
 
@@ -314,16 +310,24 @@ export function AtomViewer({
       if (moving) {
         state.atom.rotation.y += delta * 0.18;
         if (viewModeRef.current === "bohr") {
+          const isHeavyMobile = isMobileViewport && state.electronData.length > 40;
+          const updateInner = !isHeavyMobile || state.frame % 2 === 0;
           state.electronData.forEach((electron) => {
-            electron.angle += delta * electron.speed;
+            const isInner = electron.mesh === state.innerElectrons;
+            if (isInner && !updateInner) return;
+            electron.angle += (isInner && isHeavyMobile ? delta * 2 : delta) * electron.speed;
             dummy.position
               .set(Math.cos(electron.angle) * electron.radius, Math.sin(electron.angle) * electron.radius, 0)
               .applyQuaternion(electron.orbit);
-            dummy.scale.setScalar(electron.mesh === state.valenceElectrons && valenceFocusRef.current ? 1.42 : 1);
+            if (valenceFocusRef.current && electron.mesh === state.valenceElectrons) {
+              dummy.scale.setScalar(1.42);
+            } else {
+              dummy.scale.setScalar(1);
+            }
             dummy.updateMatrix();
             electron.mesh.setMatrixAt(electron.instance, dummy.matrix);
           });
-          if (state.innerElectrons) state.innerElectrons.instanceMatrix.needsUpdate = true;
+          if (state.innerElectrons && updateInner) state.innerElectrons.instanceMatrix.needsUpdate = true;
           if (state.valenceElectrons) state.valenceElectrons.instanceMatrix.needsUpdate = true;
         } else {
           state.orbitalMeshes.forEach((mesh) => {
@@ -353,6 +357,8 @@ export function AtomViewer({
       state.intersectionObserver.disconnect();
       controls.dispose();
       clearGroup(atom);
+      state.timer.dispose();
+      renderer.forceContextLoss();
       renderer.dispose();
       renderer.domElement.remove();
       stateRef.current = null;
@@ -378,50 +384,64 @@ export function AtomViewer({
       if (d > maxClusterRadius) maxClusterRadius = d;
     });
 
-    const particleGeometry = new THREE.SphereGeometry(particleSize, 32, 24);
-    const protonMaterial = new THREE.MeshPhysicalMaterial({ color: 0xef7765, roughness: 0.38, metalness: 0.02, clearcoat: 0.25, clearcoatRoughness: 0.45 });
-    const neutronMaterial = new THREE.MeshPhysicalMaterial({ color: 0x587583, roughness: 0.42, metalness: 0.05, clearcoat: 0.20, clearcoatRoughness: 0.50 });
-    const protons = new THREE.InstancedMesh(particleGeometry, protonMaterial, element.atomicNumber);
-    const neutrons = new THREE.InstancedMesh(particleGeometry.clone(), neutronMaterial, neutronCount);
+    const isMobile = typeof window !== "undefined" && (window.innerWidth <= 768 || window.matchMedia("(max-width: 768px)").matches);
+    const maxNucleons = isMobile ? Math.min(nucleusTotal, 110) : nucleusTotal;
+    const renderedProtons = Math.min(element.atomicNumber, Math.round(maxNucleons * (element.atomicNumber / nucleusTotal)));
+    const renderedNeutrons = maxNucleons - renderedProtons;
+    const isDenseNucleus = nucleusTotal > 40;
+    const isUltraDense = nucleusTotal > 90;
+    const nSegmentsWidth = isUltraDense ? 8 : isDenseNucleus ? 12 : 20;
+    const nSegmentsHeight = isUltraDense ? 6 : isDenseNucleus ? 8 : 14;
+    const particleGeometry = new THREE.SphereGeometry(particleSize, nSegmentsWidth, nSegmentsHeight);
+    const protonMaterial = new THREE.MeshPhongMaterial({ color: 0xef7765, specular: 0x222222, shininess: 24 });
+    const neutronMaterial = new THREE.MeshPhongMaterial({ color: 0x587583, specular: 0x222222, shininess: 20 });
+    const protons = new THREE.InstancedMesh(particleGeometry, protonMaterial, renderedProtons);
+    const neutrons = new THREE.InstancedMesh(particleGeometry, neutronMaterial, renderedNeutrons);
     let protonIndex = 0;
     let neutronIndex = 0;
-    for (let slot = 0; slot < nucleusTotal; slot += 1) {
-      const expectedProtons = Math.round(((slot + 1) * element.atomicNumber) / nucleusTotal);
-      const isProton = protonIndex < expectedProtons && protonIndex < element.atomicNumber;
+    for (let slot = 0; slot < maxNucleons; slot += 1) {
+      const expectedProtons = Math.round(((slot + 1) * renderedProtons) / maxNucleons);
+      const isProton = protonIndex < expectedProtons && protonIndex < renderedProtons;
       dummy.position.copy(positions[slot]);
       dummy.rotation.set(0, 0, 0);
       dummy.scale.setScalar(1);
       dummy.updateMatrix();
       if (isProton) {
         protons.setMatrixAt(protonIndex++, dummy.matrix);
-      } else if (neutronIndex < neutronCount) {
+      } else if (neutronIndex < renderedNeutrons) {
         neutrons.setMatrixAt(neutronIndex++, dummy.matrix);
       }
     }
     const nucleusGlow = new THREE.Mesh(
-      new THREE.SphereGeometry(maxClusterRadius * 1.12, 36, 28),
+      new THREE.SphereGeometry(maxClusterRadius * 1.12, isUltraDense ? 10 : isDenseNucleus ? 14 : 24, isUltraDense ? 8 : isDenseNucleus ? 10 : 18),
       new THREE.MeshBasicMaterial({ color: 0x9bd8d0, transparent: true, opacity: .055, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide }),
     );
-    const nucleusLight = new THREE.PointLight(0xf4a291, 1.8, 5.5, 2);
+    const nucleusLight = isUltraDense
+      ? new THREE.AmbientLight(0xf4a291, 0.5)
+      : new THREE.PointLight(0xf4a291, 1.8, 5.5, 2);
     state.atom.add(nucleusGlow, nucleusLight, protons, neutrons);
     state.nucleusMeshes = [nucleusGlow, protons, neutrons];
 
     const innerCount = element.shells.slice(0, -1).reduce((sum, count) => sum + count, 0);
     const outerCount = element.shells.at(-1) ?? 0;
     const electronSize = THREE.MathUtils.clamp(.128 - element.atomicNumber * .00035, .082, .124);
-    const electronGeometry = new THREE.SphereGeometry(electronSize, 28, 20);
-    const innerMaterial = new THREE.MeshPhysicalMaterial({ color: 0x78c9e8, emissive: 0x1a7199, emissiveIntensity: 1.4, roughness: 0.30, clearcoat: 0.35, clearcoatRoughness: 0.35 });
-    const valenceMaterial = new THREE.MeshPhysicalMaterial({ color: 0xb68af0, emissive: 0x6840b1, emissiveIntensity: 1.8, roughness: 0.28, clearcoat: 0.40, clearcoatRoughness: 0.35 });
+    const electronGeometry = new THREE.SphereGeometry(
+      electronSize,
+      element.atomicNumber > 60 ? 8 : element.atomicNumber > 30 ? 10 : 16,
+      element.atomicNumber > 60 ? 6 : element.atomicNumber > 30 ? 8 : 12,
+    );
+    const innerMaterial = new THREE.MeshPhongMaterial({ color: 0x78c9e8, emissive: 0x1a7199, specular: 0x333333, shininess: 28 });
+    const valenceMaterial = new THREE.MeshPhongMaterial({ color: 0xb68af0, emissive: 0x6840b1, specular: 0x444444, shininess: 34 });
     state.innerElectrons = new THREE.InstancedMesh(electronGeometry, innerMaterial, innerCount);
-    state.valenceElectrons = new THREE.InstancedMesh(electronGeometry.clone(), valenceMaterial, outerCount);
+    state.valenceElectrons = new THREE.InstancedMesh(electronGeometry, valenceMaterial, outerCount);
     state.atom.add(state.innerElectrons, state.valenceElectrons);
 
     let innerInstance = 0;
     let valenceInstance = 0;
     element.shells.forEach((count, shellIndex) => {
       const radius = shellRadius(element, shellIndex);
-      const points = Array.from({ length: 150 }, (_, index) => {
-        const angle = (index / 150) * Math.PI * 2;
+      const points = Array.from({ length: 72 }, (_, index) => {
+        const angle = (index / 72) * Math.PI * 2;
         return new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
       });
       const ringGeometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -458,29 +478,10 @@ export function AtomViewer({
     state.innerElectrons.instanceMatrix.needsUpdate = true;
     state.valenceElectrons.instanceMatrix.needsUpdate = true;
 
-    // Create 3D Quantum Orbital Probability Cloud Meshes
+    // Parse 3D Quantum Orbital configurations (clouds generated on-demand in orbital mode)
     const parsedSubshells = parseElectronConfiguration(element.electronConfiguration, element);
     setSubshells(parsedSubshells);
     setActiveSubshell("all");
-
-    parsedSubshells.forEach((subshell) => {
-      const cloudPositions = generateOrbitalCloudPoints(subshell, 650);
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute("position", new THREE.BufferAttribute(cloudPositions, 3));
-      const color = SUBSHELL_COLORS[subshell.type].main;
-      const material = new THREE.PointsMaterial({
-        color,
-        size: 0.07,
-        transparent: true,
-        opacity: 0.72,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      });
-      const orbitalPoints = new THREE.Points(geometry, material);
-      orbitalPoints.visible = false;
-      state.atom.add(orbitalPoints);
-      state.orbitalMeshes.set(subshell.label, orbitalPoints);
-    });
 
     state.camera.position.set(0, .55, viewingDistance(state, element));
     state.controls.target.set(0, 0, 0);
@@ -493,12 +494,32 @@ export function AtomViewer({
     setValenceFocus(false);
   }, [element]);
 
-  // Update Bohr vs Orbital Mode visibility
+  // Update Bohr vs Orbital Mode visibility (lazily creates orbital point clouds)
   useEffect(() => {
     const state = stateRef.current;
     if (!state) return;
 
     const isBohr = viewMode === "bohr";
+
+    if (!isBohr && state.orbitalMeshes.size === 0 && subshells.length > 0) {
+      subshells.forEach((subshell) => {
+        const cloudPositions = generateOrbitalCloudPoints(subshell, 500);
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute("position", new THREE.BufferAttribute(cloudPositions, 3));
+        const color = SUBSHELL_COLORS[subshell.type].main;
+        const material = new THREE.PointsMaterial({
+          color,
+          size: 0.07,
+          transparent: true,
+          opacity: 0.72,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+        const orbitalPoints = new THREE.Points(geometry, material);
+        state.atom.add(orbitalPoints);
+        state.orbitalMeshes.set(subshell.label, orbitalPoints);
+      });
+    }
 
     // Bohr components
     state.shells.forEach((shell) => { shell.visible = isBohr && shellsVisible && !nucleusFocus; });
@@ -511,7 +532,7 @@ export function AtomViewer({
     });
 
     state.dirty = true;
-  }, [viewMode, activeSubshell, shellsVisible, nucleusFocus]);
+  }, [viewMode, activeSubshell, shellsVisible, nucleusFocus, subshells]);
 
   useEffect(() => {
     valenceFocusRef.current = valenceFocus;

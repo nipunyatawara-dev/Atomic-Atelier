@@ -177,7 +177,7 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
     renderer.domElement.addEventListener("webglcontextlost", contextLost);
     return () => {
       cancelAnimationFrame(state.frame); renderer.domElement.removeEventListener("webglcontextlost", contextLost); gsap.killTweensOf(root.scale);
-      state.resizeObserver.disconnect(); state.intersectionObserver.disconnect(); controls.dispose(); disposeGroup(root); renderer.dispose(); renderer.domElement.remove(); stateRef.current = null;
+      state.resizeObserver.disconnect(); state.intersectionObserver.disconnect(); controls.dispose(); disposeGroup(root); state.timer.dispose(); renderer.forceContextLoss(); renderer.dispose(); renderer.domElement.remove(); stateRef.current = null;
     };
   }, []);
 

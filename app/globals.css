@@ -342,7 +342,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .element-count { align-items: center; color: var(--muted); display: flex; font-size: 10px; letter-spacing: .08em; margin: 10px 4px 6px; text-transform: uppercase; }
 .element-count i { font-style: normal; margin-left: auto; opacity: .68; }
-.element-list, .reaction-list { min-height: 0; overflow: auto; }
+.element-list, .reaction-list { min-height: 0; overflow: auto; padding-bottom: 12px; }
 .element-list > button {
   align-items: center;
   background: transparent;
@@ -724,7 +724,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .drawer-backdrop { display: none; }
 
 /* Dialogs and overlays */
-.dialog-backdrop { align-items: center; background: rgba(14, 30, 31, .52); display: flex; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 100; }
+.dialog-backdrop { align-items: center; background: rgba(14, 30, 31, .58); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); display: flex; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 100; }
 .dialog-card { background: var(--panel); border: 1px solid #d9ded7; border-radius: 23px; box-shadow: 0 30px 90px rgba(12, 29, 30, .24); max-height: min(88dvh, 920px); max-width: 580px; overflow: auto; padding: 28px; position: relative; width: 100%; }
 .dialog-card.wide { max-width: 1460px; }
 .dialog-close { align-items: center; background: #edf0ea; border: 0; border-radius: 50%; cursor: pointer; display: flex; height: 34px; justify-content: center; position: absolute; right: 20px; top: 20px; width: 34px; z-index: 3; }

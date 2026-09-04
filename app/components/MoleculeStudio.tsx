@@ -142,7 +142,7 @@ export function MoleculeStudio() {
       document.removeEventListener("keydown", closeOnEscape);
       (previous ?? trigger)?.focus();
     };
-  }, [mobileLibrary]);
+  }, [mobileLibrary, libraryRef]);
 
   const chooseMolecule = (mol: MoleculeRecord) => {
     setCurrentMolecule(mol);

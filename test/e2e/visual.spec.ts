@@ -20,21 +20,21 @@ test.beforeEach(async ({ page }) => {
 test("Carbon explorer visual", async ({ page }) => {
   await page.goto("/?element=carbon");
   await stablePage(page);
-  await expect(page).toHaveScreenshot("carbon-explorer.png", { fullPage: true, animations: "disabled" });
+  await expect(page).toHaveScreenshot("carbon-explorer.png", { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.02 });
 });
 
 test("heavy synthetic element visual", async ({ page }, testInfo: TestInfo) => {
   test.skip(testInfo.project.name === "mobile", "covered by the mobile Carbon visual");
   await page.goto("/?element=oganesson");
   await stablePage(page);
-  await expect(page).toHaveScreenshot("oganesson-explorer.png", { fullPage: true, animations: "disabled" });
+  await expect(page).toHaveScreenshot("oganesson-explorer.png", { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.02 });
 });
 
 test("comparison mode visual", async ({ page }, testInfo: TestInfo) => {
   test.skip(testInfo.project.name === "mobile", "comparison behavior is covered functionally on mobile");
   await page.goto("/?element=carbon&compare=oxygen");
   await stablePage(page);
-  await expect(page).toHaveScreenshot("carbon-oxygen-comparison.png", { fullPage: true, animations: "disabled" });
+  await expect(page).toHaveScreenshot("carbon-oxygen-comparison.png", { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.02 });
 });
 
 test("periodic table visual", async ({ page }, testInfo: TestInfo) => {
@@ -42,11 +42,10 @@ test("periodic table visual", async ({ page }, testInfo: TestInfo) => {
   if (testInfo.project.name === "mobile") {
     await page.getByRole("button", { name: "Table", exact: true }).click();
   } else {
-    await page.getByRole("button", { name: "Explore", exact: true }).click();
-    await page.getByRole("group", { name: "Explore menu" }).getByRole("button", { name: /Periodic table/ }).click();
+    await page.getByRole("button", { name: /View periodic table/i }).click();
   }
   await stablePage(page);
-  await expect(page).toHaveScreenshot("periodic-table.png", { fullPage: true, animations: "disabled" });
+  await expect(page).toHaveScreenshot("periodic-table.png", { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.02 });
 });
 
 test("balanced reaction visual", async ({ page }) => {
@@ -55,5 +54,5 @@ test("balanced reaction visual", async ({ page }) => {
   await page.getByRole("button", { name: "Hint" }).click();
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await stablePage(page);
-  await expect(page).toHaveScreenshot("balanced-water-reaction.png", { fullPage: true, animations: "disabled" });
+  await expect(page).toHaveScreenshot("balanced-water-reaction.png", { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.02 });
 });

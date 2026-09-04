@@ -9,7 +9,7 @@
   --ink: #142321;
   --muted: #687571;
   --paper: #edf1ed;
-  --panel: rgba(252, 253, 250, 0.88);
+  --panel: rgba(252, 253, 250, 0.98);
   --line: rgba(32, 58, 54, 0.12);
   --deep: #183e3a;
   --teal: #287b72;
@@ -274,6 +274,19 @@ select:focus-visible {
   background: linear-gradient(145deg, #204d48, #173a37);
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 7px 18px rgba(18, 58, 54, 0.16), 0 1px 0 rgba(255, 255, 255, 0.16) inset;
+}
+
+/* Dialogs & Modal Sheets */
+.dialog-backdrop {
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  background: rgba(12, 28, 27, 0.58);
+}
+
+.dialog-card {
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 32px 90px rgba(12, 36, 33, 0.22), 0 1px 0 rgba(255, 255, 255, 0.95) inset;
 }
 
 /* Elements */
@@ -716,6 +729,9 @@ select:focus-visible {
 
   .topbar {
     align-items: center;
+    background: rgba(247, 249, 245, 0.94);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
     display: grid;
     gap: 7px;
     grid-template-columns: 34px minmax(0, 1fr) auto;

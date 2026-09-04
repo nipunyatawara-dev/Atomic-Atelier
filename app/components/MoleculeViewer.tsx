@@ -295,9 +295,11 @@ export function MoleculeViewer({
     });
     resizeObserver.observe(mount);
 
-    let visible = true;
     const intersectionObserver = new IntersectionObserver((entries) => {
-      visible = entries[0]?.isIntersecting ?? true;
+      const isVisible = entries[0]?.isIntersecting ?? true;
+      if (sceneStateRef.current) {
+        sceneStateRef.current.visible = isVisible;
+      }
     });
     intersectionObserver.observe(mount);
 
@@ -316,7 +318,7 @@ export function MoleculeViewer({
       measureGroup,
       timer,
       frame: 0,
-      visible,
+      visible: true,
       reduced,
       dirty: true,
       resizeObserver,
@@ -344,6 +346,8 @@ export function MoleculeViewer({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       disposeGroup(root);
+      state.timer.dispose();
+      renderer.forceContextLoss();
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
       sceneStateRef.current = null;

@@ -19,6 +19,8 @@ export function useSheetGesture<T extends HTMLElement = HTMLElement>({
   const currentDeltaY = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
 
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     const sheet = sheetRef.current;
     if (!sheet || !isOpen) return;
@@ -81,22 +83,30 @@ export function useSheetGesture<T extends HTMLElement = HTMLElement>({
       touchStartY.current = null;
       currentDeltaY.current = 0;
 
+      if (timerRef.current) clearTimeout(timerRef.current);
+
       // Dismiss if dragged beyond threshold or fast downward flick
       if (delta > threshold || (delta > 40 && velocity > 0.5)) {
         sheet.style.transition = "transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1)";
         sheet.style.transform = "translateY(104%)";
-        setTimeout(() => {
+        timerRef.current = setTimeout(() => {
           onClose();
-          sheet.style.transform = "";
-          sheet.style.transition = "";
+          if (sheet) {
+            sheet.style.transform = "";
+            sheet.style.transition = "";
+          }
+          timerRef.current = null;
         }, 220);
       } else {
         // Snap back
         sheet.style.transition = "transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)";
         sheet.style.transform = "translateY(0)";
-        setTimeout(() => {
-          sheet.style.transform = "";
-          sheet.style.transition = "";
+        timerRef.current = setTimeout(() => {
+          if (sheet) {
+            sheet.style.transform = "";
+            sheet.style.transition = "";
+          }
+          timerRef.current = null;
         }, 220);
       }
     };
@@ -116,6 +126,7 @@ export function useSheetGesture<T extends HTMLElement = HTMLElement>({
     sheet.addEventListener("touchcancel", onTouchCancel, { passive: true });
 
     return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
       sheet.removeEventListener("touchstart", onTouchStart);
       sheet.removeEventListener("touchmove", onTouchMove);
       sheet.removeEventListener("touchend", onTouchEnd);

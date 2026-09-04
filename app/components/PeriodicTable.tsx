@@ -49,7 +49,7 @@ export function PeriodicTable({ selected, onSelect, onClose }: { selected: numbe
   return (
     <Dialog title="The periodic table" eyebrow="118 ways to build matter" onClose={onClose} wide className="periodic-dialog">
       <div className="table-controls">
-        <label><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, symbol, or number" /></label>
+        <label><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, symbol, or number" aria-label="Search periodic table by name, symbol, or number" name="table-search" /></label>
         <select value={category} onChange={(event) => setCategory(event.target.value as ElementCategory | "all")} aria-label="Filter by category">
           <option value="all">All categories</option>
           {categories.map(([value, label]) => <option value={value} key={value}>{label}</option>)}

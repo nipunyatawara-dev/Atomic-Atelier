@@ -142,7 +142,7 @@ export function ExplorerApp() {
       document.removeEventListener("keydown", closeOnEscape);
       (previous ?? trigger)?.focus();
     };
-  }, [mobileLibrary]);
+  }, [mobileLibrary, libraryRef]);
 
   const filteredElements = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -235,7 +235,7 @@ export function ExplorerApp() {
       <div className="workspace">
         <aside id="element-library" ref={libraryRef} className={`element-library panel ${mobileLibrary ? "open" : ""}`} role={mobileLibrary ? "dialog" : undefined} aria-modal={mobileLibrary ? "true" : undefined} aria-label="Element library">
           <div className="panel-heading"><span>Element library</span><button className="mobile-close" onClick={() => setMobileLibrary(false)} aria-label="Close element library"><X size={17} /></button><button className={filtersActive ? "active" : ""} onClick={() => setFilterOpen((value) => !value)} aria-label="Filter elements"><SlidersHorizontal size={17} /></button></div>
-          <label className="library-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, symbol, number…" /></label>
+          <label className="library-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, symbol, number…" aria-label="Search elements by name, symbol, or atomic number" name="element-search" /></label>
           {filterOpen && <div className="filter-panel">
             <select aria-label="Element category" value={filters.category} onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value as ElementFilter["category"] }))}><option value="all">All categories</option>{categories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
             <select aria-label="Electron block" value={filters.block} onChange={(event) => setFilters((current) => ({ ...current, block: event.target.value }))}><option value="all">All blocks</option>{["s", "p", "d", "f"].map((block) => <option value={block} key={block}>{block}-block</option>)}</select>
