@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Lightbulb, Minus, X } from "lucide-react";
-import { elements, formatValue } from "../lib/elements";
-import type { ElementRecord } from "../lib/types";
+import { elements, formatValue } from "../../lib/elements";
+import type { ElementRecord } from "../../lib/types";
 
 type Metric = {
   label: string;

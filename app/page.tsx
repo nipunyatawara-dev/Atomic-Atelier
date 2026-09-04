@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Atom } from "lucide-react";
-import { ExplorerApp } from "./components/ExplorerApp";
+import { ExplorerApp } from "./components/explorer/ExplorerApp";
 
 export default function HomePage() {
   return (

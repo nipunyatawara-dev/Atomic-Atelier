@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { TrendsStudio } from "../components/TrendsStudio";
+import { TrendsStudio } from "../components/trends/TrendsStudio";
 
 export const metadata: Metadata = {
   title: "Periodic Trends Heatmap & 3D Elevation Studio | Atomic Atelier",

@@ -11,14 +11,14 @@ import {
   RotateCcw,
   Sliders,
 } from "lucide-react";
-import { elementGridPosition, elements } from "../lib/elements";
+import { elementGridPosition, elements } from "../../lib/elements";
 import {
   getInterpolatedColor,
   getNormalizedValue,
   PALETTES,
   resolveTrend,
-} from "../lib/trends";
-import type { ElementRecord, TrendPaletteId, TrendPropertyId } from "../lib/types";
+} from "../../lib/trends";
+import type { ElementRecord, TrendPaletteId, TrendPropertyId } from "../../lib/types";
 
 type Props = {
   selectedProperty: TrendPropertyId;

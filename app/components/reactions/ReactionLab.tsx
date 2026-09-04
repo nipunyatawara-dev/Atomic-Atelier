@@ -4,16 +4,16 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, X } from "lucide-react";
-import { AppHeader } from "./AppHeader";
-import { PeriodicTable } from "./PeriodicTable";
-import { QuizModal } from "./QuizModal";
-import { SavedModal } from "./SavedModal";
-import { countSide, formatFormulaSubscripts, isBalanced } from "../lib/formula";
-import { elementByNumber } from "../lib/elements";
-import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "../lib/reactions";
-import { useProgress } from "../lib/progress";
-import { useSheetGesture } from "../lib/useSheetGesture";
-import type { ElementRecord, QuizQuestion, ReactionGrade, ReactionRecord } from "../lib/types";
+import { AppHeader } from "../common/AppHeader";
+import { PeriodicTable } from "../explorer/PeriodicTable";
+import { QuizModal } from "../explorer/QuizModal";
+import { SavedModal } from "../explorer/SavedModal";
+import { countSide, formatFormulaSubscripts, isBalanced } from "../../lib/formula";
+import { elementByNumber } from "../../lib/elements";
+import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "../../lib/reactions";
+import { useProgress } from "../../lib/progress";
+import { useSheetGesture } from "../../lib/useSheetGesture";
+import type { ElementRecord, QuizQuestion, ReactionGrade, ReactionRecord } from "../../lib/types";
 
 const ReactionViewer = dynamic(() => import("./ReactionViewer").then((module) => module.ReactionViewer), { ssr: false, loading: () => <section className="reaction-viewer viewer-loading"><FlaskConical /><strong>Preparing particles…</strong></section> });
 

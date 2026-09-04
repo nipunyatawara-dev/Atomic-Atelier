@@ -10,13 +10,13 @@ import {
   RotateCcw,
   Zap,
 } from "lucide-react";
-import type { MoleculeAtom, MoleculeRecord } from "../lib/types";
+import type { MoleculeAtom, MoleculeRecord } from "../../lib/types";
 import {
   calculateAngleDegrees,
   ELEMENT_CPK_COLORS,
   ELEMENT_RADII_VDW,
   PAULING_ELECTRONEGATIVITY,
-} from "../lib/vsepr";
+} from "../../lib/vsepr";
 
 export type MoleculeRenderMode = "ball-and-stick" | "space-filling" | "wireframe";
 

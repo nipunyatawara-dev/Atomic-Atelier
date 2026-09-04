@@ -16,14 +16,14 @@ import {
   Palette,
   Zap,
 } from "lucide-react";
-import { AppHeader } from "./AppHeader";
+import { AppHeader } from "../common/AppHeader";
 import { PeriodicHeatmapTable } from "./PeriodicHeatmapTable";
-import { PeriodicTable } from "./PeriodicTable";
-import { QuizModal } from "./QuizModal";
-import { SavedModal } from "./SavedModal";
+import { PeriodicTable } from "../explorer/PeriodicTable";
+import { QuizModal } from "../explorer/QuizModal";
+import { SavedModal } from "../explorer/SavedModal";
 import { TrendsGraph } from "./TrendsGraph";
-import { elementByNumber, elements } from "../lib/elements";
-import { useProgress } from "../lib/progress";
+import { elementByNumber, elements } from "../../lib/elements";
+import { useProgress } from "../../lib/progress";
 import {
   getElementRanking,
   PALETTES,
@@ -31,14 +31,14 @@ import {
   TREND_ANOMALIES,
   TREND_PROPERTIES,
   TREND_QUIZ_QUESTIONS,
-} from "../lib/trends";
+} from "../../lib/trends";
 import type {
   ElementRecord,
   TrendAnomaly,
   TrendPaletteId,
   TrendPropertyId,
   TrendViewMode,
-} from "../lib/types";
+} from "../../lib/types";
 
 const Periodic3DElevation = dynamic(
   () => import("./Periodic3DElevation").then((mod) => mod.Periodic3DElevation),

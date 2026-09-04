@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { MoleculeRecord } from "../lib/types";
+import type { MoleculeRecord } from "../../lib/types";
 
 type Props = {
   molecule: MoleculeRecord;

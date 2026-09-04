@@ -14,13 +14,13 @@ import {
   Trophy,
   TrendingUp,
 } from "lucide-react";
-import { Dialog } from "./Dialog";
-import { usePWA } from "./PWAClient";
-import { elementByNumber, elements } from "../lib/elements";
-import { reactionBySlug, reactions } from "../lib/reactions";
-import { curatedMolecules, moleculeBySlug } from "../lib/molecules";
-import { TREND_PROPERTIES } from "../lib/trends";
-import type { ElementRecord, MoleculeRecord, ProgressV1 } from "../lib/types";
+import { Dialog } from "../common/Dialog";
+import { usePWA } from "../common/PWAClient";
+import { elementByNumber, elements } from "../../lib/elements";
+import { reactionBySlug, reactions } from "../../lib/reactions";
+import { curatedMolecules, moleculeBySlug } from "../../lib/molecules";
+import { TREND_PROPERTIES } from "../../lib/trends";
+import type { ElementRecord, MoleculeRecord, ProgressV1 } from "../../lib/types";
 
 function percent(value: number, total: number) {
   return total ? Math.round((value / total) * 100) : 0;

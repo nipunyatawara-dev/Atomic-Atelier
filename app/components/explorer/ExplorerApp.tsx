@@ -2,38 +2,30 @@
 
 import dynamic from "next/dynamic";
 import gsap from "gsap";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Atom,
-  Beaker,
   Bookmark,
-  Boxes,
-  FlaskConical,
   Grid3X3,
-  History,
-  Layers,
   Search,
-  ShieldAlert,
   SlidersHorizontal,
-  TrendingUp,
   X,
 } from "lucide-react";
-import { AppHeader } from "./AppHeader";
+import { AppHeader } from "../common/AppHeader";
+import { AtomicInfoPanel, AtomicLearningCards } from "./AtomicContent";
 import { ComparisonPanel } from "./ComparisonPanel";
 import { FirstVisitTour } from "./FirstVisitTour";
 import { PeriodicTable } from "./PeriodicTable";
 import { QuizModal } from "./QuizModal";
 import { SavedModal } from "./SavedModal";
-import { CARBON, categories, categoryLabels, createElementQuiz, elementByNumber, elements, formatValue, resolveElement } from "../lib/elements";
-import { formatElectronConfig } from "../lib/formula";
-import { reactions } from "../lib/reactions";
-import { curatedMolecules } from "../lib/molecules";
-import { useProgress } from "../lib/progress";
-import { useSheetGesture } from "../lib/useSheetGesture";
-import type { ElementCategory, ElementRecord } from "../lib/types";
+import { CARBON, categories, categoryLabels, createElementQuiz, elementByNumber, elements, resolveElement } from "../../lib/elements";
+import { reactions } from "../../lib/reactions";
+import { curatedMolecules } from "../../lib/molecules";
+import { useProgress } from "../../lib/progress";
+import { useSheetGesture } from "../../lib/useSheetGesture";
+import type { ElementCategory, ElementRecord } from "../../lib/types";
 
 const AtomViewer = dynamic(() => import("./AtomViewer").then((module) => module.AtomViewer), {
   ssr: false,
@@ -255,57 +247,27 @@ export function ExplorerApp() {
 
         <AtomViewer element={element} autoRotate={progress.autoRotate} onAutoRotate={setAutoRotate} compareActive={compareOpen} onCompare={() => compareOpen ? closeCompare() : changeCompare(neighbor)} />
 
-        <aside className="info-panel panel">
-          <div className="info-kicker"><span data-category={element.category} /><b>Element {element.atomicNumber}</b><button className={progress.favorites.includes(element.atomicNumber) ? "favorite active" : "favorite"} onClick={() => toggleFavorite(element.atomicNumber)} aria-label={progress.favorites.includes(element.atomicNumber) ? `Remove ${element.name} from saved elements` : `Save ${element.name}`}><Bookmark size={17} fill={progress.favorites.includes(element.atomicNumber) ? "currentColor" : "none"} /></button></div>
-          <div className="info-title"><div><h1>{element.name}</h1><em>{categoryLabels[element.category]} · {element.block}-block</em></div><span data-category={element.category}><small>{element.atomicNumber}</small><b>{element.symbol}</b></span></div>
-          <p className="element-intro">A {element.categoryLabel.toLowerCase()} with an electron arrangement of <strong>{element.shells.join("–")}</strong>.</p>
-          <div className="fact-rule" />
-          <h2>Atomic profile</h2>
-          <dl className="key-facts">
-            <div><dt>Atomic mass</dt><dd>{element.atomicMass} u</dd></div>
-            <div><dt>Period / group</dt><dd>{element.period} / {element.group ?? "f-block"}</dd></div>
-            <div><dt>Standard state</dt><dd>{element.standardState ?? "Not established"}</dd></div>
-            <div><dt>Configuration</dt><dd className="configuration">{formatElectronConfig(element.electronConfiguration)}</dd></div>
-            <div><dt>Electronegativity</dt><dd>{formatValue(element.electronegativity)}</dd></div>
-            <div><dt>Ionization energy</dt><dd>{formatValue(element.ionizationEnergy, " eV")}</dd></div>
-            <div><dt>Oxidation states</dt><dd>{element.oxidationStates.length ? element.oxidationStates.join(", ") : "Not established"}</dd></div>
-          </dl>
-          <div className="isotope-note"><Atom size={16} /><p><b>Representative nucleus</b>{element.representativeMassNumber ? `${element.symbol}-${element.representativeMassNumber}: ${element.atomicNumber} ${element.atomicNumber === 1 ? "proton" : "protons"} and ${element.neutrons} ${element.neutrons === 1 ? "neutron" : "neutrons"}.` : "No representative isotope is asserted in the visualization."}</p></div>
-          <div className="discovery-note"><History size={15} /><p><b>Discovery</b>{element.yearDiscovered ?? "Date not established"}</p></div>
-          <div className="panel-actions">
-            <button className="primary-button" onClick={() => setQuizOpen(true)}>Take the element quiz <ArrowRight size={16} /></button>
-            <button onClick={() => changeCompare(neighbor)}><TrendingUp size={15} /> Compare</button>
-            {relatedMolecule && (
-              <Link href={`/molecules?molecule=${relatedMolecule.slug}`} title={`Explore ${relatedMolecule.name} in 3D`}><Layers size={15} /> {relatedMolecule.formula}</Link>
-            )}
-            <Link href={relatedReaction ? `/reactions?reaction=${relatedReaction.slug}` : "/reactions"}><FlaskConical size={15} /> Reaction</Link>
-          </div>
-          <div className="source-links"><span>Sources</span>{element.sourceRefs.map((source) => <a key={source.label} href={source.url} target="_blank" rel="noreferrer">{source.label}</a>)}</div>
-        </aside>
+        <AtomicInfoPanel
+          element={element}
+          neighbor={neighbor}
+          isFavorite={progress.favorites.includes(element.atomicNumber)}
+          onToggleFavorite={toggleFavorite}
+          onQuiz={() => setQuizOpen(true)}
+          onCompare={changeCompare}
+          relatedMolecule={relatedMolecule}
+          relatedReaction={relatedReaction}
+        />
       </div>
 
-      <section className="learning-cards" aria-label={`${element.name} learning resources`}>
-        <article><header><div><em>Atomic structure</em><h3>{element.shells.join("–")} shell distribution</h3></div><Atom /></header><div className="card-visual shell-visual">{element.shells.map((count, index) => <i key={index} style={{ width: `${52 + index * 20}px`, height: `${52 + index * 20}px` }}><b>{count}</b></i>)}<strong>{element.symbol}</strong></div><button onClick={() => setQuizOpen(true)}>Test this structure <ArrowRight /></button></article>
-        <article>
-          <header>
-            <div><em>Periodic trend</em><h3>{element.name} vs. {neighbor.name}</h3></div>
-            <TrendingUp />
-          </header>
-          <div className="card-visual trend-visual">
-            <span><b>{element.symbol}</b><small>{formatValue(element.electronegativity)}</small></span>
-            <i>→</i>
-            <span><b>{neighbor.symbol}</b><small>{formatValue(neighbor.electronegativity)}</small></span>
-          </div>
-          <div className="card-actions-split">
-            <button onClick={() => changeCompare(neighbor)}>Compare properties <ArrowRight /></button>
-            <Link href={`/trends?property=electronegativity&element=${element.slug}`}>Open Trends 3D Studio <ArrowRight /></Link>
-          </div>
-        </article>
-        <article><header><div><em>Compounds & 3D Shapes</em><h3>How it combines</h3></div><Boxes /></header><p className="resource-copy">{element.compounds}</p>{relatedMolecule ? <Link href={`/molecules?molecule=${relatedMolecule.slug}`}>Explore {relatedMolecule.name} ({relatedMolecule.formula}) in 3D <ArrowRight /></Link> : <Link href="/molecules">Open Molecule Studio <ArrowRight /></Link>}</article>
-        <article><header><div><em>Uses & occurrence</em><h3>Where it matters</h3></div><Beaker /></header><p className="resource-copy">{element.uses}</p><button onClick={() => setSavedOpen(true)}>Save for later <ArrowRight /></button></article>
-        <article><header><div><em>History</em><h3>{element.yearDiscovered ?? "A continuing story"}</h3></div><History /></header><p className="resource-copy">{element.history}</p><button onClick={() => setTableOpen(true)}>Place it in the table <ArrowRight /></button></article>
-        <article><header><div><em>Safety context</em><h3>Form and exposure matter</h3></div><ShieldAlert /></header><p className="resource-copy">{element.safety}</p><a href={element.sourceRefs[0].url} target="_blank" rel="noreferrer">Open source record <ArrowRight /></a></article>
-      </section>
+      <AtomicLearningCards
+        element={element}
+        neighbor={neighbor}
+        onQuiz={() => setQuizOpen(true)}
+        onCompare={changeCompare}
+        onSaved={() => setSavedOpen(true)}
+        onTable={() => setTableOpen(true)}
+        relatedMolecule={relatedMolecule}
+      />
 
       {mobileLibrary && <button className="drawer-backdrop" onClick={() => setMobileLibrary(false)} aria-label="Close element library" />}
       {tableOpen && <PeriodicTable selected={element.atomicNumber} onSelect={selectElement} onClose={() => setTableOpen(false)} />}

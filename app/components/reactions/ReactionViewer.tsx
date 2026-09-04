@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import { Info, RotateCcw } from "lucide-react";
-import type { ReactionRecord, SpeciesRecord } from "../lib/types";
+import type { ReactionRecord, SpeciesRecord } from "../../lib/types";
 
 const colors: Record<string, number> = {
   H: 0xf4f1e8, C: 0x4c5264, N: 0x4776d9, O: 0xe7685e, Na: 0x9b72d4, Mg: 0x74b890,

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Mono } from "next/font/google";
-import { PWAProvider } from "./components/PWAClient";
+import { PWAProvider } from "./components/common/PWAClient";
 import "./globals.css";
 import "./apple-overhaul.css";
 

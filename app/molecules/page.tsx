@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Atom } from "lucide-react";
-import { MoleculeStudio } from "../components/MoleculeStudio";
+import { MoleculeStudio } from "../components/molecules/MoleculeStudio";
 
 export const metadata = {
   title: "3D Molecule Builder & VSEPR Studio",

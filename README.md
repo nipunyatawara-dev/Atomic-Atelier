@@ -44,16 +44,35 @@ Safety notes are conceptual. Atomic Atelier does not provide experimental quanti
 
 ```text
 app/
-├── components/          Interactive explorer and reaction UI
-├── data/elements.json   Committed data for all 118 elements
-├── lib/                 Chemistry, formula, and progress utilities
-├── reactions/           Guided reaction-lab route
-├── layout.tsx           Global metadata, fonts, and page shell
-└── page.tsx             Element-explorer route
-public/                  Icons and social-preview assets
-scripts/                 Element-data synchronization
-test/                    Unit, end-to-end, and visual tests
+├── components/
+│   ├── common/             # Global layout & shell (AppHeader, Dialog, PWAClient)
+│   ├── explorer/           # Atomic Explorer, 3D AtomViewer, AtomicContent, Table, Quiz
+│   ├── molecules/          # 3D Molecule Studio, Lewis Structures, VSEPR
+│   ├── reactions/          # Chemistry Reaction Lab & 3D Stoichiometry
+│   ├── trends/             # Periodic Trends 3D Elevation & Heatmaps
+│   └── index.ts            # Central barrel exports
+├── data/
+│   └── elements.json       # Committed dataset for all 118 elements
+├── lib/                    # Chemistry formulas, orbital math, VSEPR, progress
+├── molecules/              # /molecules route
+├── reactions/              # /reactions route
+├── trends/                 # /trends route
+├── layout.tsx              # Global layout, fonts, PWA provider, metadata
+└── page.tsx                # / route (Atomic Explorer)
+public/                     # Minimal production PWA assets & social preview
+scripts/                    # Element data synchronization
+test/                       # Unit (Vitest) and E2E (Playwright) suites
 ```
+
+## Forking & Customizing
+
+Atomic Atelier is designed to be easily forked, modified, and extended:
+
+- **Atomic Content & Educational Cards**: Edit [`app/components/explorer/AtomicContent.tsx`](app/components/explorer/AtomicContent.tsx) to customize atomic profile facts, isotope notes, and the 6 educational resource cards.
+- **Element Data**: Periodic data is stored in [`app/data/elements.json`](app/data/elements.json) and synced via `npm run data:sync` ([`scripts/sync-elements.mjs`](scripts/sync-elements.mjs)).
+- **Molecules & VSEPR**: Add or adjust molecular models, 3D positions, lone pairs, and dipole moments in [`app/lib/molecules.ts`](app/lib/molecules.ts) and [`app/lib/vsepr.ts`](app/lib/vsepr.ts).
+- **Chemical Reactions**: Add new synthesis, decomposition, or combustion reactions with atom mappings in [`app/lib/reactions.ts`](app/lib/reactions.ts).
+- **Periodic Trends**: Add new properties or color palettes in [`app/lib/trends.ts`](app/lib/trends.ts).
 
 ## Tech stack
 
@@ -64,3 +83,4 @@ test/                    Unit, end-to-end, and visual tests
 - Tailwind CSS 4/PostCSS
 - Vitest and Testing Library for unit tests
 - Playwright for end-to-end and visual tests
+

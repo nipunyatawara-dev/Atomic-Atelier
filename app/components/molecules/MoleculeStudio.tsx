@@ -20,11 +20,11 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { AppHeader } from "./AppHeader";
+import { AppHeader } from "../common/AppHeader";
 import { LewisViewer } from "./LewisViewer";
-import { PeriodicTable } from "./PeriodicTable";
-import { QuizModal } from "./QuizModal";
-import { SavedModal } from "./SavedModal";
+import { PeriodicTable } from "../explorer/PeriodicTable";
+import { QuizModal } from "../explorer/QuizModal";
+import { SavedModal } from "../explorer/SavedModal";
 import type { MoleculeRenderMode } from "./MoleculeViewer";
 import {
   buildCustomVseprMolecule,
@@ -32,11 +32,11 @@ import {
   MOLECULE_CATEGORIES,
   resolveMolecule,
   VSEPR_QUIZ_QUESTIONS,
-} from "../lib/molecules";
-import { elementByNumber } from "../lib/elements";
-import { useProgress } from "../lib/progress";
-import { useSheetGesture } from "../lib/useSheetGesture";
-import type { MoleculeAtom, MoleculeRecord } from "../lib/types";
+} from "../../lib/molecules";
+import { elementByNumber } from "../../lib/elements";
+import { useProgress } from "../../lib/progress";
+import { useSheetGesture } from "../../lib/useSheetGesture";
+import type { MoleculeAtom, MoleculeRecord } from "../../lib/types";
 
 const MoleculeViewer = dynamic(
   () => import("./MoleculeViewer").then((mod) => mod.MoleculeViewer),

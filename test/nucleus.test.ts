@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateNucleusPositions } from "../app/components/AtomViewer";
+import { generateNucleusPositions } from "../app/components/explorer/AtomViewer";
 import { elements } from "../app/lib/elements";
 
 describe("generateNucleusPositions", () => {
