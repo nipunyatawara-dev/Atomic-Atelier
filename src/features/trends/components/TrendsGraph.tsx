@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { Activity, GitCompare, ScatterChart } from "lucide-react";
-import { elements } from "../../lib/elements";
-import { resolveTrend, TREND_PROPERTIES } from "../../lib/trends";
-import type { ElementRecord, TrendPropertyId } from "../../lib/types";
+import { elements } from "@/features/explorer/lib/elements";
+import { resolveTrend, TREND_PROPERTIES } from "@/features/trends/lib/trends";
+import type { ElementRecord, TrendPropertyId } from "@/types";
 
 type Props = {
   primaryProperty: TrendPropertyId;

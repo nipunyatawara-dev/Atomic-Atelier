@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { generateNucleusPositions } from "../app/components/explorer/AtomViewer";
-import { elements } from "../app/lib/elements";
+import { generateNucleusPositions } from "@/features/explorer/components/AtomViewer";
+import { elements } from "@/features/explorer/lib/elements";
 
 describe("generateNucleusPositions", () => {
   it("returns exactly total number of positions", () => {

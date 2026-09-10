@@ -6,13 +6,13 @@ import type {
   QuizQuestion,
   VseprElectronGeometry,
   VseprMolecularGeometry,
-} from "./types";
+} from "@/types";
 import {
   calculateNetDipole,
   generateVsepr3DPositions,
   VSEPR_TEMPLATES,
 } from "./vsepr";
-import { elements } from "./elements";
+import { elements } from "@/features/explorer/lib/elements";
 
 const ELEMENT_MAP = new Map(elements.map((e) => [e.symbol, e]));
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Atom, FlaskConical, Grid3X3, MousePointer2 } from "lucide-react";
-import { Dialog } from "../common/Dialog";
+import { Dialog } from "@/components/common/Dialog";
 
 export const TOUR_KEY = "atomic-atelier:tour-complete:v1";
 

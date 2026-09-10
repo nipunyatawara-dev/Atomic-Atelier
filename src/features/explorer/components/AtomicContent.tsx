@@ -13,9 +13,9 @@ import {
   ShieldAlert,
   TrendingUp,
 } from "lucide-react";
-import { categoryLabels, formatValue } from "../../lib/elements";
-import { formatElectronConfig } from "../../lib/formula";
-import type { ElementRecord, MoleculeRecord, ReactionRecord } from "../../lib/types";
+import { categoryLabels, formatValue } from "@/features/explorer/lib/elements";
+import { formatElectronConfig } from "@/features/reactions/lib/formula";
+import type { ElementRecord, MoleculeRecord, ReactionRecord } from "@/types";
 
 export interface AtomicInfoPanelProps {
   element: ElementRecord;

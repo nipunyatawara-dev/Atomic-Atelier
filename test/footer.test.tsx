@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { AppFooter } from "../app/components/common/AppFooter";
+import { AppFooter } from "@/components/common/AppFooter";
 
 describe("AppFooter", () => {
   it("renders brand information and tagline", () => {

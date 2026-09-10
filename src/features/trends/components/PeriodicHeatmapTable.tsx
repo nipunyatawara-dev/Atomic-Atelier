@@ -2,15 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowRight, Filter } from "lucide-react";
-import { elementGridPosition, elements } from "../../lib/elements";
+import { elementGridPosition, elements } from "@/features/explorer/lib/elements";
 import {
   getElementRanking,
   getInterpolatedColor,
   getNormalizedValue,
   PALETTES,
   resolveTrend,
-} from "../../lib/trends";
-import type { ElementRecord, TrendPaletteId, TrendPropertyId } from "../../lib/types";
+} from "@/features/trends/lib/trends";
+import type { ElementRecord, TrendPaletteId, TrendPropertyId } from "@/types";
 
 type Props = {
   selectedProperty: TrendPropertyId;

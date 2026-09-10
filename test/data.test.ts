@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createElementQuiz, elements } from "../app/lib/elements";
+import { createElementQuiz, elements } from "@/features/explorer/lib/elements";
 
 describe("element snapshot", () => {
   it("contains exactly 118 sequential, uniquely named elements", () => {

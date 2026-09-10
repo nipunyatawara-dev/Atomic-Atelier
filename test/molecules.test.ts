@@ -3,7 +3,7 @@ import {
   buildCustomVseprMolecule,
   curatedMolecules,
   resolveMolecule,
-} from "../app/lib/molecules";
+} from "@/features/molecules/lib/molecules";
 
 describe("molecules module", () => {
   it("provides valid curated molecules with matching bonds and atoms", () => {

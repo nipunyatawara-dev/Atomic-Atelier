@@ -4,7 +4,7 @@ import {
   calculateNetDipole,
   generateVsepr3DPositions,
   VSEPR_TEMPLATES,
-} from "../app/lib/vsepr";
+} from "@/features/molecules/lib/vsepr";
 
 describe("vsepr engine", () => {
   it("defines standard VSEPR templates with valid electron and molecular geometries", () => {

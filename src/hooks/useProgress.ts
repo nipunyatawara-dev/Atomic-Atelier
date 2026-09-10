@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { useCallback, useEffect, useState } from "react";
-import type { ProgressV1, QuizScore, ReactionGrade } from "./types";
+import type { ProgressV1, QuizScore, ReactionGrade } from "@/types";
 
 export const PROGRESS_KEY = "atomic-atelier:v1";
 const LEGACY_PROGRESS_KEY = "chemistry-atelier:v1";

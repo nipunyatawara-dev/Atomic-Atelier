@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { FlaskConical } from "lucide-react";
-import { ReactionLab } from "../components/reactions/ReactionLab";
+import { ReactionLab } from "@/features/reactions/components/ReactionLab";
 
 export const metadata = {
   title: "Guided reaction lab",

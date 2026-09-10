@@ -8,8 +8,8 @@ import {
   TREND_ANOMALIES,
   TREND_PROPERTIES,
   TREND_QUIZ_QUESTIONS,
-} from "../app/lib/trends";
-import { elements } from "../app/lib/elements";
+} from "@/features/trends/lib/trends";
+import { elements } from "@/features/explorer/lib/elements";
 
 describe("Periodic Trends Engine", () => {
   it("defines all 9 core periodic trend properties with valid metadata", () => {

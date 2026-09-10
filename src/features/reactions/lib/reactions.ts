@@ -1,4 +1,4 @@
-import type { ReactionRecord, SpeciesRecord } from "./types";
+import type { ReactionRecord, SpeciesRecord } from "@/types";
 import { formatFormulaSubscripts, parseFormula } from "./formula";
 
 function species(formula: string, label: string, state: SpeciesRecord["state"]): SpeciesRecord {

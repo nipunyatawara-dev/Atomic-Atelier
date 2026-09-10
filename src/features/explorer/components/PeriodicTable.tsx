@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Boxes, MoveHorizontal, Search } from "lucide-react";
-import { Dialog } from "../common/Dialog";
-import { categories, categoryLabels, elementByNumber, elementGridPosition, elements } from "../../lib/elements";
-import type { ElementCategory, ElementRecord } from "../../lib/types";
+import { Dialog } from "@/components/common/Dialog";
+import { categories, categoryLabels, elementByNumber, elementGridPosition, elements } from "@/features/explorer/lib/elements";
+import type { ElementCategory, ElementRecord } from "@/types";
 
 export function PeriodicTable({ selected, onSelect, onClose }: { selected: number; onSelect: (element: ElementRecord) => void; onClose: () => void }) {
   const [query, setQuery] = useState("");

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { countSide, isBalanced, parseFormula } from "../app/lib/formula";
-import { reactions } from "../app/lib/reactions";
+import { countSide, isBalanced, parseFormula } from "@/features/reactions/lib/formula";
+import { reactions } from "@/features/reactions/lib/reactions";
 
 describe("reaction records", () => {
   it("contains the twelve planned, fully contextualized reactions", () => {

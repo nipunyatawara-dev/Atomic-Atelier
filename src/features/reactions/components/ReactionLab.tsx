@@ -4,16 +4,16 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, X } from "lucide-react";
-import { AppHeader } from "../common/AppHeader";
-import { PeriodicTable } from "../explorer/PeriodicTable";
-import { QuizModal } from "../explorer/QuizModal";
-import { SavedModal } from "../explorer/SavedModal";
-import { countSide, formatFormulaSubscripts, isBalanced } from "../../lib/formula";
-import { elementByNumber } from "../../lib/elements";
-import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "../../lib/reactions";
-import { useProgress } from "../../lib/progress";
-import { useSheetGesture } from "../../lib/useSheetGesture";
-import type { ElementRecord, QuizQuestion, ReactionGrade, ReactionRecord } from "../../lib/types";
+import { AppHeader } from "@/components/common/AppHeader";
+import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
+import { QuizModal } from "@/features/explorer/components/QuizModal";
+import { SavedModal } from "@/features/explorer/components/SavedModal";
+import { countSide, formatFormulaSubscripts, isBalanced } from "@/features/reactions/lib/formula";
+import { elementByNumber } from "@/features/explorer/lib/elements";
+import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "@/features/reactions/lib/reactions";
+import { useProgress } from "@/hooks/useProgress";
+import { useSheetGesture } from "@/hooks/useSheetGesture";
+import type { ElementRecord, QuizQuestion, ReactionGrade, ReactionRecord } from "@/types";
 
 const ReactionViewer = dynamic(() => import("./ReactionViewer").then((module) => module.ReactionViewer), { ssr: false, loading: () => <section className="reaction-viewer viewer-loading"><FlaskConical /><strong>Preparing particles…</strong></section> });
 

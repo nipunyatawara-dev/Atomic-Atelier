@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { defaultProgress, sanitizeProgress } from "../app/lib/progress";
+import { defaultProgress, sanitizeProgress } from "@/hooks/useProgress";
 
 describe("progress recovery", () => {
   it("recovers from missing or malformed records", () => {

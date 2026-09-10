@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 const TABLE_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON";
 const VIEW_URL = (atomicNumber) =>
   `https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/element/${atomicNumber}/JSON`;
-const OUTPUT = new URL("../app/data/elements.json", import.meta.url);
+const OUTPUT = new URL("../src/data/elements.json", import.meta.url);
 const IUPAC_TABLE_URL = "https://iupac.org/what-we-do/periodic-table-of-elements/";
 const NIST_TABLE_URL = "https://www.nist.gov/publications/periodic-table-elements";
 const CIAAW_RADIOACTIVE_URL = "https://ciaaw.org/radioactive-elements.htm";
@@ -250,7 +250,7 @@ const elements = await mapLimit(rows, 4, async (row) => {
   };
 });
 
-await mkdir(new URL("../app/data/", import.meta.url), { recursive: true });
+await mkdir(new URL("../src/data/", import.meta.url), { recursive: true });
 await writeFile(
   OUTPUT,
   `${JSON.stringify({ generatedAt: new Date().toISOString(), source: TABLE_URL, validationSources: [IUPAC_TABLE_URL, NIST_TABLE_URL, CIAAW_RADIOACTIVE_URL], elements }, null, 2)}\n`,

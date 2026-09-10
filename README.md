@@ -20,7 +20,7 @@ Atomic Atelier is an interactive chemistry learning app for exploring all 118 el
 
 ## Element data
 
-The app reads from the committed snapshot in `app/data/elements.json`, so neither the browser nor the production build requires a runtime chemistry API.
+The app reads from the committed snapshot in `src/data/elements.json`, so neither the browser nor the production build requires a runtime chemistry API.
 
 `npm run data:sync` refreshes the snapshot from PubChem periodic-table and PUG-View records. The script derives shell occupancy, selects representative isotopes when supported by abundance data, normalizes nullable properties, attaches PubChem, IUPAC, and NIST references, and validates the generated records. Changes to names, standard atomic weights, or other evaluated properties should still be checked against the linked authoritative sources before committing a refreshed snapshot.
 
@@ -32,7 +32,7 @@ Stored preferences include favorites, explored and recent elements, quiz scores,
 
 ## Offline installation
 
-The App Router manifest and production service worker make Atomic Atelier installable. The service worker precaches the two application routes, their generated Next.js assets, and the application icons. Same-origin navigations use a network-first strategy with cached route fallbacks, while hashed static assets use cache-first delivery. Service-worker registration is production-only so local development always reflects current code.
+The App Router manifest and production service worker make Atomic Atelier installable. The service worker precaches the application routes, their generated Next.js assets, and the application icons. Same-origin navigations use a network-first strategy with cached route fallbacks, while hashed static assets use cache-first delivery. Service-worker registration is production-only so local development always reflects current code.
 
 ## Teaching-model limitations
 
@@ -43,24 +43,27 @@ Safety notes are conceptual. Atomic Atelier does not provide experimental quanti
 ## Project structure
 
 ```text
-app/
-├── components/
-│   ├── common/             # Global layout & shell (AppHeader, Dialog, PWAClient)
-│   ├── explorer/           # Atomic Explorer, 3D AtomViewer, AtomicContent, Table, Quiz
+src/
+├── app/                    # Pure routing layer (pages, layout, metadata)
+│   ├── molecules/page.tsx  # /molecules route (VSEPR Studio)
+│   ├── reactions/page.tsx  # /reactions route (Reaction Lab)
+│   ├── trends/page.tsx     # /trends route (Periodic Trends)
+│   ├── layout.tsx          # Root shell layout & fonts
+│   ├── template.tsx        # Page transition animations
+│   ├── page.tsx            # / route (Atomic Explorer)
+│   └── manifest.ts, robots.ts, sitemap.ts
+├── features/               # Feature-driven domain modules (UI + Math + Types)
+│   ├── explorer/           # Atomic Explorer, 3D AtomViewer, PeriodicTable, Orbitals
 │   ├── molecules/          # 3D Molecule Studio, Lewis Structures, VSEPR
 │   ├── reactions/          # Chemistry Reaction Lab & 3D Stoichiometry
-│   ├── trends/             # Periodic Trends 3D Elevation & Heatmaps
-│   └── index.ts            # Central barrel exports
-├── data/
-│   └── elements.json       # Committed dataset for all 118 elements
-├── lib/                    # Chemistry formulas, orbital math, VSEPR, progress
-├── molecules/              # /molecules route
-├── reactions/              # /reactions route
-├── trends/                 # /trends route
-├── layout.tsx              # Global layout, fonts, PWA provider, metadata
-└── page.tsx                # / route (Atomic Explorer)
+│   └── trends/             # Periodic Trends 3D Elevation & Heatmaps
+├── components/             # Shared UI components (AppHeader, AppFooter, Dialog, PWAClient)
+├── hooks/                  # Reusable React hooks (useProgress, useSheetGesture)
+├── data/                   # Static datasets (elements.json)
+├── styles/                 # Global styles & themes (globals.css, apple-overhaul.css)
+└── types/                  # Centralized TypeScript definitions
 public/                     # Minimal production PWA assets & social preview
-scripts/                    # Element data synchronization
+scripts/                    # Element data synchronization (sync-elements.mjs)
 test/                       # Unit (Vitest) and E2E (Playwright) suites
 ```
 
@@ -68,11 +71,11 @@ test/                       # Unit (Vitest) and E2E (Playwright) suites
 
 Atomic Atelier is designed to be easily forked, modified, and extended:
 
-- **Atomic Content & Educational Cards**: Edit [`app/components/explorer/AtomicContent.tsx`](app/components/explorer/AtomicContent.tsx) to customize atomic profile facts, isotope notes, and the 6 educational resource cards.
-- **Element Data**: Periodic data is stored in [`app/data/elements.json`](app/data/elements.json) and synced via `npm run data:sync` ([`scripts/sync-elements.mjs`](scripts/sync-elements.mjs)).
-- **Molecules & VSEPR**: Add or adjust molecular models, 3D positions, lone pairs, and dipole moments in [`app/lib/molecules.ts`](app/lib/molecules.ts) and [`app/lib/vsepr.ts`](app/lib/vsepr.ts).
-- **Chemical Reactions**: Add new synthesis, decomposition, or combustion reactions with atom mappings in [`app/lib/reactions.ts`](app/lib/reactions.ts).
-- **Periodic Trends**: Add new properties or color palettes in [`app/lib/trends.ts`](app/lib/trends.ts).
+- **Atomic Content & Educational Cards**: Edit [`src/features/explorer/components/AtomicContent.tsx`](src/features/explorer/components/AtomicContent.tsx) to customize atomic profile facts, isotope notes, and the 6 educational resource cards.
+- **Element Data**: Periodic data is stored in [`src/data/elements.json`](src/data/elements.json) and synced via `npm run data:sync` ([`scripts/sync-elements.mjs`](scripts/sync-elements.mjs)).
+- **Molecules & VSEPR**: Add or adjust molecular models, 3D positions, lone pairs, and dipole moments in [`src/features/molecules/lib/molecules.ts`](src/features/molecules/lib/molecules.ts) and [`src/features/molecules/lib/vsepr.ts`](src/features/molecules/lib/vsepr.ts).
+- **Chemical Reactions**: Add new synthesis, decomposition, or combustion reactions with atom mappings in [`src/features/reactions/lib/reactions.ts`](src/features/reactions/lib/reactions.ts).
+- **Periodic Trends**: Add new properties or color palettes in [`src/features/trends/lib/trends.ts`](src/features/trends/lib/trends.ts).
 
 ## Tech stack
 

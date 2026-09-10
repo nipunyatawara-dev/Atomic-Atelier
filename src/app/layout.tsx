@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Mono } from "next/font/google";
-import { PWAProvider } from "./components/common/PWAClient";
-import { AppFooter } from "./components/common/AppFooter";
-import "./globals.css";
-import "./apple-overhaul.css";
+import { PWAProvider } from "@/components/common/PWAClient";
+import { AppFooter } from "@/components/common/AppFooter";
+import "@/styles/globals.css";
+import "@/styles/apple-overhaul.css";
 
 const configuredHost = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL ?? "http://localhost:3000";
 const metadataBase = new URL(configuredHost.startsWith("http") ? configuredHost : `https://${configuredHost}`);

@@ -1,4 +1,4 @@
-import type { ElementRecord } from "./types";
+import type { ElementRecord } from "@/types";
 
 export type SubshellType = "s" | "p" | "d" | "f";
 

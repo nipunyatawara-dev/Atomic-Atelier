@@ -13,19 +13,19 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { AppHeader } from "../common/AppHeader";
+import { AppHeader } from "@/components/common/AppHeader";
 import { AtomicInfoPanel, AtomicLearningCards } from "./AtomicContent";
 import { ComparisonPanel } from "./ComparisonPanel";
 import { FirstVisitTour } from "./FirstVisitTour";
 import { PeriodicTable } from "./PeriodicTable";
 import { QuizModal } from "./QuizModal";
 import { SavedModal } from "./SavedModal";
-import { CARBON, categories, categoryLabels, createElementQuiz, elementByNumber, elements, resolveElement } from "../../lib/elements";
-import { reactions } from "../../lib/reactions";
-import { curatedMolecules } from "../../lib/molecules";
-import { useProgress } from "../../lib/progress";
-import { useSheetGesture } from "../../lib/useSheetGesture";
-import type { ElementCategory, ElementRecord } from "../../lib/types";
+import { CARBON, categories, categoryLabels, createElementQuiz, elementByNumber, elements, resolveElement } from "@/features/explorer/lib/elements";
+import { reactions } from "@/features/reactions/lib/reactions";
+import { curatedMolecules } from "@/features/molecules/lib/molecules";
+import { useProgress } from "@/hooks/useProgress";
+import { useSheetGesture } from "@/hooks/useSheetGesture";
+import type { ElementCategory, ElementRecord } from "@/types";
 
 const AtomViewer = dynamic(() => import("./AtomViewer").then((module) => module.AtomViewer), {
   ssr: false,

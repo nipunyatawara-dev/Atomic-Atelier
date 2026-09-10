@@ -1,4 +1,4 @@
-import type { SpeciesRecord } from "./types";
+import type { SpeciesRecord } from "@/types";
 
 export function parseFormula(formula: string) {
   let index = 0;

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
-import { Dialog } from "../common/Dialog";
-import type { QuizQuestion, QuizScore } from "../../lib/types";
+import { Dialog } from "@/components/common/Dialog";
+import type { QuizQuestion, QuizScore } from "@/types";
 
 export function QuizModal({ title, questions, onClose, onComplete }: { title: string; questions: QuizQuestion[]; onClose: () => void; onComplete: (score: QuizScore) => void }) {
   const [index, setIndex] = useState(0);

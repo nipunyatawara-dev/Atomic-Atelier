@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { parseElectronConfiguration, generateOrbitalCloudPoints, subshellRadius, SUBSHELL_COLORS } from "../app/lib/orbitals";
-import { elements } from "../app/lib/elements";
-import type { SubshellInfo } from "../app/lib/orbitals";
-import type { ElementRecord } from "../app/lib/types";
+import { parseElectronConfiguration, generateOrbitalCloudPoints, subshellRadius, SUBSHELL_COLORS } from "@/features/explorer/lib/orbitals";
+import { elements } from "@/features/explorer/lib/elements";
+import type { SubshellInfo } from "@/features/explorer/lib/orbitals";
+import type { ElementRecord } from "@/types";
 
 const mockCarbon: ElementRecord = {
   atomicNumber: 6,

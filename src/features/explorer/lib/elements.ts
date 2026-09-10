@@ -1,5 +1,5 @@
-import payload from "../data/elements.json";
-import type { ElementCategory, ElementRecord, QuizQuestion } from "./types";
+import payload from "@/data/elements.json";
+import type { ElementCategory, ElementRecord, QuizQuestion } from "@/types";
 
 export const elements = payload.elements as unknown as ElementRecord[];
 export const elementByNumber = new Map(elements.map((element) => [element.atomicNumber, element]));

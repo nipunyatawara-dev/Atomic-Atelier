@@ -1,7 +1,7 @@
 import type {
   VseprElectronGeometry,
   VseprMolecularGeometry,
-} from "./types";
+} from "@/types";
 
 export type VseprTemplate = {
   stericNumber: number;

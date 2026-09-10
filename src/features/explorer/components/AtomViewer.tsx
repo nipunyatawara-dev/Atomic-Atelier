@@ -17,14 +17,14 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { formatElectronConfig } from "../../lib/formula";
-import type { ElementRecord } from "../../lib/types";
+import { formatElectronConfig } from "@/features/reactions/lib/formula";
+import type { ElementRecord } from "@/types";
 import {
   generateOrbitalCloudPoints,
   parseElectronConfiguration,
   SUBSHELL_COLORS,
   type SubshellInfo,
-} from "../../lib/orbitals";
+} from "@/features/explorer/lib/orbitals";
 
 type ViewMode = "bohr" | "orbital";
 type StructureKey = "nucleus" | "proton" | "neutron" | "electron" | "valence" | "orbitals";

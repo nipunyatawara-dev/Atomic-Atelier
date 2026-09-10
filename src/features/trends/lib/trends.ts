@@ -1,4 +1,4 @@
-import { elements } from "./elements";
+import { elements } from "@/features/explorer/lib/elements";
 import type {
   ElementRecord,
   QuizQuestion,
@@ -6,7 +6,7 @@ import type {
   TrendPaletteId,
   TrendPropertyDefinition,
   TrendPropertyId,
-} from "./types";
+} from "@/types";
 
 export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
   {
