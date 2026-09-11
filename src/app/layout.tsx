@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Mono } from "next/font/google";
 import { PWAProvider } from "@/components/common/PWAClient";
 import { AppFooter } from "@/components/common/AppFooter";
+import { ThemeProvider } from "@/components/common/ThemeProvider";
 import "@/styles/globals.css";
 import "@/styles/apple-overhaul.css";
 
@@ -48,18 +49,30 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#132f31",
-  colorScheme: "light",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#132f31" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c1514" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={mono.variable} data-scroll-behavior="smooth">
+    <html lang="en" className={mono.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem("atomic-atelier-theme");var p=window.matchMedia("(prefers-color-scheme: dark)").matches;var t=s==="dark"||(s!=="light"&&p)?"dark":"light";document.documentElement.setAttribute("data-theme",t);if(t==="dark")document.documentElement.classList.add("dark");}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
-        <PWAProvider>
-          {children}
-          <AppFooter />
-        </PWAProvider>
+        <ThemeProvider>
+          <PWAProvider>
+            {children}
+            <AppFooter />
+          </PWAProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

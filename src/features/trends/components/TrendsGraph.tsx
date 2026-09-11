@@ -192,10 +192,10 @@ export function TrendsGraph({
                   y1={y}
                   x2={padLeft + chartW}
                   y2={y}
-                  stroke="#e5e7eb"
+                  stroke="var(--line)"
                   strokeDasharray="4 4"
                 />
-                <text x={padLeft - 8} y={y + 4} textAnchor="end" fontSize="10" fill="#6b7280">
+                <text x={padLeft - 8} y={y + 4} textAnchor="end" fontSize="10" fill="var(--muted)">
                   {val > 999 ? Math.round(val) : val.toFixed(1)}
                 </text>
               </g>
@@ -215,7 +215,7 @@ export function TrendsGraph({
                       y1={padTop}
                       x2={x}
                       y2={padTop + chartH}
-                      stroke="#cbd5e1"
+                      stroke="var(--line)"
                       strokeWidth="1.2"
                       strokeDasharray="3 3"
                     />
@@ -223,7 +223,7 @@ export function TrendsGraph({
                       x={x - 4}
                       y={padTop + 14}
                       fontSize="9"
-                      fill="#94a3b8"
+                      fill="var(--muted)"
                       textAnchor="end"
                       fontWeight="600"
                     >
@@ -365,7 +365,7 @@ export function TrendsGraph({
             y={height - 8}
             textAnchor="middle"
             fontSize="11"
-            fill="#6b7280"
+            fill="var(--muted)"
             fontWeight="500"
           >
             {graphMode === "continuous"
@@ -382,7 +382,7 @@ export function TrendsGraph({
             transform="rotate(-90)"
             textAnchor="middle"
             fontSize="11"
-            fill="#6b7280"
+            fill="var(--muted)"
             fontWeight="500"
           >
             {graphMode === "scatter"

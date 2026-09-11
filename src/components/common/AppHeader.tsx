@@ -12,6 +12,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import { ThemeToggle } from "./ThemeToggle";
+
 type Props = {
   active: "explore" | "reactions" | "molecules" | "trends";
   onTable: () => void;
@@ -72,6 +74,7 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
         )}
 
         <div className="header-actions" aria-label="Quick actions">
+          <ThemeToggle className="header-action theme-action" showLabel />
           <button type="button" className="header-action" onClick={props.onTable} aria-label="Periodic table">
             <Grid3X3 aria-hidden="true" />
             <span>Table</span>
@@ -83,6 +86,7 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
         </div>
 
         <div className="mobile-utilities" aria-label="Quick actions">
+          <ThemeToggle className="mobile-utility-btn theme-action" />
           <button type="button" onClick={props.onTable} aria-label="Table">
             <Grid3X3 aria-hidden="true" />
           </button>

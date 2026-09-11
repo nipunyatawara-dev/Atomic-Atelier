@@ -99,8 +99,8 @@ export function PeriodicHeatmapTable({
             const pos = elementGridPosition(element);
             const val = currentPropDef.accessor(element);
             const normalized = getNormalizedValue(val, currentPropDef);
-            const bgColor = val !== null ? getInterpolatedColor(normalized, paletteId) : "#e2e4dc";
-            const textColor = val !== null ? getContrastColor(normalized, paletteId) : "#6b7280";
+            const bgColor = val !== null ? getInterpolatedColor(normalized, paletteId) : "var(--surface-control)";
+            const textColor = val !== null ? getContrastColor(normalized, paletteId) : "var(--muted)";
             const isSelected = selectedElementNumber === element.atomicNumber;
             const isHovered = hoveredElement?.atomicNumber === element.atomicNumber;
             const isVisible = activeElementSet.has(element.atomicNumber);
@@ -116,8 +116,8 @@ export function PeriodicHeatmapTable({
                 style={{
                   gridColumn: pos.column,
                   gridRow: pos.row,
-                  backgroundColor: isVisible ? bgColor : "#f0f1ec",
-                  color: isVisible ? textColor : "#9ca3af",
+                  backgroundColor: isVisible ? bgColor : "var(--surface-control)",
+                  color: isVisible ? textColor : "var(--muted)",
                 }}
                 onClick={() => onSelectElement(element)}
                 onMouseEnter={() => setHoveredElement(element)}

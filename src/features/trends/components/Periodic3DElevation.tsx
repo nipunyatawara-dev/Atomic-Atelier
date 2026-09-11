@@ -139,9 +139,15 @@ export function Periodic3DElevation({
     scene.add(root);
 
     // Ground Table Platform Grid
+    const isDarkInitial =
+      document.documentElement.getAttribute("data-theme") === "dark" ||
+      document.documentElement.classList.contains("dark") ||
+      (!document.documentElement.getAttribute("data-theme") &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
     const groundGeo = new THREE.PlaneGeometry(28, 17);
     const groundMat = new THREE.MeshStandardMaterial({
-      color: 0xf1efe6,
+      color: isDarkInitial ? 0x0e1817 : 0xf1efe6,
       roughness: 0.8,
       metalness: 0.05,
     });
@@ -151,9 +157,40 @@ export function Periodic3DElevation({
     ground.receiveShadow = true;
     root.add(ground);
 
-    const gridHelper = new THREE.GridHelper(28, 28, 0xd0d8d3, 0xe4ebe6);
+    const gridHelper = new THREE.GridHelper(
+      28,
+      28,
+      isDarkInitial ? 0x1f3833 : 0xd0d8d3,
+      isDarkInitial ? 0x142623 : 0xe4ebe6
+    );
     gridHelper.position.set(0, 0.001, 0);
     root.add(gridHelper);
+
+    const updateThemeColors = () => {
+      const isDark =
+        document.documentElement.getAttribute("data-theme") === "dark" ||
+        document.documentElement.classList.contains("dark");
+      groundMat.color.setHex(isDark ? 0x0e1817 : 0xf1efe6);
+      if (Array.isArray(gridHelper.material)) {
+        gridHelper.material.forEach((m) => {
+          if ("color" in m) {
+            (m as THREE.LineBasicMaterial).color.setHex(isDark ? 0x1f3833 : 0xd0d8d3);
+          }
+        });
+      } else if ("color" in gridHelper.material) {
+        (gridHelper.material as THREE.LineBasicMaterial).color.setHex(
+          isDark ? 0x1f3833 : 0xd0d8d3
+        );
+      }
+    };
+
+    const themeObserver = new MutationObserver(() => {
+      updateThemeColors();
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "class"],
+    });
 
     // Build 118 Extruded Box Pillars
     const unitBoxGeo = new THREE.BoxGeometry(1.05, 1, 1.05);
@@ -258,6 +295,7 @@ export function Periodic3DElevation({
       cancelAnimationFrame(state.frame);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
+      themeObserver.disconnect();
       unitBoxGeo.dispose();
       groundGeo.dispose();
       groundMat.dispose();
