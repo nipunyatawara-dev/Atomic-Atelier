@@ -195,10 +195,15 @@ export function AtomicLearningCards({
   relatedMolecule,
 }: AtomicLearningCardsProps) {
   return (
-    <section
-      className="learning-cards"
-      aria-label={`${element.name} learning resources`}
-    >
+    <>
+      <div className="learning-cards-header-mobile">
+        <span>Learning Resources</span>
+        <small>Swipe to explore (1–6) →</small>
+      </div>
+      <section
+        className="learning-cards"
+        aria-label={`${element.name} learning resources`}
+      >
       {/* 1. Atomic Structure */}
       <article>
         <header>
@@ -325,6 +330,7 @@ export function AtomicLearningCards({
           Open source record <ArrowRight />
         </a>
       </article>
-    </section>
+      </section>
+    </>
   );
 }
