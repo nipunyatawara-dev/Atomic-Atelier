@@ -220,12 +220,12 @@ export function AtomViewer({
     const isMobileViewport = typeof window !== "undefined" && (window.innerWidth <= 768 || window.matchMedia("(max-width: 768px)").matches);
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !isMobileViewport, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
     } catch {
       setFallback(true);
       return;
     }
-    renderer.setPixelRatio(isMobileViewport ? 1 : Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
@@ -275,6 +275,7 @@ export function AtomViewer({
       const height = Math.max(mount.clientHeight, 1);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height, false);
       state.dirty = true;
     };
@@ -440,8 +441,8 @@ export function AtomViewer({
     let valenceInstance = 0;
     element.shells.forEach((count, shellIndex) => {
       const radius = shellRadius(element, shellIndex);
-      const points = Array.from({ length: 72 }, (_, index) => {
-        const angle = (index / 72) * Math.PI * 2;
+      const points = Array.from({ length: 128 }, (_, index) => {
+        const angle = (index / 128) * Math.PI * 2;
         return new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
       });
       const ringGeometry = new THREE.BufferGeometry().setFromPoints(points);

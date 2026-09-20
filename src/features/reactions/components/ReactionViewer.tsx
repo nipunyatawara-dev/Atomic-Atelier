@@ -131,12 +131,12 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
     if (!mount) return;
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !window.matchMedia("(max-width: 760px)").matches, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
     } catch {
       setFallback(true);
       return;
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.domElement.setAttribute("aria-label", "Three-dimensional schematic of the selected reaction particles.");
@@ -158,7 +158,7 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
     };
     stateRef.current = state;
     controls.addEventListener("change", () => { state.dirty = true; });
-    const resize = () => { const width = Math.max(mount.clientWidth, 1); const height = Math.max(mount.clientHeight, 1); camera.aspect = width / height; camera.updateProjectionMatrix(); renderer.setSize(width, height, false); state.dirty = true; };
+    const resize = () => { const width = Math.max(mount.clientWidth, 1); const height = Math.max(mount.clientHeight, 1); camera.aspect = width / height; camera.updateProjectionMatrix(); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(width, height, false); state.dirty = true; };
     state.resizeObserver = new ResizeObserver(resize); state.resizeObserver.observe(mount); resize();
     state.intersectionObserver = new IntersectionObserver(([entry]) => { state.visible = entry.isIntersecting; state.dirty = true; }, { rootMargin: "100px" });
     state.intersectionObserver.observe(mount);
