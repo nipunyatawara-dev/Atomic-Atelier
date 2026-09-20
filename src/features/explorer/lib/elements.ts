@@ -4,6 +4,7 @@ import type { ElementCategory, ElementRecord, QuizQuestion } from "@/types";
 export const elements = payload.elements as unknown as ElementRecord[];
 export const elementByNumber = new Map(elements.map((element) => [element.atomicNumber, element]));
 export const elementBySlug = new Map(elements.map((element) => [element.slug, element]));
+export const elementBySymbol = new Map(elements.map((element) => [element.symbol, element]));
 export const CARBON = elementByNumber.get(6)!;
 
 export const categoryLabels: Record<ElementCategory, string> = {

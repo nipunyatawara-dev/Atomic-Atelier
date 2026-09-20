@@ -5,6 +5,7 @@ import { forwardRef } from "react";
 import {
   Atom,
   Bookmark,
+  Calculator,
   FlaskConical,
   Grid3X3,
   Layers,
@@ -18,6 +19,7 @@ type Props = {
   active: "explore" | "reactions" | "molecules" | "trends";
   onTable: () => void;
   onSaved: () => void;
+  onMolarMass?: () => void;
   mobileContext?: {
     label: string;
     detail: string;
@@ -74,7 +76,13 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
         )}
 
         <div className="header-actions" aria-label="Quick actions">
-          <ThemeToggle className="header-action theme-action" showLabel />
+          <ThemeToggle className="header-action theme-action" />
+          {props.onMolarMass && (
+            <button type="button" className="header-action" onClick={props.onMolarMass} aria-label="Molar mass calculator" title="Molar Mass Calculator">
+              <Calculator aria-hidden="true" size={16} />
+              <span>Mass</span>
+            </button>
+          )}
           <button type="button" className="header-action" onClick={props.onTable} aria-label="Periodic table">
             <Grid3X3 aria-hidden="true" />
             <span>Table</span>
@@ -87,6 +95,11 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
 
         <div className="mobile-utilities" aria-label="Quick actions">
           <ThemeToggle className="mobile-utility-btn theme-action" />
+          {props.onMolarMass && (
+            <button type="button" onClick={props.onMolarMass} aria-label="Molar mass calculator" title="Molar Mass Calculator">
+              <Calculator aria-hidden="true" size={16} />
+            </button>
+          )}
           <button type="button" onClick={props.onTable} aria-label="Table">
             <Grid3X3 aria-hidden="true" />
           </button>

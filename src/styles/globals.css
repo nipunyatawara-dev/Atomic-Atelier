@@ -4203,5 +4203,461 @@ html.dark {
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--muted);
   }
+
+  /* --- Molecules Dark Mode Refinements --- */
+  .molecule-list-item {
+    background: transparent;
+    color: var(--ink);
+  }
+
+  .molecule-list-item:hover {
+    background: rgba(56, 178, 163, 0.15) !important;
+    border-color: rgba(56, 178, 163, 0.3) !important;
+  }
+
+  .molecule-list-item.active {
+    background: rgba(56, 178, 163, 0.24) !important;
+    border-color: rgba(56, 178, 163, 0.45) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset !important;
+  }
+
+  .item-formula {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--deep);
+  }
+
+  .axe-tag {
+    background: rgba(56, 189, 248, 0.16);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    color: #7dd3fc;
+  }
+
+  .axe-badge {
+    background: rgba(56, 189, 248, 0.18);
+    border: 1px solid rgba(56, 189, 248, 0.32);
+    color: #7dd3fc;
+  }
+
+  .geom-tag {
+    color: var(--muted);
+  }
+
+  .reset-search-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .reset-search-btn:hover {
+    background: rgba(56, 178, 163, 0.2);
+    border-color: rgba(56, 178, 163, 0.4);
+    color: var(--deep);
+  }
+
+  .fav-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+
+  .molecule-badge {
+    background: rgba(18, 30, 28, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .molecule-badge strong {
+    color: var(--deep);
+  }
+
+  .molecule-badge span {
+    color: var(--muted);
+  }
+
+  .polarity-badge.polar {
+    background: rgba(14, 116, 144, 0.22);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #7dd3fc;
+  }
+
+  .polarity-badge.non-polar {
+    background: rgba(21, 128, 61, 0.22);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    color: #86efac;
+  }
+
+  .viewer-icon-btn {
+    background: rgba(18, 30, 28, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .viewer-icon-btn:hover {
+    background: rgba(56, 178, 163, 0.2);
+    border-color: rgba(56, 178, 163, 0.4);
+    color: var(--deep);
+  }
+
+  .toolbar-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+  }
+
+  .toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--ink);
+  }
+
+  .toolbar-btn.active {
+    background: rgba(56, 178, 163, 0.22);
+    border-color: rgba(56, 178, 163, 0.4);
+    color: var(--deep);
+    font-weight: 600;
+  }
+
+  .toolbar-toggle-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+  }
+
+  .toolbar-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--ink);
+  }
+
+  .toolbar-toggle-btn.active {
+    background: rgba(56, 178, 163, 0.22);
+    border-color: rgba(56, 178, 163, 0.45);
+    color: var(--deep);
+    font-weight: 600;
+  }
+
+  .card-heading {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .spec-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .hybrid-tag {
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid rgba(245, 158, 11, 0.32);
+    color: #fcd34d;
+  }
+
+  .polarity-pill.polar {
+    background: rgba(14, 116, 144, 0.22);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #7dd3fc;
+  }
+
+  .polarity-pill.non-polar {
+    background: rgba(21, 128, 61, 0.22);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    color: #86efac;
+  }
+
+  .lewis-svg {
+    background: rgba(12, 22, 20, 0.7);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+  }
+
+  .context-section,
+  .related-elements-row {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .related-chip {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+  }
+
+  .related-chip:hover {
+    background: rgba(56, 178, 163, 0.2);
+    border-color: rgba(56, 178, 163, 0.4);
+    color: var(--deep);
+  }
+
+  /* Custom VSEPR Builder Modal */
+  .builder-modal {
+    background: rgba(15, 26, 24, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+    color: var(--ink);
+  }
+
+  .builder-section {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .elem-select-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+  }
+
+  .elem-select-btn:hover {
+    background: rgba(56, 178, 163, 0.2);
+    border-color: rgba(56, 178, 163, 0.35);
+    color: var(--deep);
+  }
+
+  .elem-select-btn.selected {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #0c1514;
+    box-shadow: 0 0 14px rgba(56, 178, 163, 0.4);
+  }
+
+  .ligand-row {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+
+  .ligand-elem-select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .order-stepper {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .order-stepper button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .order-stepper button:hover {
+    background: rgba(56, 178, 163, 0.22);
+    color: var(--deep);
+  }
+
+  .add-ligand-btn {
+    background: rgba(56, 178, 163, 0.18);
+    border: 1px solid rgba(56, 178, 163, 0.35);
+    color: var(--deep);
+  }
+
+  .add-ligand-btn:hover {
+    background: var(--teal);
+    color: #0c1514;
+  }
+
+  .modal-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+
+  /* --- Reactions Dark Mode Refinements --- */
+  .reaction-title > span {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--deep);
+  }
+
+  .equation-card,
+  .balance-panel {
+    background: rgba(18, 30, 28, 0.88);
+    border: 1px solid var(--line);
+  }
+
+  .species-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+
+  .coefficient-stepper {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .coefficient-stepper button {
+    color: var(--deep);
+  }
+
+  .coefficient-stepper b {
+    color: var(--ink);
+  }
+
+  .atom-counts > div {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+
+  .atom-counts > div.balanced {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.35);
+    color: #86efac;
+  }
+
+  .atom-counts > div.unbalanced {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+  }
+
+  .attempt-tracker span {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+  }
+
+  .attempt-tracker b {
+    color: var(--ink);
+  }
+
+  .lab-actions button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+  }
+
+  .lab-actions button:hover {
+    background: rgba(56, 178, 163, 0.18);
+    border-color: rgba(56, 178, 163, 0.35);
+    color: var(--deep);
+  }
+
+  .lab-actions .check-button {
+    background: rgba(56, 178, 163, 0.2);
+    border-color: rgba(56, 178, 163, 0.4);
+    color: var(--deep);
+  }
+
+  .lab-actions .check-button:hover {
+    background: rgba(56, 178, 163, 0.32);
+  }
+
+  .balance-message.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+  }
+
+  .balance-message.hint {
+    background: rgba(234, 179, 8, 0.15);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    color: #fde047;
+  }
+
+  .balance-message.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+  }
+
+  .related-elements button {
+    background: color-mix(in srgb, var(--category) 25%, #12211e);
+    border: 1px solid color-mix(in srgb, var(--category) 50%, rgba(255, 255, 255, 0.18));
+    color: #edf5f2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+
+  .related-elements button:hover {
+    background: color-mix(in srgb, var(--category) 45%, #12211e);
+    border-color: color-mix(in srgb, var(--category) 75%, rgba(255, 255, 255, 0.3));
+    transform: translateY(-1px);
+  }
+
+  .reaction-info li::before {
+    background: rgba(56, 178, 163, 0.18);
+    color: var(--deep);
+  }
+
+  .safety-note {
+    background: rgba(226, 103, 89, 0.12);
+    border: 1px solid rgba(226, 103, 89, 0.22);
+    color: var(--ink);
+  }
+
+  .safety-note p {
+    color: var(--muted);
+  }
+
+  .representation-legend span {
+    background: rgba(18, 30, 28, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--muted);
+  }
+
+  .representation-legend b {
+    color: var(--ink);
+  }
+
+  .auto-rotate,
+  .reaction-reset-view {
+    background: rgba(18, 30, 28, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .auto-rotate:hover,
+  .reaction-reset-view:hover {
+    background: rgba(26, 42, 40, 0.98);
+    border-color: rgba(56, 178, 163, 0.4);
+    color: var(--deep);
+  }
+
+  .reaction-fallback span {
+    background: rgba(18, 30, 28, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  /* --- Trends Studio Dark Mode Refinements --- */
+  .rank-badge,
+  .anomaly-prop-tag {
+    background: rgba(56, 189, 248, 0.18);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #7dd3fc;
+  }
+
+  .anomaly-key {
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fcd34d;
+  }
+
+  .involved-elem-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+  }
+
+  .involved-elem-pill:hover {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #0c1514;
+  }
+
+  .period-legend-pill {
+    background: rgba(18, 30, 28, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+  }
+
+  .unit-pill {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--deep);
+  }
+
+  .stat-rank-bar {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .involved-elements-row {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
 }
 

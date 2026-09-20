@@ -244,6 +244,11 @@ export function MoleculeViewer({
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
+    renderer.domElement.tabIndex = 0;
+    renderer.domElement.setAttribute(
+      "aria-label",
+      "Interactive 3D molecule viewer. Use Arrow keys to rotate, +/- to zoom, R to reset.",
+    );
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -255,6 +260,28 @@ export function MoleculeViewer({
     controls.dampingFactor = 0.08;
     controls.minDistance = 2.5;
     controls.maxDistance = 22;
+
+    const onCanvasKey = (event: KeyboardEvent) => {
+      const rotationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+      if (rotationKeys.includes(event.key)) {
+        event.preventDefault();
+        if (event.key === "ArrowLeft") root.rotation.y -= 0.14;
+        if (event.key === "ArrowRight") root.rotation.y += 0.14;
+        if (event.key === "ArrowUp") root.rotation.x -= 0.14;
+        if (event.key === "ArrowDown") root.rotation.x += 0.14;
+      }
+      if (["+", "=", "-", "_"].includes(event.key)) {
+        event.preventDefault();
+        camera.position.multiplyScalar(["-", "_"].includes(event.key) ? 1.12 : 0.88).clampLength(2.5, 22);
+      }
+      if (event.key === "r" || event.key === "R") {
+        event.preventDefault();
+        root.rotation.set(0, 0, 0);
+        camera.position.set(0, 0, 7.5);
+        controls.target.set(0, 0, 0);
+      }
+    };
+    renderer.domElement.addEventListener("keydown", onCanvasKey);
 
     // Studio Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
@@ -343,6 +370,7 @@ export function MoleculeViewer({
 
     return () => {
       cancelAnimationFrame(state.frame);
+      renderer.domElement.removeEventListener("keydown", onCanvasKey);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       disposeGroup(root);

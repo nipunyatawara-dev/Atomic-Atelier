@@ -25,6 +25,7 @@ import { LewisViewer } from "./LewisViewer";
 import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
 import { QuizModal } from "@/features/explorer/components/QuizModal";
 import { SavedModal } from "@/features/explorer/components/SavedModal";
+import { MolarMassModal } from "@/features/reactions/components/MolarMassModal";
 import type { MoleculeRenderMode } from "./MoleculeViewer";
 import {
   buildCustomVseprMolecule,
@@ -93,6 +94,7 @@ export function MoleculeStudio() {
   const [quizOpen, setQuizOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
+  const [molarMassOpen, setMolarMassOpen] = useState(false);
   const [mobileLibrary, setMobileLibrary] = useState(false);
   const libraryRef = useSheetGesture<HTMLElement>({ isOpen: mobileLibrary, onClose: () => setMobileLibrary(false) });
   const libraryTriggerRef = useRef<HTMLButtonElement>(null);
@@ -205,6 +207,7 @@ export function MoleculeStudio() {
         active="molecules"
         onTable={() => setTableOpen(true)}
         onSaved={() => setSavedOpen(true)}
+        onMolarMass={() => setMolarMassOpen(true)}
         mobileContext={{
           label: "Molecules",
           detail: currentMolecule.name,
@@ -222,7 +225,7 @@ export function MoleculeStudio() {
           className={`molecule-library ${mobileLibrary ? "mobile-open" : ""}`}
           role={mobileLibrary ? "dialog" : undefined}
           aria-modal={mobileLibrary ? "true" : undefined}
-          aria-label="Molecule library"
+          aria-label="Molecule Library"
         >
           <div className="library-header">
             <div className="library-title-row">
@@ -247,7 +250,7 @@ export function MoleculeStudio() {
           </div>
 
           {/* Search Box */}
-          <div className="library-search">
+          <search className="library-search">
             <Search size={14} />
             <input
               type="search"
@@ -266,7 +269,7 @@ export function MoleculeStudio() {
                 <X size={12} />
               </button>
             )}
-          </div>
+          </search>
 
           {/* Category Filter Chips */}
           <div className="category-filter-chips" role="tablist">
@@ -769,6 +772,18 @@ export function MoleculeStudio() {
           onSelectElement={(elem) => {
             setSavedOpen(false);
             router.push(`/?element=${elem.slug}`);
+          }}
+        />
+      )}
+
+      {/* Molar Mass Modal */}
+      {molarMassOpen && (
+        <MolarMassModal
+          initialFormula={currentMolecule.formula.replace(/[₀-₉]/g, (d) => ({ "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9" }[d] || d))}
+          onClose={() => setMolarMassOpen(false)}
+          onSelectElement={(elemNum) => {
+            setMolarMassOpen(false);
+            router.push(`/?element=${elemNum}`);
           }}
         />
       )}

@@ -6,12 +6,15 @@ import {
   Atom,
   Beaker,
   Bookmark,
+  BookOpen,
   Boxes,
+  Calculator,
   FlaskConical,
   History,
   Layers,
   ShieldAlert,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import { categoryLabels, formatValue } from "@/features/explorer/lib/elements";
 import { formatElectronConfig } from "@/features/reactions/lib/formula";
@@ -24,6 +27,9 @@ export interface AtomicInfoPanelProps {
   onToggleFavorite: (atomicNumber: number) => void;
   onQuiz: () => void;
   onCompare: (target: ElementRecord) => void;
+  onAufbau?: () => void;
+  onStudyCard?: () => void;
+  onMolarMass?: () => void;
   relatedMolecule?: MoleculeRecord;
   relatedReaction?: ReactionRecord;
 }
@@ -35,6 +41,9 @@ export function AtomicInfoPanel({
   onToggleFavorite,
   onQuiz,
   onCompare,
+  onAufbau,
+  onStudyCard,
+  onMolarMass,
   relatedMolecule,
   relatedReaction,
 }: AtomicInfoPanelProps) {
@@ -144,6 +153,21 @@ export function AtomicInfoPanel({
         <button onClick={() => onCompare(neighbor)}>
           <TrendingUp size={15} /> Compare
         </button>
+        {onAufbau && (
+          <button type="button" onClick={onAufbau} title="Aufbau Principle & Orbital Box Diagram">
+            <Zap size={15} /> Aufbau
+          </button>
+        )}
+        {onStudyCard && (
+          <button type="button" onClick={onStudyCard} title="Printable Study Card & SVG Export">
+            <BookOpen size={15} /> Study card
+          </button>
+        )}
+        {onMolarMass && (
+          <button type="button" onClick={onMolarMass} title="Molar Mass & Stoichiometry Calculator">
+            <Calculator size={15} /> Mass
+          </button>
+        )}
         {relatedMolecule && (
           <Link
             href={`/molecules?molecule=${relatedMolecule.slug}`}
@@ -182,6 +206,8 @@ export interface AtomicLearningCardsProps {
   onCompare: (target: ElementRecord) => void;
   onSaved: () => void;
   onTable: () => void;
+  onAufbau?: () => void;
+  onStudyCard?: () => void;
   relatedMolecule?: MoleculeRecord;
 }
 
@@ -192,6 +218,8 @@ export function AtomicLearningCards({
   onCompare,
   onSaved,
   onTable,
+  onAufbau,
+  onStudyCard,
   relatedMolecule,
 }: AtomicLearningCardsProps) {
   return (
@@ -227,9 +255,16 @@ export function AtomicLearningCards({
           ))}
           <strong>{element.symbol}</strong>
         </div>
-        <button onClick={onQuiz}>
-          Test this structure <ArrowRight />
-        </button>
+        <div className="card-actions-split">
+          <button onClick={onQuiz}>
+            Test structure <ArrowRight />
+          </button>
+          {onAufbau && (
+            <button onClick={onAufbau}>
+              Aufbau boxes <ArrowRight />
+            </button>
+          )}
+        </div>
       </article>
 
       {/* 2. Periodic Trend */}
@@ -296,9 +331,16 @@ export function AtomicLearningCards({
           <Beaker />
         </header>
         <p className="resource-copy">{element.uses}</p>
-        <button onClick={onSaved}>
-          Save for later <ArrowRight />
-        </button>
+        <div className="card-actions-split">
+          <button onClick={onSaved}>
+            Save for later <ArrowRight />
+          </button>
+          {onStudyCard && (
+            <button onClick={onStudyCard}>
+              Study card <ArrowRight />
+            </button>
+          )}
+        </div>
       </article>
 
       {/* 5. History */}

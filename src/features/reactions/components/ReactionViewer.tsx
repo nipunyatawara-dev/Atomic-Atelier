@@ -139,7 +139,10 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.domElement.setAttribute("aria-label", "Three-dimensional schematic of the selected reaction particles.");
+    renderer.domElement.setAttribute(
+      "aria-label",
+      "Three-dimensional schematic of the selected reaction particles. Use Arrow keys to rotate, +/- to zoom, R to reset.",
+    );
     renderer.domElement.tabIndex = 0;
     mount.appendChild(renderer.domElement);
     const scene = new THREE.Scene();
@@ -158,6 +161,32 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
     };
     stateRef.current = state;
     controls.addEventListener("change", () => { state.dirty = true; });
+
+    const onCanvasKey = (event: KeyboardEvent) => {
+      const rotationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+      if (rotationKeys.includes(event.key)) {
+        event.preventDefault();
+        if (event.key === "ArrowLeft") root.rotation.y -= 0.14;
+        if (event.key === "ArrowRight") root.rotation.y += 0.14;
+        if (event.key === "ArrowUp") root.rotation.x -= 0.14;
+        if (event.key === "ArrowDown") root.rotation.x += 0.14;
+        state.dirty = true;
+      }
+      if (["+", "=", "-", "_"].includes(event.key)) {
+        event.preventDefault();
+        camera.position.multiplyScalar(["-", "_"].includes(event.key) ? 1.12 : 0.88).clampLength(5, 15);
+        state.dirty = true;
+      }
+      if (event.key === "r" || event.key === "R") {
+        event.preventDefault();
+        root.rotation.set(0, 0, 0);
+        camera.position.set(0, 0.6, 10);
+        controls.target.set(0, 0, 0);
+        state.dirty = true;
+      }
+    };
+    renderer.domElement.addEventListener("keydown", onCanvasKey);
+
     const resize = () => { const width = Math.max(mount.clientWidth, 1); const height = Math.max(mount.clientHeight, 1); camera.aspect = width / height; camera.updateProjectionMatrix(); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(width, height, false); state.dirty = true; };
     state.resizeObserver = new ResizeObserver(resize); state.resizeObserver.observe(mount); resize();
     state.intersectionObserver = new IntersectionObserver(([entry]) => { state.visible = entry.isIntersecting; state.dirty = true; }, { rootMargin: "100px" });
@@ -176,7 +205,7 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
     const contextLost = (event: Event) => { event.preventDefault(); setFallback(true); };
     renderer.domElement.addEventListener("webglcontextlost", contextLost);
     return () => {
-      cancelAnimationFrame(state.frame); renderer.domElement.removeEventListener("webglcontextlost", contextLost); gsap.killTweensOf(root.scale);
+      cancelAnimationFrame(state.frame); renderer.domElement.removeEventListener("webglcontextlost", contextLost); renderer.domElement.removeEventListener("keydown", onCanvasKey); gsap.killTweensOf(root.scale);
       state.resizeObserver.disconnect(); state.intersectionObserver.disconnect(); controls.dispose(); disposeGroup(root); state.timer.dispose(); renderer.forceContextLoss(); renderer.dispose(); renderer.domElement.remove(); stateRef.current = null;
     };
   }, []);

@@ -20,6 +20,9 @@ import { FirstVisitTour } from "./FirstVisitTour";
 import { PeriodicTable } from "./PeriodicTable";
 import { QuizModal } from "./QuizModal";
 import { SavedModal } from "./SavedModal";
+import { AufbauModal } from "./AufbauModal";
+import { StudyCardModal } from "./StudyCardModal";
+import { MolarMassModal } from "@/features/reactions/components/MolarMassModal";
 import { CARBON, categories, categoryLabels, createElementQuiz, elementByNumber, elements, resolveElement } from "@/features/explorer/lib/elements";
 import { reactions } from "@/features/reactions/lib/reactions";
 import { curatedMolecules } from "@/features/molecules/lib/molecules";
@@ -48,6 +51,9 @@ export function ExplorerApp() {
   const [tableOpen, setTableOpen] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
+  const [aufbauOpen, setAufbauOpen] = useState(false);
+  const [studyCardOpen, setStudyCardOpen] = useState(false);
+  const [molarMassOpen, setMolarMassOpen] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const appRef = useRef<HTMLElement>(null);
   const libraryRef = useSheetGesture<HTMLElement>({ isOpen: mobileLibrary, onClose: () => setMobileLibrary(false) });
@@ -215,6 +221,7 @@ export function ExplorerApp() {
         active="explore"
         onTable={() => setTableOpen(true)}
         onSaved={() => setSavedOpen(true)}
+        onMolarMass={() => setMolarMassOpen(true)}
         mobileContext={{
           label: "Elements",
           detail: `${element.symbol} · ${element.name}`,
@@ -227,7 +234,7 @@ export function ExplorerApp() {
       <div className="workspace">
         <aside id="element-library" ref={libraryRef} className={`element-library panel ${mobileLibrary ? "open" : ""}`} role={mobileLibrary ? "dialog" : undefined} aria-modal={mobileLibrary ? "true" : undefined} aria-label="Element library">
           <div className="panel-heading"><span>Element library</span><button className="mobile-close" onClick={() => setMobileLibrary(false)} aria-label="Close element library"><X size={17} /></button><button className={filtersActive ? "active" : ""} onClick={() => setFilterOpen((value) => !value)} aria-label="Filter elements"><SlidersHorizontal size={17} /></button></div>
-          <label className="library-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, symbol, number…" aria-label="Search elements by name, symbol, or atomic number" name="element-search" /></label>
+          <search className="library-search-wrapper"><label className="library-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, symbol, number…" aria-label="Search elements by name, symbol, or atomic number" name="element-search" /></label></search>
           {filterOpen && <div className="filter-panel">
             <select aria-label="Element category" value={filters.category} onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value as ElementFilter["category"] }))}><option value="all">All categories</option>{categories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
             <select aria-label="Electron block" value={filters.block} onChange={(event) => setFilters((current) => ({ ...current, block: event.target.value }))}><option value="all">All blocks</option>{["s", "p", "d", "f"].map((block) => <option value={block} key={block}>{block}-block</option>)}</select>
@@ -254,6 +261,9 @@ export function ExplorerApp() {
           onToggleFavorite={toggleFavorite}
           onQuiz={() => setQuizOpen(true)}
           onCompare={changeCompare}
+          onAufbau={() => setAufbauOpen(true)}
+          onStudyCard={() => setStudyCardOpen(true)}
+          onMolarMass={() => setMolarMassOpen(true)}
           relatedMolecule={relatedMolecule}
           relatedReaction={relatedReaction}
         />
@@ -266,6 +276,8 @@ export function ExplorerApp() {
         onCompare={changeCompare}
         onSaved={() => setSavedOpen(true)}
         onTable={() => setTableOpen(true)}
+        onAufbau={() => setAufbauOpen(true)}
+        onStudyCard={() => setStudyCardOpen(true)}
         relatedMolecule={relatedMolecule}
       />
 
@@ -274,6 +286,29 @@ export function ExplorerApp() {
       {quizOpen && <QuizModal title={`${element.name} quick quiz`} questions={createElementQuiz(element)} onClose={() => setQuizOpen(false)} onComplete={(score) => recordQuiz(`element:${element.atomicNumber}`, score)} />}
       {savedOpen && <SavedModal progress={progress} onClose={() => setSavedOpen(false)} onElement={selectElement} />}
       {compareOpen && <ComparisonPanel primary={element} secondary={compareElement} onSelect={changeCompare} onClose={closeCompare} />}
+      {aufbauOpen && (
+        <AufbauModal
+          element={element}
+          onClose={() => setAufbauOpen(false)}
+          onSelectElement={(num) => {
+            const el = elementByNumber.get(num);
+            if (el) selectElement(el);
+          }}
+        />
+      )}
+      {studyCardOpen && (
+        <StudyCardModal element={element} onClose={() => setStudyCardOpen(false)} />
+      )}
+      {molarMassOpen && (
+        <MolarMassModal
+          initialFormula={element.symbol}
+          onClose={() => setMolarMassOpen(false)}
+          onSelectElement={(num) => {
+            const el = elementByNumber.get(num);
+            if (el) selectElement(el);
+          }}
+        />
+      )}
       <FirstVisitTour />
     </main>
   );

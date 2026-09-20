@@ -8,7 +8,7 @@ type Props = {
   showLabel?: boolean;
 };
 
-export function ThemeToggle({ className = "", showLabel = false }: Props) {
+export function ThemeToggle({ className = "" }: Props) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
 
@@ -25,7 +25,6 @@ export function ThemeToggle({ className = "", showLabel = false }: Props) {
       ) : (
         <Moon size={17} aria-hidden="true" className="theme-icon moon-icon" />
       )}
-      {showLabel && <span>{isDark ? "Light" : "Dark"}</span>}
     </button>
   );
 }

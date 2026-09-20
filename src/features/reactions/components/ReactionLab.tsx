@@ -3,11 +3,13 @@
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Beaker, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, X } from "lucide-react";
 import { AppHeader } from "@/components/common/AppHeader";
 import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
 import { QuizModal } from "@/features/explorer/components/QuizModal";
 import { SavedModal } from "@/features/explorer/components/SavedModal";
+import { SolubilityMatrixModal } from "./SolubilityMatrixModal";
+import { MolarMassModal } from "./MolarMassModal";
 import { countSide, formatFormulaSubscripts, isBalanced } from "@/features/reactions/lib/formula";
 import { elementByNumber } from "@/features/explorer/lib/elements";
 import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "@/features/reactions/lib/reactions";
@@ -42,6 +44,8 @@ export function ReactionLab() {
   const [tableOpen, setTableOpen] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
+  const [solubilityOpen, setSolubilityOpen] = useState(false);
+  const [molarMassOpen, setMolarMassOpen] = useState(false);
   const [mobileLibrary, setMobileLibrary] = useState(false);
   const libraryRef = useSheetGesture<HTMLElement>({ isOpen: mobileLibrary, onClose: () => setMobileLibrary(false) });
   const libraryTriggerRef = useRef<HTMLButtonElement>(null);
@@ -140,6 +144,7 @@ export function ReactionLab() {
         active="reactions"
         onTable={() => setTableOpen(true)}
         onSaved={() => setSavedOpen(true)}
+        onMolarMass={() => setMolarMassOpen(true)}
         mobileContext={{
           label: "Reactions",
           detail: `${String(reactionIndex + 1).padStart(2, "0")} of ${reactions.length}`,
@@ -161,7 +166,15 @@ export function ReactionLab() {
           <ReactionViewer reaction={reaction} reactantCoefficients={coefficients.reactants} productCoefficients={coefficients.products} animationRun={animationRun} onAnimationComplete={onAnimationComplete} />
           <div className="balance-panel">
             <div className="atom-counts"><span>Atom count</span>{symbols.map((symbol) => <div key={symbol} className={leftCounts[symbol] === rightCounts[symbol] ? "balanced" : "unbalanced"}><b>{symbol}</b><small>{leftCounts[symbol] ?? 0}</small><i>↔</i><small>{rightCounts[symbol] ?? 0}</small></div>)}</div>
-            <div className="lab-actions"><button onClick={hint}><Lightbulb /> Hint</button><button onClick={reset}><RotateCcw /> Reset</button><button className="check-button" onClick={check}><Check /> Check</button><button className="animate-button" onClick={animate} disabled={!balanced || animating}><Play fill="currentColor" /> {animating ? "Rearranging…" : "Animate"}</button></div>
+            <div className="lab-actions">
+              <button type="button" onClick={() => setSolubilityOpen(true)} title="Aqueous Solubility & Activity Series Matrix">
+                <Beaker size={14} /> Solubility &amp; Activity
+              </button>
+              <button onClick={hint}><Lightbulb /> Hint</button>
+              <button onClick={reset}><RotateCcw /> Reset</button>
+              <button className="check-button" onClick={check}><Check /> Check</button>
+              <button className="animate-button" onClick={animate} disabled={!balanced || animating}><Play fill="currentColor" /> {animating ? "Rearranging…" : "Animate"}</button>
+            </div>
             <div className="attempt-tracker" aria-label={`${attempts} checks and ${hintsUsed} hints used`}><span>Checks <b>{attempts}</b></span><span>Hints <b>{hintsUsed}</b></span><em>Start at 100% · −10 per extra check · −15 per hint</em></div>
             {message && <div className={`balance-message ${message.type}`}>{message.type === "success" ? <Check /> : message.type === "hint" ? <Lightbulb /> : <CircleHelp />}<span>{message.text}</span></div>}
           </div>
@@ -183,6 +196,24 @@ export function ReactionLab() {
       {tableOpen && <PeriodicTable selected={6} onSelect={navigateElement} onClose={() => setTableOpen(false)} />}
       {quizOpen && <QuizModal title={`${reaction.title} check`} questions={reactionQuestion} onClose={() => setQuizOpen(false)} onComplete={(score) => recordQuiz(`reaction:${reaction.slug}`, score)} />}
       {savedOpen && <SavedModal progress={progress} onClose={() => setSavedOpen(false)} onElement={navigateElement} />}
+      {solubilityOpen && (
+        <SolubilityMatrixModal
+          onClose={() => setSolubilityOpen(false)}
+          onSelectElement={(num) => {
+            const el = elementByNumber.get(num);
+            if (el) navigateElement(el);
+          }}
+        />
+      )}
+      {molarMassOpen && (
+        <MolarMassModal
+          onClose={() => setMolarMassOpen(false)}
+          onSelectElement={(num) => {
+            const el = elementByNumber.get(num);
+            if (el) navigateElement(el);
+          }}
+        />
+      )}
     </main>
   );
 }

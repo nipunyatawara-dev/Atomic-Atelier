@@ -211,7 +211,9 @@ export function AtomViewer({
   const [subshells, setSubshells] = useState<SubshellInfo[]>([]);
   const [hoveredMode, setHoveredMode] = useState<ViewMode | null>(null);
 
+  const onAutoRotateRef = useRef(onAutoRotate);
   useEffect(() => { autoRotateRef.current = autoRotate; if (stateRef.current) stateRef.current.dirty = true; }, [autoRotate]);
+  useEffect(() => { onAutoRotateRef.current = onAutoRotate; }, [onAutoRotate]);
   useEffect(() => { viewModeRef.current = viewMode; if (stateRef.current) stateRef.current.dirty = true; }, [viewMode]);
 
   useEffect(() => {
@@ -294,10 +296,21 @@ export function AtomViewer({
         if (event.key === "ArrowDown") atom.rotation.x += .14;
         state.dirty = true;
       }
-      if (["+", "=", "-"].includes(event.key)) {
+      if (["+", "=", "-", "_"].includes(event.key)) {
         event.preventDefault();
-        camera.position.multiplyScalar(event.key === "-" ? 1.12 : .88).clampLength(3, 26);
+        camera.position.multiplyScalar(["-", "_"].includes(event.key) ? 1.12 : .88).clampLength(3, 26);
         state.dirty = true;
+      }
+      if (event.key === "r" || event.key === "R") {
+        event.preventDefault();
+        atom.rotation.set(-.12, -.2, .03);
+        camera.position.set(0, .65, 10.8);
+        controls.target.set(0, 0, 0);
+        state.dirty = true;
+      }
+      if (event.key === " ") {
+        event.preventDefault();
+        onAutoRotateRef.current(!autoRotateRef.current);
       }
     };
     renderer.domElement.addEventListener("keydown", onCanvasKey);
