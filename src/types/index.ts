@@ -32,7 +32,9 @@ export type ElementRecord = {
   valenceElectrons: number | null;
   electronegativity: number | null;
   atomicRadius: number | null;
+  /** PubChem source value, eV per atom; use elementProperties for display. */
   ionizationEnergy: number | null;
+  /** PubChem source value, eV per atom. */
   electronAffinity: number | null;
   oxidationStates: string[];
   meltingPoint: number | null;
@@ -155,6 +157,7 @@ export type ReactionRecord = {
 };
 
 export type QuizQuestion = {
+  followUp?: { label: string; href: string };
   id: string;
   prompt: string;
   options: string[];

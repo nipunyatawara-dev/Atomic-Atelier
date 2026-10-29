@@ -2,21 +2,16 @@
 
 import { useEffect } from "react";
 import { ArrowDown, ArrowUp, Lightbulb, Minus, X } from "lucide-react";
-import { elements, formatValue } from "@/features/explorer/lib/elements";
-import type { ElementRecord } from "@/types";
+import { elementPropertyValue, formatElementProperty } from "@/lib/elementProperties";
+import { elements } from "@/features/explorer/lib/elements";
+import type { ElementRecord, TrendPropertyId } from "@/types";
 
-type Metric = {
-  label: string;
-  unit: string;
-  value: (element: ElementRecord) => number | null;
-};
-
-const metrics: Metric[] = [
-  { label: "Atomic mass", unit: "u", value: (element) => Number(element.atomicMass.replace(/[^\d.]/g, "")) || null },
-  { label: "Atomic radius", unit: "pm", value: (element) => element.atomicRadius },
-  { label: "Electronegativity", unit: "", value: (element) => element.electronegativity },
-  { label: "Ionization energy", unit: "eV", value: (element) => element.ionizationEnergy },
-  { label: "Melting point", unit: "K", value: (element) => element.meltingPoint },
+const metrics: { label: string; id: TrendPropertyId }[] = [
+  { label: "Atomic mass", id: "atomicMass" },
+  { label: "Atomic radius", id: "atomicRadius" },
+  { label: "Electronegativity", id: "electronegativity" },
+  { label: "Ionization energy", id: "ionizationEnergy" },
+  { label: "Melting point", id: "meltingPoint" },
 ];
 
 function trendExplanation(primary: ElementRecord, secondary: ElementRecord) {
@@ -64,16 +59,16 @@ export function ComparisonPanel({ primary, secondary, onSelect, onClose }: { pri
 
       <div className="comparison-metrics">
         {metrics.map((metric) => {
-          const primaryValue = metric.value(primary);
-          const secondaryValue = metric.value(secondary);
+          const primaryValue = elementPropertyValue(primary, metric.id);
+          const secondaryValue = elementPropertyValue(secondary, metric.id);
           const movement = change(primaryValue, secondaryValue);
           const max = Math.max(primaryValue ?? 0, secondaryValue ?? 0, 1);
           const DirectionIcon = movement.direction === "up" ? ArrowUp : movement.direction === "down" ? ArrowDown : Minus;
           return (
             <article className="compare-metric" key={metric.label}>
               <header><span>{metric.label}</span><b className={movement.direction}><DirectionIcon />{movement.percent === null ? "—" : `${movement.percent}%`}</b></header>
-              <div className="compare-values"><span><i data-element="primary" />{primary.symbol} <b>{formatValue(primaryValue, metric.unit ? ` ${metric.unit}` : "")}</b></span><span>{secondary.symbol} <b>{formatValue(secondaryValue, metric.unit ? ` ${metric.unit}` : "")}</b><i data-element="secondary" /></span></div>
-              <div className="compare-bars" aria-label={`${metric.label}: ${primary.name} ${formatValue(primaryValue, metric.unit)}, ${secondary.name} ${formatValue(secondaryValue, metric.unit)}`}>
+              <div className="compare-values"><span><i data-element="primary" />{primary.symbol} <b>{formatElementProperty(primary, metric.id)}</b></span><span>{secondary.symbol} <b>{formatElementProperty(secondary, metric.id)}</b><i data-element="secondary" /></span></div>
+              <div className="compare-bars" aria-label={`${metric.label}: ${primary.name} ${formatElementProperty(primary, metric.id)}, ${secondary.name} ${formatElementProperty(secondary, metric.id)}`}>
                 <i data-element="primary" style={{ width: `${primaryValue === null ? 0 : Math.max(4, (primaryValue / max) * 100)}%` }} />
                 <i data-element="secondary" style={{ width: `${secondaryValue === null ? 0 : Math.max(4, (secondaryValue / max) * 100)}%` }} />
               </div>

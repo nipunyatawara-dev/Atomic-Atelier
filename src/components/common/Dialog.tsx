@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 export function Dialog({ title, eyebrow, children, onClose, wide = false, className = "" }: { title: string; eyebrow?: string; children: ReactNode; onClose: () => void; wide?: boolean; className?: string }) {
+  const titleId = useId();
   const ref = useRef<HTMLElement>(null);
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
@@ -12,6 +14,9 @@ export function Dialog({ title, eyebrow, children, onClose, wide = false, classN
     const dialog = ref.current;
     dialog?.querySelector<HTMLElement>("button, input, select")?.focus();
     const onKey = (event: KeyboardEvent) => {
+      // Only the top dialog handles keyboard input when a term explanation is open.
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      if (dialogs[dialogs.length - 1] !== dialog) return;
       if (event.key === "Escape") onCloseRef.current();
       if (event.key !== "Tab" || !dialog) return;
       const focusable = [...dialog.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])')];
@@ -24,14 +29,16 @@ export function Dialog({ title, eyebrow, children, onClose, wide = false, classN
     document.addEventListener("keydown", onKey);
     return () => { document.removeEventListener("keydown", onKey); previous?.focus(); };
   }, []);
-  return (
+  if (typeof document === "undefined") return null;
+  return createPortal(
     <div className="dialog-backdrop" role="presentation" onMouseDown={onClose}>
-      <section ref={ref} className={`dialog-card ${wide ? "wide" : ""} ${className}`} role="dialog" aria-modal="true" aria-labelledby="dialog-title" onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={ref} className={`dialog-card ${wide ? "wide" : ""} ${className}`} role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
         <button className="dialog-close" onClick={onClose} aria-label="Close dialog"><X size={18} /></button>
         {eyebrow && <em className="dialog-eyebrow">{eyebrow}</em>}
-        <h2 id="dialog-title">{title}</h2>
+        <h2 id={titleId}>{title}</h2>
         {children}
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

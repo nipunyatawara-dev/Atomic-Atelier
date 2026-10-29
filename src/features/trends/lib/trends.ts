@@ -1,3 +1,4 @@
+import { elementPropertyValue, formatPropertyValue, propertyUnits } from "@/lib/elementProperties";
 import { elements } from "@/features/explorer/lib/elements";
 import type {
   ElementRecord,
@@ -8,12 +9,11 @@ import type {
   TrendPropertyId,
 } from "@/types";
 
-export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
+const trendMetadata: Omit<TrendPropertyDefinition, "unit" | "accessor" | "format">[] = [
   {
     id: "electronegativity",
     name: "Electronegativity",
     shortName: "Electronegativity",
-    unit: "Pauling",
     symbol: "χ",
     description:
       "A chemical property that describes the tendency of an atom to attract a shared pair of electrons towards itself in a covalent bond.",
@@ -27,14 +27,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 3.98,
     scaleType: "linear",
     defaultPalette: "viridis",
-    accessor: (e: ElementRecord) => e.electronegativity,
-    format: (v: number | null) => (v !== null ? v.toFixed(2) : "Not established"),
   },
   {
     id: "atomicRadius",
     name: "Atomic Radius",
     shortName: "Radius",
-    unit: "pm",
     symbol: "r",
     description:
       "The distance from the center of the atomic nucleus to the outermost boundary of the surrounding electron cloud.",
@@ -48,14 +45,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 298,
     scaleType: "linear",
     defaultPalette: "spectral",
-    accessor: (e: ElementRecord) => e.atomicRadius,
-    format: (v: number | null) => (v !== null ? `${v} pm` : "Not established"),
   },
   {
     id: "ionizationEnergy",
     name: "1st Ionization Energy",
     shortName: "Ionization",
-    unit: "kJ/mol",
     symbol: "IE₁",
     description:
       "The minimum energy required to remove the most loosely bound valence electron from an isolated neutral gaseous atom.",
@@ -69,14 +63,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 2372.3,
     scaleType: "linear",
     defaultPalette: "magma",
-    accessor: (e: ElementRecord) => e.ionizationEnergy,
-    format: (v: number | null) => (v !== null ? `${v.toLocaleString()} kJ/mol` : "Not established"),
   },
   {
     id: "electronAffinity",
     name: "Electron Affinity",
     shortName: "Affinity",
-    unit: "kJ/mol",
     symbol: "EA",
     description:
       "The energy released when an electron is attached to a neutral gaseous atom to form a negatively charged univalent anion.",
@@ -90,14 +81,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 349,
     scaleType: "linear",
     defaultPalette: "sunset",
-    accessor: (e: ElementRecord) => e.electronAffinity,
-    format: (v: number | null) => (v !== null ? `${v} kJ/mol` : "Not established"),
   },
   {
     id: "meltingPoint",
     name: "Melting Point",
     shortName: "Melting Pt",
-    unit: "K",
     symbol: "Tₘ",
     description:
       "The temperature at which a solid transitions to a liquid at standard atmospheric pressure (1 atm).",
@@ -111,15 +99,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 3823,
     scaleType: "linear",
     defaultPalette: "magma",
-    accessor: (e: ElementRecord) => e.meltingPoint,
-    format: (v: number | null) =>
-      v !== null ? `${v.toFixed(1)} K (${(v - 273.15).toFixed(1)} °C)` : "Not established",
   },
   {
     id: "boilingPoint",
     name: "Boiling Point",
     shortName: "Boiling Pt",
-    unit: "K",
     symbol: "T_b",
     description:
       "The temperature at which the vapor pressure of a liquid equals the external atmospheric pressure.",
@@ -133,15 +117,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 5869,
     scaleType: "linear",
     defaultPalette: "sunset",
-    accessor: (e: ElementRecord) => e.boilingPoint,
-    format: (v: number | null) =>
-      v !== null ? `${v.toFixed(1)} K (${(v - 273.15).toFixed(1)} °C)` : "Not established",
   },
   {
     id: "density",
     name: "Density (STP)",
     shortName: "Density",
-    unit: "g/cm³",
     symbol: "ρ",
     description:
       "The mass per unit volume of an element in its standard state at standard temperature and pressure.",
@@ -155,19 +135,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 22.59,
     scaleType: "linear",
     defaultPalette: "emerald",
-    accessor: (e: ElementRecord) => e.density,
-    format: (v: number | null) =>
-      v !== null
-        ? v < 0.01
-          ? `${(v * 1000).toFixed(3)} g/L`
-          : `${v.toFixed(2)} g/cm³`
-        : "Not established",
   },
   {
     id: "valenceElectrons",
     name: "Valence Electrons",
     shortName: "Valence e⁻",
-    unit: "e⁻",
     symbol: "N_v",
     description:
       "The number of electrons located in the outermost shell that can participate in the formation of chemical bonds.",
@@ -181,14 +153,11 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 8,
     scaleType: "linear",
     defaultPalette: "viridis",
-    accessor: (e: ElementRecord) => e.valenceElectrons,
-    format: (v: number | null) => (v !== null ? `${v} e⁻` : "Variable / d-block"),
   },
   {
     id: "atomicMass",
     name: "Atomic Mass",
     shortName: "Mass",
-    unit: "u",
     symbol: "M_a",
     description:
       "The weighted average mass of naturally occurring isotopes of an element, expressed in unified atomic mass units (daltons).",
@@ -202,10 +171,15 @@ export const TREND_PROPERTIES: TrendPropertyDefinition[] = [
     max: 294,
     scaleType: "linear",
     defaultPalette: "spectral",
-    accessor: (e: ElementRecord) => parseFloat(e.atomicMass) || null,
-    format: (v: number | null) => (v !== null ? `${v.toFixed(3)} u` : "Unknown"),
   },
 ];
+
+export const TREND_PROPERTIES: TrendPropertyDefinition[] = trendMetadata.map((property) => ({
+  ...property,
+  unit: propertyUnits[property.id],
+  accessor: (element: ElementRecord) => elementPropertyValue(element, property.id),
+  format: (value: number | null) => formatPropertyValue(property.id, value),
+}));
 
 export const TREND_MAP = new Map(TREND_PROPERTIES.map((p) => [p.id, p]));
 export const DEFAULT_TREND = TREND_PROPERTIES[0];

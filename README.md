@@ -12,7 +12,9 @@ Atomic Atelier is an interactive chemistry learning app for exploring all 118 el
 - Browse a keyboard-accessible periodic table.
 - Test element knowledge with deterministic quizzes.
 - Balance 12 guided chemical equations, visualize atom conservation, and receive technique grades with strategy feedback.
-- Follow a short first-visit orientation and continue from a local progress dashboard.
+- Start with an interactive outer-electron task, then follow a five-activity Carbon → Nitrogen → periodic trends → CO₂ lesson.
+- Practice prediction questions, review missed concepts, and retry them without replacing full-quiz scores.
+- Open inline explanations for chemistry terms and continue from a local progress dashboard.
 - Save favorites, explored elements, quiz scores, reaction grades, and recent activity locally.
 - Install the app and revisit the element explorer or reaction lab offline.
 - Use the responsive interface on desktop and mobile, with reduced-motion support.
@@ -24,9 +26,11 @@ The app reads from the committed snapshot in `src/data/elements.json`, so neithe
 
 `npm run data:sync` refreshes the snapshot from PubChem periodic-table and PUG-View records. The script derives shell occupancy, selects representative isotopes when supported by abundance data, normalizes nullable properties, attaches PubChem, IUPAC, and NIST references, and validates the generated records. Changes to names, standard atomic weights, or other evaluated properties should still be checked against the linked authoritative sources before committing a refreshed snapshot.
 
+Energy fields in the snapshot are in eV per atom. `src/lib/elementProperties.ts` converts ionization energy and electron affinity to kJ/mol using the exact SI elementary charge and Avogadro constant, and supplies shared units and formatting for facts, comparisons, charts, and exported study cards. Zero and unavailable values are handled separately.
+
 ## Persistence and privacy
 
-Progress is stored only in the browser under the `atomic-atelier:v1` local-storage key. The app has no accounts, analytics payload, database, cloud synchronization, notes, or collection of personally identifiable information.
+Progress is stored only in the browser under the `atomic-atelier:v1` local-storage key. The optional guided lesson stores its current activity under `atomic-atelier:carbon-lesson:v1`; the first-task dismissal uses `atomic-atelier:tour-complete:v1`. The app has no accounts, analytics payload, database, cloud synchronization, notes, or collection of personally identifiable information.
 
 Stored preferences include favorites, explored and recent elements, quiz scores, completed reactions, reaction technique grades, last selections, and the auto-rotate setting. If browser storage is missing, blocked, outdated, or malformed, the app falls back to safe defaults.
 

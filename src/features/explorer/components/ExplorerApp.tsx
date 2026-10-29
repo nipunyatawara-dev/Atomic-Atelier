@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
+import { LessonJourney } from "@/components/common/LessonJourney";
 import { AppHeader } from "@/components/common/AppHeader";
 import { AtomicInfoPanel, AtomicLearningCards } from "./AtomicContent";
 import { ComparisonPanel } from "./ComparisonPanel";
@@ -41,6 +42,8 @@ export function ExplorerApp() {
   const router = useRouter();
   const params = useSearchParams();
   const { progress, ready, visitElement, toggleFavorite, recordQuiz, setAutoRotate } = useProgress();
+  const [highlightRequest, setHighlightRequest] = useState(0);
+  const [valenceHighlighted, setValenceHighlighted] = useState(false);
   const [element, setElement] = useState<ElementRecord>(() => resolveElement(params.get("element")));
   const [compareElement, setCompareElement] = useState<ElementRecord>(() => resolveElement(params.get("compare") || "oxygen"));
   const [compareOpen, setCompareOpen] = useState(Boolean(params.get("compare")));
@@ -115,13 +118,12 @@ export function ExplorerApp() {
     if (requested !== null) {
       const resolved = resolveElement(requested);
       if (resolved.atomicNumber !== element.atomicNumber) {
-        setElement(resolved);
+        queueMicrotask(() => setElement(resolved));
       }
     }
     if (requestedCompare !== null) {
       const resolvedCompare = resolveElement(requestedCompare);
-      setCompareElement(resolvedCompare);
-      setCompareOpen(true);
+      queueMicrotask(() => { setCompareElement(resolvedCompare); setCompareOpen(true); });
     }
     const elementInvalid = requested !== null && resolveElement(requested).slug !== requested.trim().toLowerCase();
     const compareInvalid = requestedCompare !== null && resolveElement(requestedCompare).slug !== requestedCompare.trim().toLowerCase();
@@ -242,6 +244,8 @@ export function ExplorerApp() {
         }}
       />
 
+      <FirstVisitTour element={element} highlighted={valenceHighlighted} onHighlight={() => setHighlightRequest((value) => value + 1)} />
+      <LessonJourney onHighlight={element.slug === "carbon" ? () => setHighlightRequest((value) => value + 1) : undefined} readySteps={element.slug === "carbon" ? [...(valenceHighlighted ? [0] : []), ...(compareOpen && compareElement.slug === "nitrogen" ? [1] : [])] : []} />
       <div className="workspace">
         <aside id="element-library" ref={libraryRef} className={`element-library panel ${mobileLibrary ? "open" : ""}`} role={mobileLibrary ? "dialog" : undefined} aria-modal={mobileLibrary ? "true" : undefined} aria-label="Element library">
           <div className="panel-heading"><span>Element library</span><button className="mobile-close" onClick={() => setMobileLibrary(false)} aria-label="Close element library"><X size={17} /></button><button className={filtersActive ? "active" : ""} onClick={() => setFilterOpen((value) => !value)} aria-label="Filter elements"><SlidersHorizontal size={17} /></button></div>
@@ -263,7 +267,7 @@ export function ExplorerApp() {
           <button className="view-table" onClick={() => setTableOpen(true)}><Grid3X3 size={15} /> View periodic table <ArrowRight size={14} /></button>
         </aside>
 
-        <AtomViewer element={element} autoRotate={progress.autoRotate} onAutoRotate={setAutoRotate} compareActive={compareOpen} onCompare={() => compareOpen ? closeCompare() : changeCompare(neighbor)} />
+        <AtomViewer initialTool={params.get("tool")} highlightRequest={highlightRequest} onValenceChange={setValenceHighlighted} element={element} autoRotate={progress.autoRotate} onAutoRotate={setAutoRotate} compareActive={compareOpen} onCompare={() => compareOpen ? closeCompare() : changeCompare(neighbor)} />
 
         <AtomicInfoPanel
           element={element}
@@ -321,7 +325,6 @@ export function ExplorerApp() {
           }}
         />
       )}
-      <FirstVisitTour />
     </main>
   );
 }

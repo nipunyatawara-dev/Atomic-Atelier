@@ -7,13 +7,13 @@ test.beforeEach(async ({ page }, testInfo) => {
 
 test("first visit offers a short, dismissible orientation", async ({ page }) => {
   await page.goto("/");
-  const tour = page.getByRole("dialog");
-  await expect(tour.getByRole("heading", { name: "Meet matter up close" })).toBeVisible();
-  await tour.getByRole("button", { name: "Next" }).click();
-  await expect(tour.getByRole("heading", { name: "Move from atoms to trends" })).toBeVisible();
-  await tour.getByRole("button", { name: "Next" }).click();
-  await tour.getByRole("button", { name: "Start exploring" }).click();
-  await expect(tour).toBeHidden();
+  const task = page.getByRole("region", { name: "First exploration task" });
+  await expect(task).toBeVisible();
+  await task.getByRole("button", { name: "Highlight outer electrons" }).click();
+  await expect(task).toHaveText(/You found the outer electrons/);
+  await expect(page.locator('.viewer-tools').getByRole("button", { name: "Valence", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await task.getByRole("button", { name: "Keep exploring" }).click();
+  await expect(task).toBeHidden();
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem("atomic-atelier:tour-complete:v1"))).toBe("true");
 });
 
@@ -118,10 +118,10 @@ test("mobile viewer toolbar keeps every tool visible without horizontal clipping
   test.skip(testInfo.project.name !== "mobile", "mobile-only viewer toolbar layout");
   await page.goto("/?element=hydrogen");
   const toolbar = page.locator(".viewer-tools");
-  await expect(toolbar.getByRole("button")).toHaveCount(7);
+  await expect(toolbar.getByRole("button").filter({ visible: true })).toHaveCount(4);
   const layout = await toolbar.evaluate((element) => {
     const parent = element.getBoundingClientRect();
-    const buttons = [...element.querySelectorAll("button")].map((button) => {
+    const buttons = [...element.querySelectorAll("button:not(.advanced-tool)")].map((button) => {
       const bounds = button.getBoundingClientRect();
       return { left: bounds.left, right: bounds.right, width: bounds.width, height: bounds.height };
     });
@@ -206,6 +206,9 @@ test("mobile explorer sustains the release frame-rate floor", async ({ page }, t
   test.skip(testInfo.project.name !== "mobile", "mobile performance smoke test");
   await page.goto("/?element=oganesson");
   await expect(page.getByRole("heading", { name: "Oganesson", exact: true })).toBeVisible();
+  // Measure the running model after scene initialization and entrance choreography.
+  await expect(page.getByLabel(/Interactive simplified atomic model/)).toBeVisible();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem("atomic-atelier:intro-seen"))).toBe("true");
   const fps = await page.evaluate(() => new Promise<number>((resolve) => {
     let frames = 0;
     const started = performance.now();

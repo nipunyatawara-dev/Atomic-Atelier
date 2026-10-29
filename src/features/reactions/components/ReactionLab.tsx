@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Beaker, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, Sparkles, X } from "lucide-react";
+import { LessonJourney } from "@/components/common/LessonJourney";
 import { AppHeader } from "@/components/common/AppHeader";
 import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
 import { QuizModal } from "@/features/explorer/components/QuizModal";
@@ -199,6 +200,7 @@ export function ReactionLab() {
           controls: "reaction-library",
         }}
       />
+      <LessonJourney readySteps={[]} />
       <div className="reaction-workspace">
         <aside id="reaction-library" ref={libraryRef} className={`reaction-library panel ${mobileLibrary ? "open" : ""}`} role={mobileLibrary ? "dialog" : undefined} aria-modal={mobileLibrary ? "true" : undefined} aria-label="Reaction library">
           <div className="panel-heading"><span>Reaction library</span><button className="mobile-close" onClick={() => setMobileLibrary(false)} aria-label="Close reaction library"><X size={17} /></button><i>{reactions.length}</i></div>

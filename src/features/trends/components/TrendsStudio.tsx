@@ -1,5 +1,8 @@
 "use client";
 
+import { formatElementProperty } from "@/lib/elementProperties";
+import { LessonJourney } from "@/components/common/LessonJourney";
+import { ConceptHelp } from "@/components/common/ConceptHelp";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -123,11 +126,12 @@ export function TrendsStudio() {
         mobileContext={{
           label: "Trends",
           detail: currentProperty.name,
-          action: () => document.getElementById("trend-property-selector")?.scrollIntoView({ behavior: "smooth", block: "start" }),
-          controls: "trend-property-selector",
+          action: () => document.getElementById("trend-mobile-property")?.focus(),
+          controls: "trend-mobile-property",
         }}
       />
 
+      <LessonJourney readySteps={selectedPropertyId === "electronegativity" && selectedElement.slug === "nitrogen" ? [2] : []} />
       {/* Top Header & Property Tabs */}
       <section className="trends-topbar">
         <div className="trends-heading-block">
@@ -156,6 +160,11 @@ export function TrendsStudio() {
         </div>
       </section>
 
+      <label className="mobile-trend-property">Explore a property
+        <select id="trend-mobile-property" aria-label="Trend property" value={selectedPropertyId} onChange={(event) => handleSelectProperty(event.target.value as TrendPropertyId)}>
+          {TREND_PROPERTIES.map((property) => <option key={property.id} value={property.id}>{property.name} ({property.unit})</option>)}
+        </select>
+      </label>
       {/* Property Selector Bar */}
       <div id="trend-property-selector" className="property-selector-strip">
         <div className="property-chips-scroll">
@@ -391,27 +400,25 @@ export function TrendsStudio() {
             {/* Cross-Trend Comparison Stats */}
             <div className="cross-trend-stats">
               <div className="cross-stat-row">
-                <span className="cs-label">Electronegativity:</span>
-                <b className="cs-val">{selectedElement.electronegativity ?? "—"}</b>
+                <span className="cs-label">Electronegativity <ConceptHelp concept="electronegativity" /></span>
+                <b className="cs-val">{formatElementProperty(selectedElement, "electronegativity")}</b>
               </div>
               <div className="cross-stat-row">
                 <span className="cs-label">Atomic Radius:</span>
                 <b className="cs-val">
-                  {selectedElement.atomicRadius ? `${selectedElement.atomicRadius} pm` : "—"}
+                  {formatElementProperty(selectedElement, "atomicRadius")}
                 </b>
               </div>
               <div className="cross-stat-row">
                 <span className="cs-label">1st Ionization:</span>
                 <b className="cs-val">
-                  {selectedElement.ionizationEnergy
-                    ? `${selectedElement.ionizationEnergy.toLocaleString()} kJ/mol`
-                    : "—"}
+                  {formatElementProperty(selectedElement, "ionizationEnergy")}
                 </b>
               </div>
               <div className="cross-stat-row">
                 <span className="cs-label">Melting Point:</span>
                 <b className="cs-val">
-                  {selectedElement.meltingPoint ? `${selectedElement.meltingPoint} K` : "—"}
+                  {formatElementProperty(selectedElement, "meltingPoint")}
                 </b>
               </div>
             </div>
@@ -491,7 +498,7 @@ export function TrendsStudio() {
       {quizOpen && (
         <QuizModal
           title="Periodic Trends Knowledge Challenge"
-          questions={TREND_QUIZ_QUESTIONS}
+          questions={TREND_QUIZ_QUESTIONS.map((question) => ({ ...question, followUp: { label: "Revisit the periodic pattern", href: `/trends?property=${selectedPropertyId}&element=${selectedElement.slug}` } }))}
           onClose={() => setQuizOpen(false)}
           onComplete={(score) => recordQuiz("periodic-trends", score)}
         />

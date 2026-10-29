@@ -102,7 +102,23 @@ export function createElementQuiz(element: ElementRecord): QuizQuestion[] {
     question("period", `Which period contains ${element.name}?`, periods, String(element.period), `${element.name} appears in period ${element.period}.`),
     question("shells", `How many occupied electron shells are shown for ${element.name}?`, shells, String(element.shells.length), `${element.name} has ${element.shells.length} occupied electron shells (${element.shells.join("–")}).`),
     question("category", `How is ${element.name} classified?`, categoriesForQuiz, element.categoryLabel, `${element.name} is classified as ${element.categoryLabel.toLowerCase()}.`),
-  ];
+    {
+      id: "predict-ion",
+      prompt: `Predict: a neutral ${element.name} atom loses one electron. What happens?`,
+      options: ["It becomes a +1 ion; its nucleus stays the same", "It becomes a −1 ion; its nucleus stays the same", "It becomes the next element", "Its mass number increases by one"],
+      answer: 0,
+      explanation: `Removing one negative electron leaves one more proton than electrons: a +1 charge. The proton count stays ${element.atomicNumber}, so the element is still ${element.name}.`,
+      followUp: { label: "Try removing an electron in the Ion & Isotope Lab", href: `/?element=${element.slug}&tool=ion-lab` },
+    },
+    {
+      id: "predict-isotope",
+      prompt: `Predict: add one neutron to a ${element.name} nucleus. What changes?`,
+      options: ["The atomic number increases", "The mass number increases; the element stays the same", "The neutral atom gains a +1 charge", "The electron count must decrease"],
+      answer: 1,
+      explanation: "Mass number counts protons plus neutrons. Adding a neutron increases it by one, but leaves proton count and electric charge unchanged. This describes a different isotope, without asserting that it is stable.",
+      followUp: { label: "Compare neutron counts in the Ion & Isotope Lab", href: `/?element=${element.slug}&tool=ion-lab` },
+    },
+  ].map((item) => ({ ...item, followUp: item.followUp ?? { label: "Revisit the atom and its structure guide", href: `/?element=${element.slug}&tool=structure-guide` } }));
 }
 
 export function formatValue(value: number | string | null, unit = "") {

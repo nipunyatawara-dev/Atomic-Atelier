@@ -1,5 +1,7 @@
 "use client";
 
+import { ConceptHelp } from "@/components/common/ConceptHelp";
+import { formatElementProperty } from "@/lib/elementProperties";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -17,7 +19,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
-import { categoryLabels, formatValue } from "@/features/explorer/lib/elements";
+import { categoryLabels } from "@/features/explorer/lib/elements";
 import { formatElectronConfig } from "@/features/reactions/lib/formula";
 import type { ElementRecord, MoleculeRecord, ReactionRecord } from "@/types";
 
@@ -81,7 +83,7 @@ export function AtomicInfoPanel({
 
       <p className="element-intro">
         A {element.categoryLabel.toLowerCase()} with an electron arrangement of{" "}
-        <strong>{element.shells.join("–")}</strong>.
+        <strong>{element.shells.join("–")}</strong>. Each number counts electrons in one occupied shell.
       </p>
 
       <div className="fact-rule" />
@@ -89,7 +91,7 @@ export function AtomicInfoPanel({
       <dl className="key-facts">
         <div>
           <dt>Atomic mass</dt>
-          <dd>{element.atomicMass} u</dd>
+          <dd>{formatElementProperty(element, "atomicMass")}</dd>
         </div>
         <div>
           <dt>Period / group</dt>
@@ -108,12 +110,12 @@ export function AtomicInfoPanel({
           </dd>
         </div>
         <div>
-          <dt>Electronegativity</dt>
-          <dd>{formatValue(element.electronegativity)}</dd>
+          <dt>Electronegativity <ConceptHelp concept="electronegativity" /></dt>
+          <dd>{formatElementProperty(element, "electronegativity")}</dd>
         </div>
         <div>
-          <dt>Ionization energy</dt>
-          <dd>{formatValue(element.ionizationEnergy, " eV")}</dd>
+          <dt>Ionization energy <ConceptHelp concept="ionization" /></dt>
+          <dd>{formatElementProperty(element, "ionizationEnergy")}</dd>
         </div>
         <div>
           <dt>Oxidation states</dt>
@@ -149,14 +151,16 @@ export function AtomicInfoPanel({
 
       <div className="panel-actions">
         <button className="primary-button" onClick={onQuiz}>
-          Take the element quiz <ArrowRight size={16} />
+          Practice & predict <ArrowRight size={16} />
         </button>
+        <p className="suggested-action">Test what you noticed in {element.name}’s model.</p>
+        <details className="more-study-tools"><summary>More tools</summary><div className="study-tools-grid">
         <button onClick={() => onCompare(neighbor)}>
           <TrendingUp size={15} /> Compare
         </button>
         {onAufbau && (
           <button type="button" onClick={onAufbau} title="Aufbau Principle & Orbital Box Diagram">
-            <Zap size={15} /> Aufbau
+            <Zap size={15} /> Orbital filling (Aufbau)
           </button>
         )}
         {onStudyCard && (
@@ -166,7 +170,7 @@ export function AtomicInfoPanel({
         )}
         {onMolarMass && (
           <button type="button" onClick={onMolarMass} title="Molar Mass & Stoichiometry Calculator">
-            <Calculator size={15} /> Mass
+            <Calculator size={15} /> Molar mass
           </button>
         )}
         {relatedMolecule && (
@@ -186,6 +190,7 @@ export function AtomicInfoPanel({
         >
           <FlaskConical size={15} /> Reaction
         </Link>
+        </div><div className="concept-row">What is Aufbau? <ConceptHelp concept="aufbau" /></div></details>
       </div>
 
       <div className="source-links">
@@ -294,12 +299,12 @@ export function AtomicLearningCards({
         <div className="card-visual trend-visual">
           <span>
             <b>{element.symbol}</b>
-            <small>{formatValue(element.electronegativity)}</small>
+            <small>{formatElementProperty(element, "electronegativity")}</small>
           </span>
           <i>→</i>
           <span>
             <b>{neighbor.symbol}</b>
-            <small>{formatValue(neighbor.electronegativity)}</small>
+            <small>{formatElementProperty(neighbor, "electronegativity")}</small>
           </span>
         </div>
         <div className="card-actions-split">

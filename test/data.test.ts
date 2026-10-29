@@ -30,10 +30,10 @@ describe("element snapshot", () => {
     expect(oganesson.neutrons).toBe(176);
   });
 
-  it("generates five answerable questions with 4 unique choices for all 118 elements", () => {
+  it("generates seven answerable questions with 4 unique choices for all 118 elements", () => {
     for (const element of elements) {
       const quiz = createElementQuiz(element);
-      expect(quiz).toHaveLength(5);
+      expect(quiz).toHaveLength(7);
       for (const question of quiz) {
         expect(question.options).toHaveLength(4);
         expect(new Set(question.options).size).toBe(4);
@@ -41,6 +41,7 @@ describe("element snapshot", () => {
         expect(question.answer).toBeLessThan(4);
         expect(question.explanation.length).toBeGreaterThan(10);
       }
+      expect(quiz.filter((q) => q.id.startsWith("predict-"))).toHaveLength(2);
       // Period question verification
       const periodQ = quiz.find((q) => q.id === "period")!;
       expect(periodQ.options[periodQ.answer]).toBe(String(element.period));

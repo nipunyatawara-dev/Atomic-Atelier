@@ -1,5 +1,6 @@
+import { formatElementProperty } from "@/lib/elementProperties";
 import type { ElementRecord } from "@/types";
-import { categoryLabels, formatValue } from "@/features/explorer/lib/elements";
+import { categoryLabels } from "@/features/explorer/lib/elements";
 import { formatElectronConfig } from "@/features/reactions/lib/formula";
 
 /**
@@ -79,7 +80,7 @@ export function generateElementStudyCardSvg(element: ElementRecord): string {
     
     <!-- Title & Mass -->
     <text x="130" y="44" class="sans" font-size="34" font-weight="bold" fill="#ffffff">${element.name}</text>
-    <text x="130" y="72" class="mono" font-size="16" fill="#60a5fa">${element.atomicMass} u</text>
+    <text x="130" y="72" class="mono" font-size="16" fill="#60a5fa">${formatElementProperty(element, "atomicMass")}</text>
     <rect x="130" y="84" width="140" height="24" rx="6" fill="#1e3a39"/>
     <text x="200" y="100" text-anchor="middle" class="mono" font-size="11" font-weight="600" fill="#38bdf8">${categoryName.toUpperCase()}</text>
   </g>
@@ -113,11 +114,11 @@ export function generateElementStudyCardSvg(element: ElementRecord): string {
     </g>
     <g transform="translate(0, 150)">
       <text x="0" y="20" class="mono" font-size="12" fill="#64748b">ELECTRONEGATIVITY (PAULING)</text>
-      <text x="0" y="44" class="mono" font-size="16" font-weight="600" fill="#f8fafc">${formatValue(element.electronegativity)}</text>
+      <text x="0" y="44" class="mono" font-size="16" font-weight="600" fill="#f8fafc">${formatElementProperty(element, "electronegativity")}</text>
     </g>
     <g transform="translate(0, 225)">
       <text x="0" y="20" class="mono" font-size="12" fill="#64748b">FIRST IONIZATION ENERGY</text>
-      <text x="0" y="44" class="mono" font-size="16" font-weight="600" fill="#f8fafc">${formatValue(element.ionizationEnergy, " eV")}</text>
+      <text x="0" y="44" class="mono" font-size="16" font-weight="600" fill="#f8fafc">${formatElementProperty(element, "ionizationEnergy")}</text>
     </g>
 
     <!-- Column 2 -->
@@ -131,7 +132,7 @@ export function generateElementStudyCardSvg(element: ElementRecord): string {
     </g>
     <g transform="translate(370, 150)">
       <text x="0" y="20" class="mono" font-size="12" fill="#64748b">ATOMIC RADIUS</text>
-      <text x="0" y="44" class="mono" font-size="16" font-weight="600" fill="#f8fafc">${formatValue(element.atomicRadius, " pm")}</text>
+      <text x="0" y="44" class="mono" font-size="16" font-weight="600" fill="#f8fafc">${formatElementProperty(element, "atomicRadius")}</text>
     </g>
     <g transform="translate(370, 225)">
       <text x="0" y="20" class="mono" font-size="12" fill="#64748b">VALENCE ELECTRONS</text>

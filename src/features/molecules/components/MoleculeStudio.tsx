@@ -20,6 +20,8 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { ConceptHelp } from "@/components/common/ConceptHelp";
+import { LessonJourney } from "@/components/common/LessonJourney";
 import { AppHeader } from "@/components/common/AppHeader";
 import { Dialog } from "@/components/common/Dialog";
 import { LewisViewer } from "./LewisViewer";
@@ -276,6 +278,7 @@ export function MoleculeStudio() {
         }}
       />
 
+      <LessonJourney readySteps={currentMolecule.slug === "carbon-dioxide" && showDipole ? [3, 4] : []} />
       <div className="molecule-grid">
         {/* Left Sidebar: Molecule Library */}
         <aside
@@ -525,7 +528,7 @@ export function MoleculeStudio() {
           <div className="inspector-card vsepr-specs">
             <div className="card-heading">
               <Compass size={16} />
-              <h3>VSEPR & Geometry</h3>
+              <h3>VSEPR & Geometry <ConceptHelp concept="vsepr" /></h3>
               <span className="axe-badge">{currentMolecule.vsepr.axeNotation}</span>
             </div>
 
@@ -551,7 +554,7 @@ export function MoleculeStudio() {
                 <dd><span className="hybrid-tag">{currentMolecule.vsepr.hybridization}</span></dd>
               </div>
               <div className="spec-row">
-                <dt>Net Polarity</dt>
+                <dt>Net polarity <ConceptHelp concept="dipole" /></dt>
                 <dd>
                   <span className={`polarity-pill ${currentMolecule.vsepr.polarity.toLowerCase()}`}>
                     {currentMolecule.vsepr.polarity}
@@ -793,7 +796,7 @@ export function MoleculeStudio() {
       {quizOpen && (
         <QuizModal
           title="VSEPR & Molecular Geometry Quiz"
-          questions={VSEPR_QUIZ_QUESTIONS}
+          questions={VSEPR_QUIZ_QUESTIONS.map((question) => ({ ...question, followUp: { label: "Revisit molecular shape and lone pairs", href: `/molecules?molecule=${currentMolecule.slug}` } }))}
           onClose={() => setQuizOpen(false)}
           onComplete={(score) => recordQuiz("vsepr-geometry", score)}
         />

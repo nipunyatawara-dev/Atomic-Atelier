@@ -22,6 +22,8 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import { Dialog } from "@/components/common/Dialog";
+import { ConceptHelp } from "@/components/common/ConceptHelp";
 import { formatElectronConfig } from "@/features/reactions/lib/formula";
 import type { ElementRecord } from "@/types";
 import {
@@ -235,9 +237,9 @@ function clearGroup(group: THREE.Group) {
   group.clear();
 }
 
-function FallbackAtom({ element }: { element: ElementRecord }) {
+function FallbackAtom({ element, highlighted = false }: { element: ElementRecord; highlighted?: boolean }) {
   return (
-    <div className="atom-fallback" role="img" aria-label={`Simplified shell diagram for ${element.name}`}>
+    <div className={`atom-fallback ${highlighted ? "valence-highlighted" : ""}`} role="img" aria-label={`Simplified shell diagram for ${element.name}`}>
       {element.shells.map((count, shell) => (
         <span key={shell} className="fallback-shell" style={{ width: `${96 + shell * 54}px`, height: `${96 + shell * 54}px` }}>
           {Array.from({ length: Math.min(count, 18) }, (_, index) => (
@@ -256,21 +258,28 @@ export function AtomViewer({
   onAutoRotate,
   compareActive,
   onCompare,
+  highlightRequest = 0,
+  initialTool,
+  onValenceChange,
 }: {
   element: ElementRecord;
   autoRotate: boolean;
   onAutoRotate: (value: boolean) => void;
   compareActive: boolean;
   onCompare: () => void;
+  highlightRequest?: number;
+  initialTool?: string | null;
+  onValenceChange?: (active: boolean) => void;
 }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<ViewerState | null>(null);
   const autoRotateRef = useRef(autoRotate);
   const valenceFocusRef = useRef(false);
   const reducedMotionRef = useRef(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [fallback, setFallback] = useState(false);
-  const [selected, setSelected] = useState<StructureKey | null>(null);
-  const [guideOpen, setGuideOpen] = useState(false);
+  const [selected, setSelected] = useState<StructureKey | null>(initialTool === "structure-guide" ? "nucleus" : null);
+  const [guideOpen, setGuideOpen] = useState(initialTool === "structure-guide");
   const [shellsVisible, setShellsVisible] = useState(true);
   const [nucleusFocus, setNucleusFocus] = useState(false);
   const [valenceFocus, setValenceFocus] = useState(false);
@@ -280,10 +289,12 @@ export function AtomViewer({
   const [subshells, setSubshells] = useState<SubshellInfo[]>([]);
   const [hoveredMode, setHoveredMode] = useState<ViewMode | null>(null);
 
+  useEffect(() => { onValenceChange?.(valenceFocus && viewMode === "bohr"); }, [valenceFocus, viewMode, onValenceChange]);
+
   // Interactive Ion & Isotope Lab state
   const [ionCharge, setIonCharge] = useState<number>(0);
   const [neutronOffset, setNeutronOffset] = useState<number>(0);
-  const [ionLabOpen, setIonLabOpen] = useState<boolean>(false);
+  const [ionLabOpen, setIonLabOpen] = useState<boolean>(initialTool === "ion-lab");
 
   // Mobile 3D Touch Scroll-Trap Guard
   const [mobileScrollLock, setMobileScrollLock] = useState<boolean>(false);
@@ -611,6 +622,24 @@ export function AtomViewer({
     setValenceFocus(false);
   }, [element]);
 
+  useEffect(() => {
+    if (highlightRequest > 0) {
+      setViewMode("bohr");
+      setNucleusFocus(false);
+      setShellsVisible(true);
+      setValenceFocus(true);
+      setGuideOpen(false);
+      setIonCharge(0);
+      setNeutronOffset(0);
+      setIonLabOpen(false);
+    }
+  }, [highlightRequest]);
+
+  useEffect(() => {
+    if (initialTool === "ion-lab") setIonLabOpen(true);
+    if (initialTool === "structure-guide") { setGuideOpen(true); setSelected("nucleus"); }
+  }, [initialTool]);
+
   // Update Bohr vs Orbital Mode visibility (lazily creates orbital point clouds)
   useEffect(() => {
     const state = stateRef.current;
@@ -674,7 +703,7 @@ export function AtomViewer({
       material.opacity = valenceFocus && !isValence ? 0.12 : isValence ? 0.80 : 0.58;
     });
     state.dirty = true;
-  }, [valenceFocus, viewMode]);
+  }, [valenceFocus, viewMode, element, activeNeutrons, ionCharge]);
 
   const zoomIn = () => {
     const state = stateRef.current;
@@ -752,7 +781,7 @@ export function AtomViewer({
       },
     },
     { label: "Nucleus", icon: Focus, active: nucleusFocus, action: focusNucleus },
-    { label: "Valence", icon: CircleDot, active: valenceFocus, action: () => { setValenceFocus((value) => !value); setSelected("valence"); setGuideOpen(true); } },
+    { label: "Valence", icon: CircleDot, active: valenceFocus, action: () => { setViewMode("bohr"); setNucleusFocus(false); setValenceFocus(viewMode !== "bohr" || !valenceFocus); setSelected("valence"); setGuideOpen(true); } },
     { label: "Compare", icon: GitCompareArrows, active: compareActive, action: onCompare },
     { label: "Reset", icon: Atom, active: false, action: reset },
   ];
@@ -761,6 +790,7 @@ export function AtomViewer({
 
   return (
     <section className={`viewer-shell ${mobileScrollLock ? "scroll-locked" : ""}`} aria-label={`${element.name} interactive atomic viewer`}>
+      <div className="mobile-element-summary"><div><strong>{element.name}</strong><span>{element.symbol}{formatChargeSuperscript(ionCharge)} · Atomic number {element.atomicNumber}</span></div><span>{activeShells.length} shells · {activeShells.at(-1) ?? 0} outer e⁻</span></div>
       <div className="viewer-aura" style={{ "--element-color": element.cpkColor } as React.CSSProperties} />
 
       {/* Model View Mode Switcher Header with integrated Model Note tooltip */}
@@ -814,7 +844,7 @@ export function AtomViewer({
         </div>
       </div>
 
-      <div className="atom-mount" ref={mountRef}>{fallback && <FallbackAtom element={element} />}</div>
+      <div className="atom-mount" ref={mountRef}>{fallback && <FallbackAtom element={element} highlighted={valenceFocus} />}</div>
       <div className="mobile-scroll-gutter" aria-hidden="true" />
 
       {/* Mobile Touch Scroll vs Orbit Toggle */}
@@ -1001,15 +1031,24 @@ export function AtomViewer({
             key={label}
             type="button"
             onClick={action}
-            className={active ? "active" : ""}
+            className={`${active ? "active" : ""} ${["Zoom in", "Zoom out", "Valence"].includes(label) ? "essential-tool" : "advanced-tool"}`}
             aria-pressed={active}
+            aria-label={label}
             title={label}
             data-tooltip={label}
           >
             <Icon size={18} /><span>{label}</span>
           </button>
         ))}
+        <button type="button" className="mobile-more-controls" onClick={() => setMoreOpen(true)} aria-haspopup="dialog"><SlidersHorizontal size={18} /><span>More</span></button>
       </div>
+      {moreOpen && <Dialog title="More viewer controls" onClose={() => setMoreOpen(false)} className="viewer-controls-dialog">
+        <p>Adjust the model or explore how electrons and neutrons change an atom.</p>
+        <div className="advanced-controls-grid">{tools.filter((tool) => !["Zoom in", "Zoom out", "Valence"].includes(tool.label)).map(({ label, icon: Icon, active, action }) => <button key={label} type="button" aria-pressed={active} onClick={() => { action(); setMoreOpen(false); }}><Icon size={18} />{label}</button>)}
+          <button type="button" onClick={() => { setMoreOpen(false); setIonLabOpen(true); }}><SlidersHorizontal size={18} />Ion & Isotope Lab</button>
+        </div>
+        <div className="concept-row">Valence electrons <ConceptHelp concept="valence" /></div>
+      </Dialog>}
 
       <aside className={`structure-guide ${guideOpen ? "open" : ""}`} onKeyDown={(event) => { if (event.key === "Escape") { setGuideOpen(false); setSelected(null); } }}>
         {!guideOpen ? (
