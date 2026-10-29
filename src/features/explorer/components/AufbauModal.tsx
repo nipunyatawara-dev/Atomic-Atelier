@@ -270,7 +270,7 @@ export function AufbauModal({ element, onClose }: AufbauModalProps) {
       {activeTab === "ladder" && (
         <div className="aufbau-ladder-view">
           <p className="ladder-guide-note">
-            <Info size={14} /> Subshells are positioned according to the Aufbau $(n + l)$ Madelung
+            <Info size={14} /> Subshells are positioned according to the Aufbau (n + l) Madelung
             filling order. Higher rungs represent higher relative energy levels.
           </p>
           <div className="energy-ladder-canvas">
@@ -318,8 +318,8 @@ export function AufbauModal({ element, onClose }: AufbauModalProps) {
       {activeTab === "simulation" && (
         <div className="aufbau-boxes-view">
           <p className="simulation-note">
-            Watch electrons occupy degenerate orbitals singly with parallel spins ($\uparrow$)
-            before pairing ($\downarrow$).
+            Watch electrons occupy degenerate orbitals singly with parallel spins (↑)
+            before pairing (↓).
           </p>
           <div className="subshell-rows-container">
             {simulatedSubshells.map((subshell) => (

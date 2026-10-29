@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
-import { Info, RotateCcw } from "lucide-react";
+import { Hand, Info, RotateCcw } from "lucide-react";
 import type { ReactionRecord, SpeciesRecord } from "@/types";
 
 const colors: Record<string, number> = {
@@ -106,7 +106,16 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
   const productRef = useRef(productCoefficients);
   const [fallback, setFallback] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
+  const [mobileScrollLock, setMobileScrollLock] = useState(false);
   const tipRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const state = stateRef.current;
+    if (!state) return;
+    state.controls.enabled = !mobileScrollLock;
+    state.renderer.domElement.style.touchAction = mobileScrollLock ? "pan-y" : "none";
+    state.renderer.domElement.style.pointerEvents = mobileScrollLock ? "none" : "auto";
+  }, [mobileScrollLock]);
 
   useEffect(() => {
     if (!tipOpen) return;
@@ -266,6 +275,17 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
         </div>
       </div>
       <div className="reaction-side"><small>Viewing</small><strong>{side}</strong></div>
+      <div className="mobile-scroll-gutter" aria-hidden="true" />
+      <button
+        type="button"
+        className={`mobile-touch-guard ${mobileScrollLock ? "locked" : ""}`}
+        onClick={() => setMobileScrollLock((v) => !v)}
+        aria-pressed={mobileScrollLock}
+        title={mobileScrollLock ? "Tap to enable 3D touch orbit" : "Tap to lock 3D canvas for vertical page scrolling"}
+      >
+        <Hand size={13} />
+        <span>{mobileScrollLock ? "Touch: Scroll" : "Touch: Orbit"}</span>
+      </button>
       <div className="representation-legend">{(side === "reactants" ? reaction.reactants : reaction.products).map((item) => <span key={`${side}-${item.formula}`}><b>{item.formula}</b>{item.representation === "ions" ? "labeled ion field" : item.representation === "lattice" ? "lattice model" : "ball-and-stick"}</span>)}</div>
       <button className="reaction-reset-view" onClick={() => { const state = stateRef.current; if (!state) return; state.camera.position.set(0, .6, 10); state.controls.target.set(0,0,0); state.root.rotation.set(0,0,0); }}><RotateCcw size={14} /> Reset view</button>
     </section>

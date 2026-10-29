@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { ArrowDown, ArrowUp, Lightbulb, Minus, X } from "lucide-react";
 import { elements, formatValue } from "@/features/explorer/lib/elements";
 import type { ElementRecord } from "@/types";
@@ -43,6 +44,14 @@ function change(primary: number | null, secondary: number | null) {
 }
 
 export function ComparisonPanel({ primary, secondary, onSelect, onClose }: { primary: ElementRecord; secondary: ElementRecord; onSelect: (element: ElementRecord) => void; onClose: () => void }) {
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
   return (
     <aside className="comparison-panel" aria-label="Element comparison">
       <button className="comparison-close" onClick={onClose} aria-label="Close comparison"><X size={17} /></button>

@@ -31,11 +31,13 @@ export function useSheetGesture<T extends HTMLElement = HTMLElement>({
 
       // Only initiate drag if touching the handle/header or at the top of scroll
       const target = e.target as HTMLElement | null;
+      const headerSelector = ".panel-heading, .molecule-library-header, .library-header, .panel-header";
       const isHeaderOrHandle = Boolean(
-        target?.closest(".panel-heading, .molecule-library-header, .panel-header") ||
+        target?.closest(headerSelector) ||
         (target === sheet && touch.clientY - sheet.getBoundingClientRect().top < 60)
       );
-      const isScrolledToTop = sheet.scrollTop <= 0;
+      const scrollableInner = target?.closest<HTMLElement>(".element-list, .molecule-list, .reaction-list");
+      const isScrolledToTop = sheet.scrollTop <= 0 && (!scrollableInner || scrollableInner.scrollTop <= 0);
 
       if (isHeaderOrHandle || isScrolledToTop) {
         touchStartY.current = touch.clientY;
@@ -63,7 +65,7 @@ export function useSheetGesture<T extends HTMLElement = HTMLElement>({
         // Prevent default native scroll bounce while dragging downward
         if (
           e.cancelable &&
-          (sheet.scrollTop <= 0 || (e.target as HTMLElement)?.closest(".panel-heading, .molecule-library-header"))
+          (sheet.scrollTop <= 0 || (e.target as HTMLElement)?.closest(".panel-heading, .molecule-library-header, .library-header, .panel-header"))
         ) {
           e.preventDefault();
         }

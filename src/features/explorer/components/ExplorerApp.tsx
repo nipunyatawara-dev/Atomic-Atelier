@@ -112,6 +112,17 @@ export function ExplorerApp() {
   useEffect(() => {
     const requested = params.get("element");
     const requestedCompare = params.get("compare");
+    if (requested !== null) {
+      const resolved = resolveElement(requested);
+      if (resolved.atomicNumber !== element.atomicNumber) {
+        setElement(resolved);
+      }
+    }
+    if (requestedCompare !== null) {
+      const resolvedCompare = resolveElement(requestedCompare);
+      setCompareElement(resolvedCompare);
+      setCompareOpen(true);
+    }
     const elementInvalid = requested !== null && resolveElement(requested).slug !== requested.trim().toLowerCase();
     const compareInvalid = requestedCompare !== null && resolveElement(requestedCompare).slug !== requestedCompare.trim().toLowerCase();
     if (!elementInvalid && !compareInvalid) return;
@@ -119,7 +130,7 @@ export function ExplorerApp() {
     canonical.set("element", resolveElement(requested).slug);
     if (requestedCompare !== null) canonical.set("compare", resolveElement(requestedCompare).slug);
     router.replace(`/?${canonical.toString()}`, { scroll: false });
-  }, [params, router]);
+  }, [params, router, element.atomicNumber]);
 
   useEffect(() => {
     if (!ready || params.has("element") || progress.lastElement === 6) return;
@@ -211,7 +222,7 @@ export function ExplorerApp() {
 
   const relatedReaction = reactions.find((reaction) => reaction.relatedElements.includes(element.atomicNumber));
   const relatedMolecule = curatedMolecules.find((mol) => mol.relatedElements.includes(element.atomicNumber));
-  const neighbor = elementByNumber.get(Math.min(118, element.atomicNumber + 1)) ?? CARBON;
+  const neighbor = elementByNumber.get(element.atomicNumber === 118 ? 117 : element.atomicNumber + 1) ?? CARBON;
   const filtersActive = Object.values(filters).some((value) => value !== "all");
 
   return (
@@ -269,6 +280,8 @@ export function ExplorerApp() {
         />
       </div>
 
+      {compareOpen && <ComparisonPanel primary={element} secondary={compareElement} onSelect={changeCompare} onClose={closeCompare} />}
+
       <AtomicLearningCards
         element={element}
         neighbor={neighbor}
@@ -285,7 +298,6 @@ export function ExplorerApp() {
       {tableOpen && <PeriodicTable selected={element.atomicNumber} onSelect={selectElement} onClose={() => setTableOpen(false)} />}
       {quizOpen && <QuizModal title={`${element.name} quick quiz`} questions={createElementQuiz(element)} onClose={() => setQuizOpen(false)} onComplete={(score) => recordQuiz(`element:${element.atomicNumber}`, score)} />}
       {savedOpen && <SavedModal progress={progress} onClose={() => setSavedOpen(false)} onElement={selectElement} />}
-      {compareOpen && <ComparisonPanel primary={element} secondary={compareElement} onSelect={changeCompare} onClose={closeCompare} />}
       {aufbauOpen && (
         <AufbauModal
           element={element}

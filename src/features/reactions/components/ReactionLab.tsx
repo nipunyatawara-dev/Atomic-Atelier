@@ -3,13 +3,14 @@
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Beaker, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Beaker, Check, ChevronDown, ChevronUp, CircleHelp, FlaskConical, Lightbulb, Play, RotateCcw, Sparkles, X } from "lucide-react";
 import { AppHeader } from "@/components/common/AppHeader";
 import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
 import { QuizModal } from "@/features/explorer/components/QuizModal";
 import { SavedModal } from "@/features/explorer/components/SavedModal";
 import { SolubilityMatrixModal } from "./SolubilityMatrixModal";
 import { MolarMassModal } from "./MolarMassModal";
+import { CustomEquationModal } from "./CustomEquationModal";
 import { countSide, formatFormulaSubscripts, isBalanced } from "@/features/reactions/lib/formula";
 import { elementByNumber } from "@/features/explorer/lib/elements";
 import { DEFAULT_REACTION, formatEquation, reactions, resolveReaction } from "@/features/reactions/lib/reactions";
@@ -46,6 +47,7 @@ export function ReactionLab() {
   const [savedOpen, setSavedOpen] = useState(false);
   const [solubilityOpen, setSolubilityOpen] = useState(false);
   const [molarMassOpen, setMolarMassOpen] = useState(false);
+  const [customBalancerOpen, setCustomBalancerOpen] = useState(false);
   const [mobileLibrary, setMobileLibrary] = useState(false);
   const libraryRef = useSheetGesture<HTMLElement>({ isOpen: mobileLibrary, onClose: () => setMobileLibrary(false) });
   const libraryTriggerRef = useRef<HTMLButtonElement>(null);
@@ -95,6 +97,17 @@ export function ReactionLab() {
     setMessage(null); setPerformance(null); setAnimationRun(0);
   };
 
+  const setExactCoefficient = (side: "reactants" | "products", index: number, nextValue: number) => {
+    const clamped = Math.min(9, Math.max(1, nextValue));
+    setCoefficients((current) => ({
+      ...current,
+      [side]: current[side].map((value, itemIndex) => (itemIndex === index ? clamped : value)),
+    }));
+    setMessage(null);
+    setPerformance(null);
+    setAnimationRun(0);
+  };
+
   const check = () => {
     const checkedAttempts = attempts + 1;
     setAttempts(checkedAttempts);
@@ -131,8 +144,41 @@ export function ReactionLab() {
   const reactionIndex = reactions.findIndex((item) => item.slug === reaction.slug);
 
   const coefficientControl = (side: "reactants" | "products", item: ReactionRecord["reactants"][number], index: number) => (
-    <div className="species-control" key={`${side}-${item.formula}`}>
-      <div className="coefficient-stepper"><button onClick={() => updateCoefficient(side, index, 1)} aria-label={`Increase coefficient for ${item.label}`}><ChevronUp /></button><b>{coefficients[side][index]}</b><button onClick={() => updateCoefficient(side, index, -1)} aria-label={`Decrease coefficient for ${item.label}`}><ChevronDown /></button></div>
+    <div
+      className="species-control"
+      key={`${side}-${item.formula}`}
+      onWheel={(e) => {
+        if (Math.abs(e.deltaY) < 4) return;
+        updateCoefficient(side, index, e.deltaY < 0 ? 1 : -1);
+      }}
+    >
+      <div className="coefficient-stepper">
+        <button onClick={() => updateCoefficient(side, index, 1)} aria-label={`Increase coefficient for ${item.label}`}><ChevronUp /></button>
+        <b
+          tabIndex={0}
+          role="spinbutton"
+          aria-valuenow={coefficients[side][index]}
+          aria-valuemin={1}
+          aria-valuemax={9}
+          aria-label={`Coefficient for ${item.label} (type 1–9 or use arrow keys)`}
+          title="Click and type 1–9 or use Up/Down arrows"
+          onKeyDown={(e) => {
+            if (e.key >= "1" && e.key <= "9") {
+              e.preventDefault();
+              setExactCoefficient(side, index, Number(e.key));
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              updateCoefficient(side, index, 1);
+            } else if (e.key === "ArrowDown") {
+              e.preventDefault();
+              updateCoefficient(side, index, -1);
+            }
+          }}
+        >
+          {coefficients[side][index]}
+        </b>
+        <button onClick={() => updateCoefficient(side, index, -1)} aria-label={`Decrease coefficient for ${item.label}`}><ChevronDown /></button>
+      </div>
       <span><strong>{formatFormulaSubscripts(item.formula)}</strong><small>{item.label} · ({item.state})</small></span>
     </div>
   );
@@ -165,8 +211,30 @@ export function ReactionLab() {
           <div className="equation-card" aria-label="Reaction coefficient controls"><div className="equation-side">{reaction.reactants.map((item, index) => coefficientControl("reactants", item, index))}</div><b className="reaction-arrow">→</b><div className="equation-side">{reaction.products.map((item, index) => coefficientControl("products", item, index))}</div></div>
           <ReactionViewer reaction={reaction} reactantCoefficients={coefficients.reactants} productCoefficients={coefficients.products} animationRun={animationRun} onAnimationComplete={onAnimationComplete} />
           <div className="balance-panel">
-            <div className="atom-counts"><span>Atom count</span>{symbols.map((symbol) => <div key={symbol} className={leftCounts[symbol] === rightCounts[symbol] ? "balanced" : "unbalanced"}><b>{symbol}</b><small>{leftCounts[symbol] ?? 0}</small><i>↔</i><small>{rightCounts[symbol] ?? 0}</small></div>)}</div>
+            <div className="atom-counts">
+              <span>Atom count</span>
+              {symbols.map((symbol) => {
+                const lCount = leftCounts[symbol] ?? 0;
+                const rCount = rightCounts[symbol] ?? 0;
+                const maxSide = Math.max(lCount, rCount, 1);
+                return (
+                  <div key={symbol} className={lCount === rCount ? "balanced" : "unbalanced"}>
+                    <b>{symbol}</b>
+                    <small>{lCount}</small>
+                    <i>↔</i>
+                    <small>{rCount}</small>
+                    <span className="atom-balance-bars" aria-hidden="true">
+                      <em className="bar-left" style={{ width: `${Math.round((lCount / maxSide) * 100)}%` }} />
+                      <em className="bar-right" style={{ width: `${Math.round((rCount / maxSide) * 100)}%` }} />
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
             <div className="lab-actions">
+              <button type="button" onClick={() => setCustomBalancerOpen(true)} title="Balance any custom chemical equation">
+                <Sparkles size={14} /> Custom Equation
+              </button>
               <button type="button" onClick={() => setSolubilityOpen(true)} title="Aqueous Solubility & Activity Series Matrix">
                 <Beaker size={14} /> Solubility &amp; Activity
               </button>
@@ -196,6 +264,7 @@ export function ReactionLab() {
       {tableOpen && <PeriodicTable selected={6} onSelect={navigateElement} onClose={() => setTableOpen(false)} />}
       {quizOpen && <QuizModal title={`${reaction.title} check`} questions={reactionQuestion} onClose={() => setQuizOpen(false)} onComplete={(score) => recordQuiz(`reaction:${reaction.slug}`, score)} />}
       {savedOpen && <SavedModal progress={progress} onClose={() => setSavedOpen(false)} onElement={navigateElement} />}
+      {customBalancerOpen && <CustomEquationModal onClose={() => setCustomBalancerOpen(false)} />}
       {solubilityOpen && (
         <SolubilityMatrixModal
           onClose={() => setSolubilityOpen(false)}

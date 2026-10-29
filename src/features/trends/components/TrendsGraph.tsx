@@ -22,6 +22,7 @@ export function TrendsGraph({
   const [graphMode, setGraphMode] = useState<GraphMode>("continuous");
   const [secondaryProperty, setSecondaryProperty] = useState<TrendPropertyId>("atomicRadius");
   const [hoveredPoint, setHoveredPoint] = useState<ElementRecord | null>(null);
+  const [crosshairX, setCrosshairX] = useState<number | null>(null);
 
   const propA = resolveTrend(primaryProperty);
   const propB = resolveTrend(secondaryProperty);
@@ -122,6 +123,65 @@ export function TrendsGraph({
 
   const PERIOD_COLORS = ["#0284c7", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
+  const handleChartPointer = (e: React.PointerEvent<SVGSVGElement>, commitSelection = false) => {
+    const svg = e.currentTarget;
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const svgX = ((e.clientX - rect.left) / rect.width) * width;
+    const svgY = ((e.clientY - rect.top) / rect.height) * height;
+    if (svgX < padLeft - 10 || svgX > padLeft + chartW + 10) return;
+
+    const clampedX = Math.max(padLeft, Math.min(padLeft + chartW, svgX));
+    setCrosshairX(clampedX);
+
+    if (graphMode === "continuous" && continuousData.length > 0) {
+      let best = continuousData[0];
+      let bestDist = Infinity;
+      for (const d of continuousData) {
+        const px = padLeft + ((d.z - 1) / 117) * chartW;
+        const dist = Math.abs(px - clampedX);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = d;
+        }
+      }
+      setHoveredPoint(best.element);
+      if (commitSelection) onSelectElement(best.element);
+    } else if (graphMode === "period-overlay") {
+      let bestEl: ElementRecord | null = null;
+      let bestDist = Infinity;
+      for (const pGroup of periodOverlays) {
+        for (const d of pGroup.points) {
+          const px = padLeft + ((d.group - 1) / 17) * chartW;
+          const py = padTop + chartH - ((d.val - minValA) / (maxValA - minValA || 1)) * chartH;
+          const dist = Math.hypot(px - clampedX, py - svgY);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestEl = d.element;
+          }
+        }
+      }
+      if (bestEl) {
+        setHoveredPoint(bestEl);
+        if (commitSelection) onSelectElement(bestEl);
+      }
+    } else if (graphMode === "scatter" && scatterData.length > 0) {
+      let best = scatterData[0];
+      let bestDist = Infinity;
+      for (const d of scatterData) {
+        const px = padLeft + ((d.valA - minValA) / (maxValA - minValA || 1)) * chartW;
+        const py = padTop + chartH - ((d.valB - minValB) / (maxValB - minValB || 1)) * chartH;
+        const dist = Math.hypot(px - clampedX, py - svgY);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = d;
+        }
+      }
+      setHoveredPoint(best.element);
+      if (commitSelection) onSelectElement(best.element);
+    }
+  };
+
   return (
     <div className="trends-graph-container">
       {/* Graph Navigation & Mode Tabs */}
@@ -173,13 +233,35 @@ export function TrendsGraph({
 
       {/* SVG Chart Surface */}
       <div className="graph-svg-wrapper">
-        <svg viewBox={`0 0 ${width} ${height}`} className="trends-chart-svg">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="trends-chart-svg"
+          onPointerMove={(e) => handleChartPointer(e, e.buttons > 0 || e.pointerType === "touch")}
+          onPointerDown={(e) => handleChartPointer(e, true)}
+          onPointerLeave={() => {
+            setCrosshairX(null);
+            setHoveredPoint(null);
+          }}
+        >
           <defs>
             <linearGradient id="areaGlow" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#2d7773" stopOpacity="0.25" />
               <stop offset="100%" stopColor="#2d7773" stopOpacity="0.0" />
             </linearGradient>
           </defs>
+
+          {crosshairX !== null && (
+            <line
+              x1={crosshairX}
+              y1={padTop}
+              x2={crosshairX}
+              y2={padTop + chartH}
+              stroke="var(--teal)"
+              strokeWidth="1.25"
+              strokeDasharray="3 3"
+              opacity="0.7"
+            />
+          )}
 
           {/* Grid lines */}
           {[0, 0.25, 0.5, 0.75, 1].map((pct) => {

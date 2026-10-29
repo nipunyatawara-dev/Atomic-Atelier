@@ -21,6 +21,7 @@ import { PeriodicHeatmapTable } from "./PeriodicHeatmapTable";
 import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
 import { QuizModal } from "@/features/explorer/components/QuizModal";
 import { SavedModal } from "@/features/explorer/components/SavedModal";
+import { MolarMassModal } from "@/features/reactions/components/MolarMassModal";
 import { TrendsGraph } from "./TrendsGraph";
 import { elementByNumber, elements } from "@/features/explorer/lib/elements";
 import { useProgress } from "@/hooks/useProgress";
@@ -61,6 +62,7 @@ export function TrendsStudio() {
   const [quizOpen, setQuizOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
+  const [molarMassOpen, setMolarMassOpen] = useState(false);
 
   // Synchronize URL query params
   useEffect(() => {
@@ -117,6 +119,7 @@ export function TrendsStudio() {
         active="trends"
         onTable={() => setTableOpen(true)}
         onSaved={() => setSavedOpen(true)}
+        onMolarMass={() => setMolarMassOpen(true)}
         mobileContext={{
           label: "Trends",
           detail: currentProperty.name,
@@ -514,6 +517,19 @@ export function TrendsStudio() {
           onSelectElement={(elem) => {
             setSavedOpen(false);
             setSelectedElement(elem);
+          }}
+        />
+      )}
+
+      {/* Molar Mass Modal */}
+      {molarMassOpen && (
+        <MolarMassModal
+          initialFormula={selectedElement.symbol}
+          onClose={() => setMolarMassOpen(false)}
+          onSelectElement={(elemNum) => {
+            setMolarMassOpen(false);
+            const el = elementByNumber.get(elemNum);
+            if (el) setSelectedElement(el);
           }}
         />
       )}

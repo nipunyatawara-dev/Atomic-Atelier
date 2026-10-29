@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -222,6 +223,13 @@ export function AtomicLearningCards({
   onStudyCard,
   relatedMolecule,
 }: AtomicLearningCardsProps) {
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const toggleCard = (key: string) =>
+    setExpandedCards((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const shellCount = element.shells.length;
+  const ringStep = shellCount > 1 ? Math.min(18, Math.floor(94 / (shellCount - 1))) : 18;
+
   return (
     <>
       <div className="learning-cards-header-mobile">
@@ -242,17 +250,22 @@ export function AtomicLearningCards({
           <Atom />
         </header>
         <div className="card-visual shell-visual">
-          {element.shells.map((count, index) => (
-            <i
-              key={index}
-              style={{
-                width: `${52 + index * 20}px`,
-                height: `${52 + index * 20}px`,
-              }}
-            >
-              <b>{count}</b>
-            </i>
-          ))}
+          {element.shells.map((count, index) => {
+            const size = 48 + index * ringStep;
+            const angle = index * 47 - 35;
+            return (
+              <i
+                key={index}
+                style={{
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  transform: `rotate(${angle}deg)`,
+                }}
+              >
+                <b style={{ transform: `rotate(${-angle}deg)` }}>{count}</b>
+              </i>
+            );
+          })}
           <strong>{element.symbol}</strong>
         </div>
         <div className="card-actions-split">
@@ -308,7 +321,18 @@ export function AtomicLearningCards({
           </div>
           <Boxes />
         </header>
-        <p className="resource-copy">{element.compounds}</p>
+        <p className={`resource-copy ${expandedCards.compounds ? "expanded" : ""}`}>
+          {element.compounds}
+        </p>
+        {element.compounds.length > 180 && (
+          <button
+            type="button"
+            className="resource-expand-btn"
+            onClick={() => toggleCard("compounds")}
+          >
+            {expandedCards.compounds ? "Show less" : "Read full note"}
+          </button>
+        )}
         {relatedMolecule ? (
           <Link href={`/molecules?molecule=${relatedMolecule.slug}`}>
             Explore {relatedMolecule.name} ({relatedMolecule.formula}) in 3D{" "}
@@ -330,7 +354,18 @@ export function AtomicLearningCards({
           </div>
           <Beaker />
         </header>
-        <p className="resource-copy">{element.uses}</p>
+        <p className={`resource-copy ${expandedCards.uses ? "expanded" : ""}`}>
+          {element.uses}
+        </p>
+        {element.uses.length > 180 && (
+          <button
+            type="button"
+            className="resource-expand-btn"
+            onClick={() => toggleCard("uses")}
+          >
+            {expandedCards.uses ? "Show less" : "Read full note"}
+          </button>
+        )}
         <div className="card-actions-split">
           <button onClick={onSaved}>
             Save for later <ArrowRight />
@@ -352,7 +387,18 @@ export function AtomicLearningCards({
           </div>
           <History />
         </header>
-        <p className="resource-copy">{element.history}</p>
+        <p className={`resource-copy ${expandedCards.history ? "expanded" : ""}`}>
+          {element.history}
+        </p>
+        {element.history.length > 180 && (
+          <button
+            type="button"
+            className="resource-expand-btn"
+            onClick={() => toggleCard("history")}
+          >
+            {expandedCards.history ? "Show less" : "Read full note"}
+          </button>
+        )}
         <button onClick={onTable}>
           Place it in the table <ArrowRight />
         </button>
@@ -367,7 +413,18 @@ export function AtomicLearningCards({
           </div>
           <ShieldAlert />
         </header>
-        <p className="resource-copy">{element.safety}</p>
+        <p className={`resource-copy ${expandedCards.safety ? "expanded" : ""}`}>
+          {element.safety}
+        </p>
+        {element.safety.length > 180 && (
+          <button
+            type="button"
+            className="resource-expand-btn"
+            onClick={() => toggleCard("safety")}
+          >
+            {expandedCards.safety ? "Show less" : "Read full note"}
+          </button>
+        )}
         <a href={element.sourceRefs[0].url} target="_blank" rel="noreferrer">
           Open source record <ArrowRight />
         </a>

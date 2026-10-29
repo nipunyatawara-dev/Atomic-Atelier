@@ -128,12 +128,34 @@ function stringsFrom(section) {
   return [...new Set(strings)];
 }
 
-function readableSummary(section, fallback, max = 280) {
+const TYPO_FIXES = [
+  [/\bfullerines\b/gi, "fullerenes"],
+  [/\bCeraphite\b/g, "Graphite"],
+  [/\bceraphite\b/g, "graphite"],
+  [/\bMendeleyev\b/g, "Mendeleev"],
+];
+
+function cleanText(text) {
+  let cleaned = text.replace(/\s+/g, " ").trim();
+  for (const [pattern, replacement] of TYPO_FIXES) {
+    cleaned = cleaned.replace(pattern, replacement);
+  }
+  return cleaned;
+}
+
+function readableSummary(section, fallback, max = 650) {
   const candidates = stringsFrom(section).filter(
     (value) => value.length > 35 && !value.startsWith("See more information"),
   );
-  const selected = candidates[0] ?? fallback;
-  return selected.length > max ? `${selected.slice(0, max - 1).trim()}…` : selected;
+  const selected = cleanText(candidates[0] ?? fallback);
+  if (selected.length <= max) return selected;
+  const withinLimit = selected.slice(0, max);
+  const lastPeriod = Math.max(withinLimit.lastIndexOf(". "), withinLimit.lastIndexOf(".\""), withinLimit.endsWith(".") ? withinLimit.length - 1 : -1);
+  if (lastPeriod > 80) {
+    return withinLimit.slice(0, lastPeriod + 1).trim();
+  }
+  const lastSpace = withinLimit.lastIndexOf(" ");
+  return `${withinLimit.slice(0, lastSpace > 0 ? lastSpace : max - 1).trim()}.`;
 }
 
 function representativeMass(view, z) {

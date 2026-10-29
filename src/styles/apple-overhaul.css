@@ -1591,7 +1591,7 @@ select:focus-visible {
     padding-inline: 6px;
   }
 
-  .mobile-context-action > svg {
+  .mobile-context-action > svg:not(.mobile-context-chevron) {
     display: none;
   }
 
@@ -3602,6 +3602,1043 @@ canvas:focus-visible,
   color: #38bdf8;
   margin-top: 4px;
 }
+
+/* ==========================================================================
+   Phase 1–4 Audit Enhancements: Tooltips, Ion/Isotope Lab, Temperature Sim,
+   Command Palette, Custom Equation Balancer & Touch Ergonomics
+   ========================================================================== */
+
+/* Mobile context chevron indicator */
+.mobile-context-chevron {
+  color: var(--muted);
+  flex: 0 0 auto;
+  height: 14px !important;
+  margin-left: auto;
+  opacity: 0.8;
+  width: 14px !important;
+}
+
+/* Header Cmd+K badge */
+.header-kbd {
+  background: rgba(24, 62, 58, 0.08);
+  border: 1px solid rgba(24, 62, 58, 0.12);
+  border-radius: 5px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1;
+  margin-left: 2px;
+  padding: 2px 5px;
+}
+
+/* Desktop Viewer Tools Hover/Focus Tooltips */
+@media (min-width: 761px) {
+  .viewer-tools button[data-tooltip] {
+    position: relative;
+  }
+
+  .viewer-tools button[data-tooltip]::after {
+    background: var(--deep);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(12, 32, 30, 0.22);
+    color: #fff;
+    content: attr(data-tooltip);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    left: calc(100% + 10px);
+    letter-spacing: 0.01em;
+    line-height: 1;
+    opacity: 0;
+    padding: 6px 9px;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translate(-4px, -50%);
+    transition: opacity 0.14s ease, transform 0.14s ease;
+    white-space: nowrap;
+    z-index: 25;
+  }
+
+  .viewer-tools button[data-tooltip]:hover::after,
+  .viewer-tools button[data-tooltip]:focus-visible::after {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+
+  /* Larger desktop coefficient stepper buttons & keyboard focus */
+  .coefficient-stepper {
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .coefficient-stepper button {
+    align-items: center;
+    border-radius: 6px;
+    display: flex;
+    height: 22px;
+    justify-content: center;
+    min-height: 22px;
+    min-width: 26px;
+    transition: background-color 0.14s ease, transform 0.1s ease;
+    width: 26px;
+  }
+
+  .coefficient-stepper button:hover {
+    background: rgba(40, 123, 114, 0.14);
+  }
+
+  .coefficient-stepper button svg {
+    height: 14px;
+    width: 14px;
+  }
+}
+
+.species-control {
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.species-control:focus-visible {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 3px rgba(40, 123, 114, 0.18);
+  outline: none;
+}
+
+/* Live Reactant vs Product Atom Balance Bars */
+.atom-counts > div {
+  flex-wrap: wrap;
+}
+
+.atom-balance-bars {
+  display: flex;
+  flex-basis: 100%;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 2px;
+  min-width: 56px;
+}
+
+.atom-bar {
+  border-radius: 99px;
+  display: block;
+  height: 3.5px;
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.atom-bar.reactant {
+  background: var(--teal);
+}
+
+.atom-bar.product {
+  background: #d97706;
+}
+
+.atom-counts > div.balanced .atom-bar.product {
+  background: #16a34a;
+}
+
+/* Mobile 3D Touch Guard & Scroll Gutter */
+.mobile-scroll-gutter,
+.mobile-touch-guard {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .mobile-scroll-gutter {
+    bottom: 0;
+    display: block;
+    position: absolute;
+    top: 0;
+    touch-action: pan-y;
+    width: 20px;
+    z-index: 4;
+  }
+
+  .mobile-scroll-gutter.left {
+    left: 0;
+  }
+
+  .mobile-scroll-gutter.right {
+    right: 0;
+  }
+
+  .mobile-touch-guard {
+    align-items: center;
+    background: rgba(250, 249, 245, 0.9);
+    border: 1px solid rgba(24, 62, 58, 0.12);
+    border-radius: 99px;
+    box-shadow: 0 2px 10px rgba(18, 44, 41, 0.08);
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 10.5px;
+    font-weight: 650;
+    gap: 5px;
+    min-height: 30px;
+    padding: 4px 10px;
+    position: absolute;
+    right: 10px;
+    top: 48px;
+    z-index: 6;
+  }
+
+  .mobile-touch-guard.active {
+    background: rgba(40, 123, 114, 0.14);
+    border-color: rgba(40, 123, 114, 0.28);
+    color: var(--deep);
+  }
+
+  .stage-canvas-container .mobile-touch-guard,
+  .reaction-viewer .mobile-touch-guard {
+    top: 12px;
+  }
+
+  /* Prevent mobile ReactionViewer legend/reset overlap */
+  .representation-legend {
+    bottom: 12px;
+    left: 12px;
+    max-width: calc(100% - 115px);
+  }
+
+  .reaction-reset-view {
+    bottom: 12px;
+    right: 12px;
+  }
+}
+
+/* Ion & Isotope Builder Overlay in AtomViewer */
+.ion-lab-trigger {
+  align-items: center;
+  background: rgba(249, 249, 245, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #cfd8d2;
+  border-radius: 99px;
+  color: var(--deep);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 10.5px;
+  font-weight: 650;
+  gap: 5px;
+  left: 70px;
+  min-height: 29px;
+  padding: 5px 11px;
+  position: absolute;
+  top: 52px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  z-index: 5;
+}
+
+.ion-lab-trigger:hover,
+.ion-lab-trigger.active {
+  background: #e2eee9;
+  border-color: #bfd6ce;
+  color: var(--deep);
+}
+
+.ion-lab-dot {
+  background: var(--teal);
+  border-radius: 50%;
+  height: 6px;
+  width: 6px;
+}
+
+.ion-isotope-panel {
+  background: rgba(252, 251, 247, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  box-shadow: 0 18px 46px rgba(16, 40, 38, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  left: 70px;
+  padding: 13px 14px;
+  position: absolute;
+  top: 86px;
+  width: min(305px, calc(100% - 84px));
+  z-index: 12;
+}
+
+.ion-isotope-panel header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ion-isotope-panel header span {
+  align-items: center;
+  color: var(--teal);
+  display: flex;
+  font-size: 10px;
+  font-weight: 700;
+  gap: 6px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ion-isotope-panel header div {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+}
+
+.ion-isotope-panel .ion-reset-btn {
+  background: rgba(40, 123, 114, 0.12);
+  border: 1px solid rgba(40, 123, 114, 0.2);
+  border-radius: 6px;
+  color: var(--deep);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 7px;
+}
+
+.ion-isotope-panel header button:last-child {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  padding: 2px;
+}
+
+.ion-isotope-readout {
+  align-items: center;
+  background: rgba(24, 62, 58, 0.05);
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  display: flex;
+  gap: 11px;
+  padding: 8px 10px;
+}
+
+.nuclide-badge {
+  align-items: center;
+  background: var(--surface-selected);
+  border: 1px solid rgba(40, 123, 114, 0.25);
+  border-radius: 9px;
+  display: grid;
+  grid-template-columns: auto auto;
+  min-width: 54px;
+  padding: 5px 8px;
+}
+
+.nuclide-badge sup {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  grid-column: 1;
+  line-height: 1;
+}
+
+.nuclide-badge sub {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  grid-column: 1;
+  grid-row: 2;
+  line-height: 1;
+}
+
+.nuclide-badge b {
+  color: var(--deep);
+  font-family: var(--font-display);
+  font-size: 22px;
+  grid-column: 2;
+  grid-row: 1 / 3;
+  line-height: 1;
+  margin-left: 3px;
+}
+
+.nuclide-badge i {
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  grid-column: 3;
+  grid-row: 1;
+  margin-left: 2px;
+}
+
+.nuclide-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nuclide-meta strong {
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+.nuclide-meta strong.stable {
+  color: #15803d;
+}
+
+.nuclide-meta strong.radioactive {
+  color: #b45309;
+}
+
+.nuclide-meta strong.unstable {
+  color: #b91c1c;
+}
+
+.nuclide-meta small {
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
+.ion-control-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ion-control-row > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.ion-control-row small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ion-control-row b {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.ion-stepper {
+  align-items: center;
+  background: rgba(24, 62, 58, 0.06);
+  border-radius: 9px;
+  display: flex;
+  gap: 6px;
+  padding: 3px 5px;
+}
+
+.ion-stepper button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--deep);
+  cursor: pointer;
+  display: flex;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+
+.ion-stepper button:disabled {
+  opacity: 0.35;
+}
+
+.ion-stepper span {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: center;
+}
+
+.atomic-stamp b sup {
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+@media (max-width: 760px) {
+  .ion-lab-trigger {
+    left: 10px;
+    top: 46px;
+  }
+
+  .ion-isotope-panel {
+    left: 10px;
+    right: 10px;
+    top: 82px;
+    width: auto;
+  }
+}
+
+/* Periodic Table Temperature Scrubber & Mobile Quick-Jump Pills */
+.temp-toggle-btn {
+  align-items: center;
+  background: rgba(24, 62, 58, 0.06);
+  border: 1px solid rgba(24, 62, 58, 0.12);
+  border-radius: 11px;
+  color: var(--deep);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 650;
+  gap: 6px;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 12px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.temp-toggle-btn:hover,
+.temp-toggle-btn.active {
+  background: var(--surface-selected);
+  border-color: var(--teal);
+  color: var(--deep);
+}
+
+.temperature-scrubber-bar {
+  background: rgba(24, 62, 58, 0.045);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+}
+
+.temp-scrubber-main {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.temp-label {
+  align-items: center;
+  color: var(--deep);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 6px;
+  min-width: 195px;
+}
+
+.temp-label strong {
+  font-family: var(--font-mono);
+}
+
+.temp-label small {
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.temperature-scrubber-bar input[type="range"] {
+  accent-color: var(--teal);
+  cursor: pointer;
+  flex: 1;
+  min-width: 160px;
+}
+
+.temp-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.temp-presets button,
+.phase-tally-pills button {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--hairline);
+  border-radius: 99px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 9px;
+  transition: all 0.14s ease;
+}
+
+.temp-presets button.active,
+.phase-tally-pills button.active {
+  background: var(--deep);
+  border-color: var(--deep);
+  color: #fff;
+}
+
+.phase-tally-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tile-phase-tag {
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 7px !important;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 3px;
+  position: absolute;
+  right: 3px;
+  top: 3px;
+}
+
+.tile-phase-tag.phase-solid {
+  background: rgba(30, 64, 175, 0.14);
+  color: #1e40af;
+}
+
+.tile-phase-tag.phase-liquid {
+  background: rgba(14, 116, 144, 0.18);
+  color: #0e7490;
+}
+
+.tile-phase-tag.phase-gas {
+  background: rgba(180, 83, 9, 0.16);
+  color: #b45309;
+}
+
+.periodic-grid > button {
+  position: relative;
+}
+
+.periodic-mobile-bar {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .periodic-mobile-bar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .periodic-mobile-jumps {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .periodic-mobile-jumps::-webkit-scrollbar {
+    display: none;
+  }
+
+  .periodic-mobile-jumps button {
+    background: rgba(24, 62, 58, 0.07);
+    border: 1px solid rgba(24, 62, 58, 0.12);
+    border-radius: 99px;
+    color: var(--deep);
+    cursor: pointer;
+    flex: 0 0 auto;
+    font-size: 10px;
+    font-weight: 650;
+    min-height: 28px;
+    padding: 3px 9px;
+  }
+}
+
+/* Global Command Palette (Cmd/Ctrl + K) */
+.command-palette-dialog {
+  max-width: 640px !important;
+  padding: 20px !important;
+}
+
+.cmd-palette-search {
+  align-items: center;
+  background: rgba(24, 62, 58, 0.055);
+  border: 1px solid rgba(40, 123, 114, 0.25);
+  border-radius: 14px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+.cmd-palette-search svg {
+  color: var(--teal);
+  flex-shrink: 0;
+}
+
+.cmd-palette-search input {
+  background: transparent;
+  border: 0;
+  color: var(--ink);
+  font-size: 15px;
+  outline: none;
+  width: 100%;
+}
+
+.cmd-clear-btn {
+  background: rgba(24, 62, 58, 0.08);
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.cmd-palette-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.cmd-result-item {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 38px minmax(0, 1fr) auto 16px;
+  min-height: 52px;
+  padding: 7px 10px;
+  text-align: left;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+  width: 100%;
+}
+
+.cmd-result-item.active,
+.cmd-result-item:hover {
+  background: var(--surface-selected);
+  border-color: rgba(40, 123, 114, 0.22);
+}
+
+.cmd-result-badge {
+  align-items: center;
+  background: rgba(40, 123, 114, 0.12);
+  border: 1px solid rgba(40, 123, 114, 0.2);
+  border-radius: 9px;
+  color: var(--deep);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.cmd-result-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cmd-result-copy strong {
+  font-size: 13.5px;
+  font-weight: 650;
+}
+
+.cmd-result-copy small {
+  color: var(--muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmd-result-kind {
+  background: rgba(24, 62, 58, 0.06);
+  border-radius: 99px;
+  color: var(--muted);
+  font-size: 9.5px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+.cmd-result-arrow {
+  color: var(--muted);
+}
+
+.cmd-empty-state {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 28px 12px;
+  text-align: center;
+}
+
+.cmd-palette-footer {
+  border-top: 1px solid var(--hairline);
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+.cmd-palette-footer kbd {
+  background: rgba(24, 62, 58, 0.07);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 5px;
+}
+
+/* Custom Chemical Equation Balancer Modal */
+.custom-equation-dialog {
+  max-width: 680px !important;
+}
+
+.custom-eq-intro {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: -8px 0 14px;
+}
+
+.custom-eq-form label {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.custom-eq-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.custom-eq-input {
+  background: rgba(24, 62, 58, 0.05);
+  border: 1px solid rgba(40, 123, 114, 0.28);
+  border-radius: 12px;
+  color: var(--ink);
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  min-height: 46px;
+  padding: 0 14px;
+}
+
+.custom-eq-presets {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 16px;
+}
+
+.custom-eq-presets > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.custom-eq-presets button {
+  background: rgba(24, 62, 58, 0.055);
+  border: 1px solid var(--hairline);
+  border-radius: 99px;
+  color: var(--deep);
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  font-size: 11px;
+  font-weight: 650;
+  padding: 5px 11px;
+  text-align: left;
+}
+
+.custom-eq-presets button small {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+}
+
+.custom-eq-error {
+  align-items: center;
+  background: #f6e5df;
+  border: 1px solid #e4c2b5;
+  border-radius: 12px;
+  color: #943f33;
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.custom-eq-solution {
+  background: rgba(40, 123, 114, 0.07);
+  border: 1px solid rgba(40, 123, 114, 0.18);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+}
+
+.custom-eq-solution-header {
+  align-items: center;
+  color: var(--teal);
+  display: flex;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.custom-eq-balanced-formula {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  gap: 8px;
+  justify-content: center;
+  padding: 14px;
+}
+
+.eq-term b.coeff-highlight {
+  background: var(--deep);
+  border-radius: 6px;
+  color: #fff;
+  margin-right: 4px;
+  padding: 2px 6px;
+}
+
+.eq-plus,
+.eq-arrow {
+  color: var(--teal);
+  font-weight: 700;
+  margin-inline: 4px;
+}
+
+.custom-eq-conservation h4 {
+  color: var(--muted);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.conservation-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.conservation-pill {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+}
+
+.conservation-pill strong {
+  color: var(--deep);
+  font-family: var(--font-mono);
+  font-size: 15px;
+}
+
+.conservation-pill span {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.conservation-pill small {
+  color: #15803d;
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+/* Dark mode overrides for new components */
+[data-theme="dark"],
+html.dark {
+  .header-kbd {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--muted);
+  }
+
+  .ion-lab-trigger,
+  .mobile-touch-guard {
+    background: rgba(18, 30, 28, 0.92);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--ink);
+  }
+
+  .ion-isotope-panel {
+    background: rgba(15, 26, 24, 0.97);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.65);
+  }
+
+  .ion-isotope-readout,
+  .ion-stepper {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .ion-stepper button {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--ink);
+  }
+
+  .temp-toggle-btn,
+  .temperature-scrubber-bar,
+  .cmd-palette-search,
+  .custom-eq-input,
+  .custom-eq-presets button {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .temp-presets button,
+  .phase-tally-pills button,
+  .custom-eq-balanced-formula,
+  .conservation-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .temp-presets button.active,
+  .phase-tally-pills button.active {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #06211e;
+  }
+}
+
 
 
 

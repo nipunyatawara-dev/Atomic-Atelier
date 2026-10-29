@@ -21,6 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import { AppHeader } from "@/components/common/AppHeader";
+import { Dialog } from "@/components/common/Dialog";
 import { LewisViewer } from "./LewisViewer";
 import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
 import { QuizModal } from "@/features/explorer/components/QuizModal";
@@ -55,14 +56,54 @@ const MoleculeViewer = dynamic(
 const BUILDER_CENTRAL_ELEMENTS = ["C", "N", "O", "S", "P", "B", "Be", "Xe", "Si", "Cl", "Br", "I"];
 const BUILDER_LIGAND_ELEMENTS = ["H", "F", "Cl", "Br", "I", "O", "N", "C"];
 
+function parseCustomVseprParam(raw: string | null): {
+  central: string;
+  ligands: { symbol: string; bondOrder: 1 | 2 | 3 }[];
+  lonePairs: number;
+} | null {
+  if (!raw) return null;
+  // Format: Central-Lig1.Lig2-LonePairs e.g. Xe-F1.F1.F1.F1-2
+  const parts = raw.trim().split("-");
+  if (parts.length !== 3) return null;
+  const [central, ligandsStr, lpStr] = parts;
+  if (!BUILDER_CENTRAL_ELEMENTS.includes(central)) return null;
+  const lonePairs = Math.max(0, Math.min(3, Number(lpStr) || 0));
+  const ligands = ligandsStr
+    .split(".")
+    .map((token) => {
+      const match = token.match(/^([A-Z][a-z]?)([123])?$/);
+      if (!match || !BUILDER_LIGAND_ELEMENTS.includes(match[1])) return null;
+      return {
+        symbol: match[1],
+        bondOrder: (Number(match[2] || 1) as 1 | 2 | 3),
+      };
+    })
+    .filter((item): item is { symbol: string; bondOrder: 1 | 2 | 3 } => item !== null)
+    .slice(0, 6);
+  if (!ligands.length) return null;
+  return { central, ligands, lonePairs };
+}
+
+function serializeCustomVseprParam(
+  central: string,
+  ligands: { symbol: string; bondOrder: 1 | 2 | 3 }[],
+  lonePairs: number,
+) {
+  return `${central}-${ligands.map((l) => `${l.symbol}${l.bondOrder}`).join(".")}-${lonePairs}`;
+}
+
 export function MoleculeStudio() {
   const router = useRouter();
   const params = useSearchParams();
   const { progress, ready, visitMolecule, toggleFavoriteMolecule, recordQuiz, setAutoRotate } = useProgress();
 
-  const [currentMolecule, setCurrentMolecule] = useState<MoleculeRecord>(() =>
-    resolveMolecule(params.get("molecule")),
-  );
+  const [currentMolecule, setCurrentMolecule] = useState<MoleculeRecord>(() => {
+    const customParsed = parseCustomVseprParam(params.get("custom"));
+    if (customParsed) {
+      return buildCustomVseprMolecule(customParsed.central, customParsed.ligands, customParsed.lonePairs);
+    }
+    return resolveMolecule(params.get("molecule"));
+  });
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -111,6 +152,22 @@ export function MoleculeStudio() {
 
   // Synchronize URL params
   useEffect(() => {
+    const requestedCustom = params.get("custom");
+    if (requestedCustom) {
+      const parsed = parseCustomVseprParam(requestedCustom);
+      if (parsed) {
+        const customMol = buildCustomVseprMolecule(parsed.central, parsed.ligands, parsed.lonePairs);
+        if (customMol.slug !== currentMolecule.slug) {
+          queueMicrotask(() => {
+            setBuilderCentral(parsed.central);
+            setBuilderLigands(parsed.ligands);
+            setBuilderLonePairs(parsed.lonePairs);
+            setCurrentMolecule(customMol);
+          });
+        }
+        return;
+      }
+    }
     const requested = params.get("molecule");
     if (requested) {
       const resolved = resolveMolecule(requested);
@@ -176,6 +233,8 @@ export function MoleculeStudio() {
     const custom = buildCustomVseprMolecule(builderCentral, builderLigands, builderLonePairs);
     setCurrentMolecule(custom);
     setBuilderOpen(false);
+    const param = serializeCustomVseprParam(builderCentral, builderLigands, builderLonePairs);
+    router.replace(`/molecules?custom=${param}`, { scroll: false });
   };
 
   const addBuilderLigand = (symbol = "H") => {
@@ -578,168 +637,156 @@ export function MoleculeStudio() {
 
       {/* Custom VSEPR Builder Modal */}
       {builderOpen && (
-        <div className="modal-backdrop" onClick={() => setBuilderOpen(false)}>
-          <div className="builder-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                <Wrench size={20} />
-                <h2>Custom VSEPR Molecule Builder</h2>
+        <Dialog
+          title="Custom VSEPR Molecule Builder"
+          eyebrow="Interactive 3D Geometry Assembler"
+          onClose={() => setBuilderOpen(false)}
+          className="builder-modal"
+        >
+          <div className="builder-body">
+            <p className="builder-intro">
+              Assemble custom compounds by selecting a central atom, attaching bonded ligands with single/double/triple bonds, and adding non-bonding lone pairs. The 3D geometry dynamically calculates via VSEPR theory.
+            </p>
+
+            {/* Central Atom Selection */}
+            <div className="builder-section">
+              <label className="section-label">1. Central Atom</label>
+              <div className="element-picker-grid">
+                {BUILDER_CENTRAL_ELEMENTS.map((sym) => (
+                  <button
+                    key={sym}
+                    type="button"
+                    className={`elem-select-btn ${builderCentral === sym ? "selected" : ""}`}
+                    onClick={() => setBuilderCentral(sym)}
+                  >
+                    {sym}
+                  </button>
+                ))}
               </div>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={() => setBuilderOpen(false)}
-                aria-label="Close builder"
-              >
-                <X size={18} />
-              </button>
             </div>
 
-            <div className="builder-body">
-              <p className="builder-intro">
-                Assemble custom compounds by selecting a central atom, attaching bonded ligands with single/double/triple bonds, and adding non-bonding lone pairs. The 3D geometry dynamically calculates via VSEPR theory.
-              </p>
-
-              {/* Central Atom Selection */}
-              <div className="builder-section">
-                <label className="section-label">1. Central Atom</label>
-                <div className="element-picker-grid">
-                  {BUILDER_CENTRAL_ELEMENTS.map((sym) => (
-                    <button
-                      key={sym}
-                      type="button"
-                      className={`elem-select-btn ${builderCentral === sym ? "selected" : ""}`}
-                      onClick={() => setBuilderCentral(sym)}
-                    >
-                      {sym}
-                    </button>
-                  ))}
-                </div>
+            {/* Ligands Configuration */}
+            <div className="builder-section">
+              <div className="section-header-row">
+                <label className="section-label">2. Bonded Atoms ({builderLigands.length})</label>
+                {builderLigands.length < 6 && (
+                  <button
+                    type="button"
+                    className="add-ligand-btn"
+                    onClick={() => addBuilderLigand("H")}
+                  >
+                    <Plus size={13} />
+                    <span>Add Ligand</span>
+                  </button>
+                )}
               </div>
 
-              {/* Ligands Configuration */}
-              <div className="builder-section">
-                <div className="section-header-row">
-                  <label className="section-label">2. Bonded Atoms ({builderLigands.length})</label>
-                  {builderLigands.length < 6 && (
-                    <button
-                      type="button"
-                      className="add-ligand-btn"
-                      onClick={() => addBuilderLigand("H")}
+              <div className="ligand-rows">
+                {builderLigands.map((lig, idx) => (
+                  <div key={idx} className="ligand-row">
+                    <span className="ligand-index">#{idx + 1}</span>
+                    <select
+                      value={lig.symbol}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setBuilderLigands(
+                          builderLigands.map((l, i) => (i === idx ? { ...l, symbol: val } : l)),
+                        );
+                      }}
+                      className="ligand-elem-select"
+                      aria-label={`Ligand ${idx + 1} Element`}
                     >
-                      <Plus size={13} />
-                      <span>Add Ligand</span>
-                    </button>
-                  )}
-                </div>
+                      {BUILDER_LIGAND_ELEMENTS.map((sym) => (
+                        <option key={sym} value={sym}>
+                          {sym}
+                        </option>
+                      ))}
+                    </select>
 
-                <div className="ligand-rows">
-                  {builderLigands.map((lig, idx) => (
-                    <div key={idx} className="ligand-row">
-                      <span className="ligand-index">#{idx + 1}</span>
-                      <select
-                        value={lig.symbol}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setBuilderLigands(
-                            builderLigands.map((l, i) => (i === idx ? { ...l, symbol: val } : l)),
-                          );
-                        }}
-                        className="ligand-elem-select"
-                        aria-label={`Ligand ${idx + 1} Element`}
-                      >
-                        {BUILDER_LIGAND_ELEMENTS.map((sym) => (
-                          <option key={sym} value={sym}>
-                            {sym}
-                          </option>
-                        ))}
-                      </select>
-
-                      <div className="bond-order-controls">
-                        <span className="order-label">Bond:</span>
-                        <div className="order-stepper">
-                          <button
-                            type="button"
-                            onClick={() => updateBuilderBondOrder(idx, -1)}
-                            disabled={lig.bondOrder <= 1}
-                            aria-label="Decrease bond order"
-                          >
-                            <Minus size={11} />
-                          </button>
-                          <span className="order-val">
-                            {lig.bondOrder === 1 ? "Single (1)" : lig.bondOrder === 2 ? "Double (2)" : "Triple (3)"}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => updateBuilderBondOrder(idx, 1)}
-                            disabled={lig.bondOrder >= 3}
-                            aria-label="Increase bond order"
-                          >
-                            <Plus size={11} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {builderLigands.length > 1 && (
+                    <div className="bond-order-controls">
+                      <span className="order-label">Bond:</span>
+                      <div className="order-stepper">
                         <button
                           type="button"
-                          className="remove-ligand-btn"
-                          onClick={() => removeBuilderLigand(idx)}
-                          aria-label={`Remove ligand ${idx + 1}`}
+                          onClick={() => updateBuilderBondOrder(idx, -1)}
+                          disabled={lig.bondOrder <= 1}
+                          aria-label="Decrease bond order"
                         >
-                          <Trash2 size={13} />
+                          <Minus size={11} />
                         </button>
-                      )}
+                        <span className="order-val">
+                          {lig.bondOrder === 1 ? "Single (1)" : lig.bondOrder === 2 ? "Double (2)" : "Triple (3)"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateBuilderBondOrder(idx, 1)}
+                          disabled={lig.bondOrder >= 3}
+                          aria-label="Increase bond order"
+                        >
+                          <Plus size={11} />
+                        </button>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Lone Pairs Stepper */}
-              <div className="builder-section">
-                <label className="section-label">3. Central Lone Pairs</label>
-                <div className="lone-pairs-stepper">
-                  <button
-                    type="button"
-                    className="stepper-btn"
-                    onClick={() => setBuilderLonePairs((v) => Math.max(0, v - 1))}
-                    disabled={builderLonePairs <= 0}
-                    aria-label="Decrease lone pairs"
-                  >
-                    <Minus size={15} />
-                  </button>
-                  <span className="stepper-val">{builderLonePairs} pair{builderLonePairs !== 1 ? "s" : ""}</span>
-                  <button
-                    type="button"
-                    className="stepper-btn"
-                    onClick={() => setBuilderLonePairs((v) => Math.min(3, v + 1))}
-                    disabled={builderLonePairs >= 3}
-                    aria-label="Increase lone pairs"
-                  >
-                    <Plus size={15} />
-                  </button>
-                </div>
+                    {builderLigands.length > 1 && (
+                      <button
+                        type="button"
+                        className="remove-ligand-btn"
+                        onClick={() => removeBuilderLigand(idx)}
+                        aria-label={`Remove ligand ${idx + 1}`}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => setBuilderOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={applyCustomMolecule}
-              >
-                <span>Render in 3D Stage</span>
-              </button>
+            {/* Lone Pairs Stepper */}
+            <div className="builder-section">
+              <label className="section-label">3. Central Lone Pairs</label>
+              <div className="lone-pairs-stepper">
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  onClick={() => setBuilderLonePairs((v) => Math.max(0, v - 1))}
+                  disabled={builderLonePairs <= 0}
+                  aria-label="Decrease lone pairs"
+                >
+                  <Minus size={15} />
+                </button>
+                <span className="stepper-val">{builderLonePairs} pair{builderLonePairs !== 1 ? "s" : ""}</span>
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  onClick={() => setBuilderLonePairs((v) => Math.min(3, v + 1))}
+                  disabled={builderLonePairs >= 3}
+                  aria-label="Increase lone pairs"
+                >
+                  <Plus size={15} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setBuilderOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={applyCustomMolecule}
+            >
+              <span>Render in 3D Stage</span>
+            </button>
+          </div>
+        </Dialog>
       )}
 
       {/* VSEPR Quiz Modal */}
@@ -783,7 +830,8 @@ export function MoleculeStudio() {
           onClose={() => setMolarMassOpen(false)}
           onSelectElement={(elemNum) => {
             setMolarMassOpen(false);
-            router.push(`/?element=${elemNum}`);
+            const el = elementByNumber.get(elemNum);
+            router.push(`/?element=${el ? el.slug : elemNum}`);
           }}
         />
       )}

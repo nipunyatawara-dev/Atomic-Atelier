@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   Compass,
+  Hand,
   Maximize2,
   Minimize2,
   RotateCcw,
@@ -227,6 +228,15 @@ export function MoleculeViewer({
   const [selectedAtoms, setSelectedAtoms] = useState<MoleculeAtom[]>([]);
   const [hoveredAtom, setHoveredAtom] = useState<MoleculeAtom | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [mobileScrollLock, setMobileScrollLock] = useState(false);
+
+  useEffect(() => {
+    const state = sceneStateRef.current;
+    if (!state) return;
+    state.controls.enabled = !mobileScrollLock;
+    state.renderer.domElement.style.touchAction = mobileScrollLock ? "pan-y" : "none";
+    state.renderer.domElement.style.pointerEvents = mobileScrollLock ? "none" : "auto";
+  }, [mobileScrollLock]);
 
   const [prevKey, setPrevKey] = useState(`${molecule.slug}:${measureMode}`);
   if (prevKey !== `${molecule.slug}:${measureMode}`) {
@@ -587,6 +597,21 @@ export function MoleculeViewer({
       )}
 
       {/* Floating Bottom Controls */}
+      <div className="mobile-scroll-gutter" aria-hidden="true" />
+      <button
+        type="button"
+        className={`mobile-touch-guard ${mobileScrollLock ? "locked" : ""}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          setMobileScrollLock((v) => !v);
+        }}
+        aria-pressed={mobileScrollLock}
+        title={mobileScrollLock ? "Tap to enable 3D touch orbit" : "Tap to lock 3D canvas for vertical page scrolling"}
+      >
+        <Hand size={13} />
+        <span>{mobileScrollLock ? "Touch: Scroll" : "Touch: Orbit"}</span>
+      </button>
+
       <div className="viewer-floating-bottom">
         <button
           type="button"

@@ -10,12 +10,17 @@ import {
   CircleDot,
   Focus,
   GitCompareArrows,
+  Hand,
   Info,
   Layers,
+  Minus,
   Orbit,
+  Plus,
   RotateCcw,
-  Search,
+  SlidersHorizontal,
   X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { formatElectronConfig } from "@/features/reactions/lib/formula";
 import type { ElementRecord } from "@/types";
@@ -131,17 +136,81 @@ export function generateNucleusPositions(total: number, particleSize: number, se
   return rawPoints.map((p) => p.applyEuler(rotation));
 }
 
-function shellRadius(element: ElementRecord, shellIndex: number) {
-  const compression = THREE.MathUtils.clamp((element.shells.length - 3) / 4, 0, 1);
+function shellRadius(shellCount: number, shellIndex: number) {
+  const compression = THREE.MathUtils.clamp((shellCount - 3) / 4, 0, 1);
   const spacing = THREE.MathUtils.lerp(.69, .52, compression);
   return 1.48 + shellIndex * spacing;
 }
 
-function viewingDistance(state: ViewerState, element: ElementRecord) {
-  const outerRadius = shellRadius(element, Math.max(0, element.shells.length - 1)) + .2;
+function viewingDistance(state: ViewerState, shellCount: number) {
+  const outerRadius = shellRadius(shellCount, Math.max(0, shellCount - 1)) + .2;
   const fittedDistance = (outerRadius / Math.tan(THREE.MathUtils.degToRad(16))) * 1.08;
   const narrowViewportCompensation = Math.min(1, Math.max(.7, state.camera.aspect));
   return Math.max(8.8, fittedDistance) / narrowViewportCompensation;
+}
+
+export function computeIonShells(baseShells: number[], charge: number): number[] {
+  const shells = [...baseShells];
+  if (charge > 0) {
+    let toRemove = charge;
+    for (let i = shells.length - 1; i >= 0 && toRemove > 0; i--) {
+      const removed = Math.min(shells[i], toRemove);
+      shells[i] -= removed;
+      toRemove -= removed;
+    }
+    while (shells.length > 0 && shells[shells.length - 1] === 0) {
+      shells.pop();
+    }
+    return shells;
+  }
+  if (charge < 0) {
+    let toAdd = Math.abs(charge);
+    const maxCaps = [2, 8, 18, 32, 32, 18, 8];
+    if (shells.length === 0) shells.push(0);
+    for (let i = shells.length - 1; i < maxCaps.length && toAdd > 0; i++) {
+      if (i >= shells.length) shells.push(0);
+      const cap = i === shells.length - 1 ? Math.max(8, shells[i]) : maxCaps[i];
+      const room = Math.max(0, Math.min(maxCaps[i], cap) - shells[i]);
+      const added = Math.min(room > 0 ? room : maxCaps[i] - shells[i], toAdd);
+      if (added > 0) {
+        shells[i] += added;
+        toAdd -= added;
+      } else if (i === shells.length - 1 && i + 1 < maxCaps.length) {
+        shells.push(0);
+      } else {
+        break;
+      }
+    }
+  }
+  return shells;
+}
+
+export function evaluateIsotopeStability(
+  z: number,
+  neutrons: number,
+  defaultNeutrons: number | null,
+): { stable: boolean; label: string } {
+  if (z >= 84 || z === 43 || z === 61) {
+    return { stable: false, label: "Radioactive (No stable isotopes)" };
+  }
+  if (defaultNeutrons !== null && Math.abs(neutrons - defaultNeutrons) <= 1) {
+    return { stable: true, label: "Stable / Natural Isotope" };
+  }
+  if (z === 1 && (neutrons === 0 || neutrons === 1)) {
+    return { stable: true, label: neutrons === 0 ? "Stable (Protium ¹H)" : "Stable (Deuterium ²H)" };
+  }
+  const diff = defaultNeutrons !== null ? neutrons - defaultNeutrons : neutrons - z;
+  return {
+    stable: false,
+    label: diff > 0 ? "Neutron-rich · β⁻ decay likely" : "Proton-rich · β⁺ / EC decay likely",
+  };
+}
+
+function formatChargeSuperscript(charge: number): string {
+  if (charge === 0) return "";
+  const abs = Math.abs(charge);
+  const sign = charge > 0 ? "+" : "−";
+  return abs === 1 ? sign : `${abs}${sign}`;
 }
 
 function clearGroup(group: THREE.Group) {
@@ -211,10 +280,40 @@ export function AtomViewer({
   const [subshells, setSubshells] = useState<SubshellInfo[]>([]);
   const [hoveredMode, setHoveredMode] = useState<ViewMode | null>(null);
 
+  // Interactive Ion & Isotope Lab state
+  const [ionCharge, setIonCharge] = useState<number>(0);
+  const [neutronOffset, setNeutronOffset] = useState<number>(0);
+  const [ionLabOpen, setIonLabOpen] = useState<boolean>(false);
+
+  // Mobile 3D Touch Scroll-Trap Guard
+  const [mobileScrollLock, setMobileScrollLock] = useState<boolean>(false);
+
+  const baseNeutrons = element.neutrons ?? element.atomicNumber;
+  const activeNeutrons = Math.max(0, baseNeutrons + neutronOffset);
+  const activeMassNumber = element.atomicNumber + activeNeutrons;
+  const activeShells = computeIonShells(element.shells, ionCharge);
+  const totalElectrons = activeShells.reduce((sum, c) => sum + c, 0);
+  const isotopeStability = evaluateIsotopeStability(element.atomicNumber, activeNeutrons, element.neutrons);
+
   const onAutoRotateRef = useRef(onAutoRotate);
   useEffect(() => { autoRotateRef.current = autoRotate; if (stateRef.current) stateRef.current.dirty = true; }, [autoRotate]);
   useEffect(() => { onAutoRotateRef.current = onAutoRotate; }, [onAutoRotate]);
   useEffect(() => { viewModeRef.current = viewMode; if (stateRef.current) stateRef.current.dirty = true; }, [viewMode]);
+
+  // Reset Ion & Isotope offsets when switching elements
+  useEffect(() => {
+    setIonCharge(0);
+    setNeutronOffset(0);
+  }, [element.atomicNumber]);
+
+  // Sync mobile scroll lock with OrbitControls & canvas touch-action
+  useEffect(() => {
+    const state = stateRef.current;
+    if (!state) return;
+    state.controls.enabled = !mobileScrollLock;
+    state.renderer.domElement.style.touchAction = mobileScrollLock ? "pan-y" : "none";
+    state.renderer.domElement.style.pointerEvents = mobileScrollLock ? "none" : "auto";
+  }, [mobileScrollLock]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -388,10 +487,10 @@ export function AtomViewer({
     state.nucleusMeshes = [];
     state.orbitalMeshes.clear();
 
-    const neutronCount = element.neutrons ?? 0;
+    const neutronCount = activeNeutrons;
     const nucleusTotal = Math.max(1, element.atomicNumber + neutronCount);
     const particleSize = THREE.MathUtils.clamp(.245 - Math.log10(nucleusTotal + 1) * .052, .108, .215);
-    const positions = generateNucleusPositions(nucleusTotal, particleSize, element.atomicNumber);
+    const positions = generateNucleusPositions(nucleusTotal, particleSize, element.atomicNumber + neutronOffset);
     let maxClusterRadius = particleSize;
     positions.forEach((pos) => {
       const d = pos.length() + particleSize;
@@ -436,8 +535,9 @@ export function AtomViewer({
     state.atom.add(nucleusGlow, nucleusLight, protons, neutrons);
     state.nucleusMeshes = [nucleusGlow, protons, neutrons];
 
-    const innerCount = element.shells.slice(0, -1).reduce((sum, count) => sum + count, 0);
-    const outerCount = element.shells.at(-1) ?? 0;
+    const shellsToRender = activeShells;
+    const innerCount = shellsToRender.slice(0, -1).reduce((sum, count) => sum + count, 0);
+    const outerCount = shellsToRender.at(-1) ?? 0;
     const electronSize = THREE.MathUtils.clamp(.128 - element.atomicNumber * .00035, .082, .124);
     const electronGeometry = new THREE.SphereGeometry(
       electronSize,
@@ -452,14 +552,14 @@ export function AtomViewer({
 
     let innerInstance = 0;
     let valenceInstance = 0;
-    element.shells.forEach((count, shellIndex) => {
-      const radius = shellRadius(element, shellIndex);
+    shellsToRender.forEach((count, shellIndex) => {
+      const radius = shellRadius(shellsToRender.length, shellIndex);
       const points = Array.from({ length: 128 }, (_, index) => {
         const angle = (index / 128) * Math.PI * 2;
         return new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
       });
       const ringGeometry = new THREE.BufferGeometry().setFromPoints(points);
-      const isValence = shellIndex === element.shells.length - 1;
+      const isValence = shellIndex === shellsToRender.length - 1;
       const ring = new THREE.LineLoop(
         ringGeometry,
         new THREE.LineBasicMaterial({
@@ -471,17 +571,17 @@ export function AtomViewer({
       );
       ring.rotation.set(
         .62 + (shellIndex % 3) * .24,
-        (shellIndex - (element.shells.length - 1) / 2) * .12,
+        (shellIndex - (shellsToRender.length - 1) / 2) * .12,
         (shellIndex % 2 ? -1 : 1) * (.18 + shellIndex * .1),
       );
       const orbit = ring.quaternion.clone();
       state.atom.add(ring);
       state.shells.push(ring);
-      const target = shellIndex === element.shells.length - 1 ? state.valenceElectrons! : state.innerElectrons!;
+      const target = shellIndex === shellsToRender.length - 1 ? state.valenceElectrons! : state.innerElectrons!;
       for (let index = 0; index < count; index += 1) {
         const angle = (Math.PI * 2 * index) / count + shellIndex * 0.43;
         const instance = target === state.valenceElectrons ? valenceInstance++ : innerInstance++;
-        const electron = { mesh: target, instance, radius, angle, speed: .22 + .055 * (element.shells.length - shellIndex), orbit };
+        const electron = { mesh: target, instance, radius, angle, speed: .22 + .055 * (shellsToRender.length - shellIndex), orbit };
         state.electronData.push(electron);
         dummy.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0).applyQuaternion(orbit);
         dummy.scale.setScalar(1);
@@ -495,12 +595,15 @@ export function AtomViewer({
     // Parse 3D Quantum Orbital configurations (clouds generated on-demand in orbital mode)
     const parsedSubshells = parseElectronConfiguration(element.electronConfiguration, element);
     setSubshells(parsedSubshells);
-    setActiveSubshell("all");
 
-    state.camera.position.set(0, .55, viewingDistance(state, element));
+    state.camera.position.set(0, .55, viewingDistance(state, Math.max(1, shellsToRender.length)));
     state.controls.target.set(0, 0, 0);
     state.controls.update();
     state.dirty = true;
+  }, [element, activeNeutrons, neutronOffset, ionCharge]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setActiveSubshell("all");
     setSelected(null);
     setGuideOpen(false);
     setShellsVisible(true);
@@ -540,9 +643,20 @@ export function AtomViewer({
     if (state.innerElectrons) state.innerElectrons.visible = isBohr && !nucleusFocus;
     if (state.valenceElectrons) state.valenceElectrons.visible = isBohr && !nucleusFocus;
 
-    // Orbital clouds
+    // Orbital clouds (supports "all", exact subshell label like "2p", or block type like "type:p")
     state.orbitalMeshes.forEach((mesh, label) => {
-      mesh.visible = !isBohr && (activeSubshell === "all" || activeSubshell === label);
+      if (isBohr) {
+        mesh.visible = false;
+        return;
+      }
+      if (activeSubshell === "all") {
+        mesh.visible = true;
+      } else if (activeSubshell.startsWith("type:")) {
+        const blockType = activeSubshell.slice(5);
+        mesh.visible = label.includes(blockType);
+      } else {
+        mesh.visible = activeSubshell === label;
+      }
     });
 
     state.dirty = true;
@@ -562,10 +676,18 @@ export function AtomViewer({
     state.dirty = true;
   }, [valenceFocus, viewMode]);
 
-  const zoom = () => {
+  const zoomIn = () => {
     const state = stateRef.current;
     if (!state) return;
-    state.camera.position.multiplyScalar(0.86);
+    state.camera.position.multiplyScalar(0.84);
+    state.camera.position.clampLength(3, 26);
+    state.dirty = true;
+  };
+
+  const zoomOut = () => {
+    const state = stateRef.current;
+    if (!state) return;
+    state.camera.position.multiplyScalar(1.18);
     state.camera.position.clampLength(3, 26);
     state.dirty = true;
   };
@@ -580,7 +702,7 @@ export function AtomViewer({
       if (state.innerElectrons) state.innerElectrons.visible = !next;
       if (state.valenceElectrons) state.valenceElectrons.visible = !next;
     }
-    state.camera.position.set(0, .3, next ? 4.1 : viewingDistance(state, element));
+    state.camera.position.set(0, .3, next ? 4.1 : viewingDistance(state, Math.max(1, activeShells.length)));
     state.dirty = true;
     if (next) { setSelected("nucleus"); setGuideOpen(true); }
     else if (selected === "nucleus") setSelected(null);
@@ -589,31 +711,56 @@ export function AtomViewer({
   const reset = () => {
     const state = stateRef.current;
     if (!state) return;
-    setViewMode("bohr"); setActiveSubshell("all"); setShellsVisible(true); setNucleusFocus(false); setValenceFocus(false); setSelected(null); setGuideOpen(false);
+    setViewMode("bohr");
+    setActiveSubshell("all");
+    setShellsVisible(true);
+    setNucleusFocus(false);
+    setValenceFocus(false);
+    setSelected(null);
+    setGuideOpen(false);
+    setIonCharge(0);
+    setNeutronOffset(0);
+    setIonLabOpen(false);
     state.atom.rotation.set(-.12, -.2, .03);
     state.shells.forEach((shell) => { shell.visible = true; });
     if (state.innerElectrons) state.innerElectrons.visible = true;
     if (state.valenceElectrons) state.valenceElectrons.visible = true;
     state.orbitalMeshes.forEach((mesh) => { mesh.visible = false; });
-    state.camera.position.set(0, .55, viewingDistance(state, element));
+    state.camera.position.set(0, .55, viewingDistance(state, Math.max(1, element.shells.length)));
     state.controls.target.set(0, 0, 0);
     state.dirty = true;
   };
 
+  const availableOrbitalTypes = Array.from(new Set(subshells.map((s) => s.type)));
+  const cycleOrbitalType = () => {
+    const sequence = ["all", ...availableOrbitalTypes.map((t) => `type:${t}`)];
+    const currentIndex = sequence.indexOf(activeSubshell);
+    const next = sequence[(currentIndex + 1) % sequence.length];
+    setActiveSubshell(next);
+  };
+
   const tools = [
-    { label: "Rotate", icon: RotateCcw, active: autoRotate, action: () => onAutoRotate(!autoRotate) },
-    { label: "Zoom", icon: Search, active: false, action: zoom },
-    { label: viewMode === "bohr" ? "Shells" : "Orbitals", icon: Orbit, active: viewMode === "bohr" ? shellsVisible : true, action: () => {
-      if (viewMode === "bohr") setShellsVisible((value) => !value);
-    } },
+    { label: "Zoom in", icon: ZoomIn, active: false, action: zoomIn },
+    { label: "Zoom out", icon: ZoomOut, active: false, action: zoomOut },
+    {
+      label: viewMode === "bohr" ? "Shells" : activeSubshell === "all" ? "Subshells" : `${activeSubshell.replace("type:", "")}-cloud`,
+      icon: viewMode === "bohr" ? Orbit : Layers,
+      active: viewMode === "bohr" ? shellsVisible : activeSubshell !== "all",
+      action: () => {
+        if (viewMode === "bohr") setShellsVisible((value) => !value);
+        else cycleOrbitalType();
+      },
+    },
     { label: "Nucleus", icon: Focus, active: nucleusFocus, action: focusNucleus },
     { label: "Valence", icon: CircleDot, active: valenceFocus, action: () => { setValenceFocus((value) => !value); setSelected("valence"); setGuideOpen(true); } },
     { label: "Compare", icon: GitCompareArrows, active: compareActive, action: onCompare },
     { label: "Reset", icon: Atom, active: false, action: reset },
   ];
 
+  const isModifiedSpecies = ionCharge !== 0 || neutronOffset !== 0;
+
   return (
-    <section className="viewer-shell" aria-label={`${element.name} interactive atomic viewer`}>
+    <section className={`viewer-shell ${mobileScrollLock ? "scroll-locked" : ""}`} aria-label={`${element.name} interactive atomic viewer`}>
       <div className="viewer-aura" style={{ "--element-color": element.cpkColor } as React.CSSProperties} />
 
       {/* Model View Mode Switcher Header with integrated Model Note tooltip */}
@@ -668,6 +815,139 @@ export function AtomViewer({
       </div>
 
       <div className="atom-mount" ref={mountRef}>{fallback && <FallbackAtom element={element} />}</div>
+      <div className="mobile-scroll-gutter" aria-hidden="true" />
+
+      {/* Mobile Touch Scroll vs Orbit Toggle */}
+      <button
+        type="button"
+        className={`mobile-touch-guard ${mobileScrollLock ? "locked" : ""}`}
+        onClick={() => setMobileScrollLock((v) => !v)}
+        aria-pressed={mobileScrollLock}
+        title={mobileScrollLock ? "Tap to enable 3D touch orbit" : "Tap to lock 3D canvas for vertical page scrolling"}
+      >
+        <Hand size={13} />
+        <span>{mobileScrollLock ? "Touch: Scroll" : "Touch: Orbit"}</span>
+      </button>
+
+      {/* Interactive Ion & Isotope Builder Panel */}
+      {!ionLabOpen ? (
+        <button
+          type="button"
+          className={`ion-lab-trigger ${isModifiedSpecies ? "modified" : ""}`}
+          onClick={() => setIonLabOpen(true)}
+          aria-expanded="false"
+        >
+          <SlidersHorizontal size={13} />
+          <span>
+            {isModifiedSpecies
+              ? `${element.symbol}-${activeMassNumber}${formatChargeSuperscript(ionCharge)}`
+              : "Ion & Isotope Lab"}
+          </span>
+        </button>
+      ) : (
+        <aside className="ion-isotope-panel" aria-label="Ion and Isotope Builder">
+          <header className="ion-lab-header">
+            <div>
+              <small>Ion & Isotope Lab</small>
+              <strong>
+                <sup>{activeMassNumber}</sup>
+                {element.symbol}
+                <sup>{formatChargeSuperscript(ionCharge)}</sup>
+              </strong>
+            </div>
+            <div className="ion-lab-header-actions">
+              {isModifiedSpecies && (
+                <button
+                  type="button"
+                  className="ion-lab-reset"
+                  onClick={() => {
+                    setIonCharge(0);
+                    setNeutronOffset(0);
+                  }}
+                >
+                  Ground state
+                </button>
+              )}
+              <button
+                type="button"
+                className="ion-lab-close"
+                onClick={() => setIonLabOpen(false)}
+                aria-label="Close Ion and Isotope Lab"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </header>
+
+          <div className="ion-lab-controls">
+            <div className="ion-lab-row">
+              <div className="ion-lab-label">
+                <span>Ion Charge (q)</span>
+                <small>
+                  {ionCharge === 0
+                    ? `Neutral (${totalElectrons} e⁻)`
+                    : ionCharge > 0
+                      ? `Cation +${ionCharge} (${totalElectrons} e⁻)`
+                      : `Anion ${ionCharge} (${totalElectrons} e⁻)`}
+                </small>
+              </div>
+              <div className="ion-lab-stepper">
+                <button
+                  type="button"
+                  onClick={() => setIonCharge((q) => Math.max(-3, q - 1))}
+                  disabled={ionCharge <= -3}
+                  aria-label="Add electron (make more negative)"
+                  title="Add electron (anion)"
+                >
+                  <Minus size={13} />
+                </button>
+                <b>{ionCharge > 0 ? `+${ionCharge}` : ionCharge}</b>
+                <button
+                  type="button"
+                  onClick={() => setIonCharge((q) => Math.min(Math.min(4, element.atomicNumber), q + 1))}
+                  disabled={ionCharge >= Math.min(4, element.atomicNumber)}
+                  aria-label="Remove electron (make more positive)"
+                  title="Remove electron (cation)"
+                >
+                  <Plus size={13} />
+                </button>
+              </div>
+            </div>
+
+            <div className="ion-lab-row">
+              <div className="ion-lab-label">
+                <span>Isotope Mass (A = {activeMassNumber})</span>
+                <small>{element.atomicNumber} p⁺ · {activeNeutrons} n⁰</small>
+              </div>
+              <div className="ion-lab-stepper">
+                <button
+                  type="button"
+                  onClick={() => setNeutronOffset((n) => Math.max(-baseNeutrons, n - 1))}
+                  disabled={activeNeutrons <= 0}
+                  aria-label="Remove neutron"
+                >
+                  <Minus size={13} />
+                </button>
+                <b>{element.symbol}-{activeMassNumber}</b>
+                <button
+                  type="button"
+                  onClick={() => setNeutronOffset((n) => Math.min(8, n + 1))}
+                  disabled={neutronOffset >= 8}
+                  aria-label="Add neutron"
+                >
+                  <Plus size={13} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <footer className="ion-lab-footer">
+            <span className={`stability-badge ${isotopeStability.stable ? "stable" : "unstable"}`}>
+              <i /> {isotopeStability.label}
+            </span>
+          </footer>
+        </aside>
+      )}
 
       {/* Subshell Chips & Legend overlay when in Orbital Mode */}
       {viewMode === "orbital" && (
@@ -680,6 +960,17 @@ export function AtomViewer({
             >
               All subshells
             </button>
+            {availableOrbitalTypes.map((type) => (
+              <button
+                key={`type-${type}`}
+                type="button"
+                className={`chip subshell-${type} ${activeSubshell === `type:${type}` ? "active" : ""}`}
+                onClick={() => setActiveSubshell(`type:${type}`)}
+                style={{ "--subshell-color": SUBSHELL_COLORS[type].hex } as React.CSSProperties}
+              >
+                <i className="chip-dot" /> {type}-block
+              </button>
+            ))}
             {subshells.map((s) => (
               <button
                 key={s.label}
@@ -706,7 +997,15 @@ export function AtomViewer({
 
       <div className="viewer-tools" aria-label="Atomic viewer tools">
         {tools.map(({ label, icon: Icon, active, action }) => (
-          <button key={label} type="button" onClick={action} className={active ? "active" : ""} aria-pressed={active} title={label}>
+          <button
+            key={label}
+            type="button"
+            onClick={action}
+            className={active ? "active" : ""}
+            aria-pressed={active}
+            title={label}
+            data-tooltip={label}
+          >
             <Icon size={18} /><span>{label}</span>
           </button>
         ))}
@@ -721,7 +1020,7 @@ export function AtomViewer({
           <div id="structure-guide-panel">
             <header><span><BookOpen size={14} /> Structure guide</span><button onClick={() => { setGuideOpen(false); setSelected(null); }} aria-label="Close structure guide"><X size={15} /></button></header>
             <div className="structure-options" role="tablist" aria-label="Atomic structure details">
-              {(["nucleus", "proton", "neutron", "electron", "valence", "orbitals"] as StructureKey[]).filter((key) => key !== "neutron" || (element.neutrons ?? 0) > 0).map((key) => (
+              {(["nucleus", "proton", "neutron", "electron", "valence", "orbitals"] as StructureKey[]).filter((key) => key !== "neutron" || activeNeutrons > 0).map((key) => (
                 <button key={key} role="tab" aria-selected={selected === key} className={`${key} ${selected === key ? "active" : ""}`} onClick={() => setSelected(key)}>{structureCopy[key].label}</button>
               ))}
             </div>
@@ -731,11 +1030,30 @@ export function AtomViewer({
       </aside>
 
       <div className="viewer-caption">
-        <span>{viewMode === "bohr" ? "Simplified shell model" : "Quantum subshell configuration"}</span>
-        <strong>{viewMode === "bohr" ? `${element.shells.join(" · ")} ${element.atomicNumber === 1 ? "electron" : "electrons"}` : formatElectronConfig(element.electronConfiguration)}</strong>
+        <span>
+          {viewMode === "bohr"
+            ? isModifiedSpecies
+              ? `Modified ${ionCharge !== 0 ? (ionCharge > 0 ? "cation" : "anion") : "isotope"} · ${element.symbol}-${activeMassNumber}${formatChargeSuperscript(ionCharge)}`
+              : "Simplified shell model"
+            : "Quantum subshell configuration"}
+        </span>
+        <strong>
+          {viewMode === "bohr"
+            ? activeShells.length > 0
+              ? `${activeShells.join(" · ")} (${totalElectrons} ${totalElectrons === 1 ? "electron" : "electrons"})`
+              : "0 electrons (bare nucleus)"
+            : formatElectronConfig(element.electronConfiguration)}
+        </strong>
       </div>
       <button className="auto-rotate" onClick={() => onAutoRotate(!autoRotate)} aria-pressed={autoRotate}><RotateCcw size={14} /> Auto rotate <span className={autoRotate ? "switch on" : "switch"}><i /></span></button>
-      <div className="atomic-stamp"><small>{element.atomicNumber}</small><b>{element.symbol}</b><span>{element.name}</span></div>
+      <div className="atomic-stamp">
+        <small>{element.atomicNumber}</small>
+        <b>
+          {element.symbol}
+          {ionCharge !== 0 && <sup className="stamp-charge">{formatChargeSuperscript(ionCharge)}</sup>}
+        </b>
+        <span>{neutronOffset !== 0 ? `${element.name}-${activeMassNumber}` : element.name}</span>
+      </div>
     </section>
   );
 }
