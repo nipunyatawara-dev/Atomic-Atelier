@@ -1,6 +1,8 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
+import { useTouchOrbit } from "@/hooks/useTouchOrbit";
+import { useViewerExpansion } from "@/hooks/useViewerExpansion";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -67,6 +69,7 @@ function buildMolecule(species: SpeciesRecord, seed: number, identityPrefix: str
       new THREE.SphereGeometry(radius, 32, 24),
       new THREE.MeshStandardMaterial({ color: colors[symbol] ?? 0xd39b6a, roughness: 0.36, metalness: ["Fe", "Zn", "Ag", "Al", "Mg"].includes(symbol) ? 0.28 : 0 }),
     );
+    if (symbol === "H") atom.add(new THREE.Mesh(new THREE.SphereGeometry(radius * 1.07, 24, 18), new THREE.MeshBasicMaterial({ color: 0x304944, side: THREE.BackSide })));
     atom.position.copy(positions.get(recipe.id)!);
     atom.userData.symbol = symbol;
     atom.userData.kind = "atom";
@@ -98,6 +101,8 @@ function buildSide(root: THREE.Group, reaction: ReactionRecord, side: "reactant"
 }
 
 export function ReactionViewer({ reaction, reactantCoefficients, productCoefficients, animationRun, onAnimationComplete }: { reaction: ReactionRecord; reactantCoefficients: number[]; productCoefficients: number[]; animationRun: number; onAnimationComplete: () => void }) {
+  const viewerRef = useRef<HTMLElement>(null);
+  const { expanded, toggleExpanded } = useViewerExpansion(viewerRef);
   const mountRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<SceneState | null>(null);
   const [side, setSide] = useState<"reactants" | "products">("reactants");
@@ -106,16 +111,9 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
   const productRef = useRef(productCoefficients);
   const [fallback, setFallback] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
-  const [mobileScrollLock, setMobileScrollLock] = useState(false);
+  const [touchActive, setTouchActive] = useTouchOrbit(stateRef);
   const tipRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const state = stateRef.current;
-    if (!state) return;
-    state.controls.enabled = !mobileScrollLock;
-    state.renderer.domElement.style.touchAction = mobileScrollLock ? "pan-y" : "none";
-    state.renderer.domElement.style.pointerEvents = mobileScrollLock ? "none" : "auto";
-  }, [mobileScrollLock]);
 
   useEffect(() => {
     if (!tipOpen) return;
@@ -254,7 +252,7 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
   }, [animationRun, reaction, productCoefficients, onAnimationComplete]);
 
   return (
-    <section className="reaction-viewer" aria-label={`${reaction.title} particle viewer`}>
+    <section ref={viewerRef} className={`reaction-viewer ${expanded ? "is-expanded" : ""} ${touchActive ? "touch-active" : ""}`} aria-label={`${reaction.title} particle viewer`}>
       <div ref={mountRef} className="reaction-mount">{fallback && <div className="reaction-fallback" role="img" aria-label={`Schematic formula view for ${reaction.title}`}>{(side === "reactants" ? reaction.reactants : reaction.products).map((item) => <span key={item.formula}><b>{item.formula}</b><small>{item.label} · {item.representation}</small></span>)}</div>}</div>
       <div className="viewer-tip" ref={tipRef}>
         <button
@@ -278,14 +276,15 @@ export function ReactionViewer({ reaction, reactantCoefficients, productCoeffici
       <div className="mobile-scroll-gutter" aria-hidden="true" />
       <button
         type="button"
-        className={`mobile-touch-guard ${mobileScrollLock ? "locked" : ""}`}
-        onClick={() => setMobileScrollLock((v) => !v)}
-        aria-pressed={mobileScrollLock}
-        title={mobileScrollLock ? "Tap to enable 3D touch orbit" : "Tap to lock 3D canvas for vertical page scrolling"}
+        className={`mobile-touch-guard ${touchActive ? "active" : ""}`}
+        onClick={() => setTouchActive((v) => !v)}
+        aria-pressed={touchActive}
+        title={touchActive ? "Finish rotating and resume page scrolling" : "Enable touch rotation"}
       >
         <Hand size={13} />
-        <span>{mobileScrollLock ? "Touch: Scroll" : "Touch: Orbit"}</span>
+        <span>{touchActive ? "Done rotating" : "Rotate model"}</span>
       </button>
+      <button type="button" className="viewer-expand" onClick={toggleExpanded}>{expanded ? "Exit fullscreen" : "Fullscreen"}</button>
       <div className="representation-legend">{(side === "reactants" ? reaction.reactants : reaction.products).map((item) => <span key={`${side}-${item.formula}`}><b>{item.formula}</b>{item.representation === "ions" ? "labeled ion field" : item.representation === "lattice" ? "lattice model" : "ball-and-stick"}</span>)}</div>
       <button className="reaction-reset-view" onClick={() => { const state = stateRef.current; if (!state) return; state.camera.position.set(0, .6, 10); state.controls.target.set(0,0,0); state.root.rotation.set(0,0,0); }}><RotateCcw size={14} /> Reset view</button>
     </section>

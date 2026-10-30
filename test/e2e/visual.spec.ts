@@ -40,7 +40,8 @@ test("comparison mode visual", async ({ page }, testInfo: TestInfo) => {
 test("periodic table visual", async ({ page }, testInfo: TestInfo) => {
   await page.goto("/?element=carbon");
   if (testInfo.project.name === "mobile") {
-    await page.getByRole("button", { name: "Table", exact: true }).click();
+    await page.getByRole("button", { name: "Tools", exact: true }).click();
+    await page.getByRole("button", { name: "Periodic table", exact: true }).click();
   } else {
     await page.getByRole("button", { name: /View periodic table/i }).click();
   }

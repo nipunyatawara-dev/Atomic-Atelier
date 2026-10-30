@@ -1,3 +1,4 @@
+import { ResponsiveDisclosure } from "./ResponsiveDisclosure";
 import Link from "next/link";
 import {
   Atom,
@@ -58,7 +59,7 @@ export function AppFooter() {
 
           {/* 2. Studios & Modules Navigation */}
           <div className="footer-col">
-            <h4 className="footer-col-title">Studios</h4>
+            <ResponsiveDisclosure title="Studios">
             <ul className="footer-links">
               <li>
                 <Link href="/" className="footer-link">
@@ -85,11 +86,12 @@ export function AppFooter() {
                 </Link>
               </li>
             </ul>
+            </ResponsiveDisclosure>
           </div>
 
           {/* 3. Scientific Standards & Data */}
           <div className="footer-col">
-            <h4 className="footer-col-title">Data & Standards</h4>
+            <ResponsiveDisclosure title="Data & Standards">
             <ul className="footer-links">
               <li>
                 <a
@@ -128,11 +130,12 @@ export function AppFooter() {
             <p className="footer-pedagogy-note">
               Particle shells and geometries are stylized models for intuitive teaching.
             </p>
+            </ResponsiveDisclosure>
           </div>
 
           {/* 4. Open Source & GitHub */}
           <div className="footer-col footer-col-github">
-            <h4 className="footer-col-title">Open Source</h4>
+            <ResponsiveDisclosure title="Open Source">
             <a
               href="https://github.com/nipunyatawara-dev/Atomic-Atelier"
               target="_blank"
@@ -172,6 +175,7 @@ export function AppFooter() {
                 Documentation
               </a>
             </div>
+            </ResponsiveDisclosure>
           </div>
         </div>
 

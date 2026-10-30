@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/common/ThemeProvider";
 import "@/styles/globals.css";
 import "@/styles/apple-overhaul.css";
 import "@/styles/learning.css";
+import "@/styles/mobile-refinement.css";
 
 const configuredHost = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL ?? "https://atomic-atelier.vercel.app";
 const metadataBase = new URL(configuredHost.startsWith("http") ? configuredHost : `https://${configuredHost}`);

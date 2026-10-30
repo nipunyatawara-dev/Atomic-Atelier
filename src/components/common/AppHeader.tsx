@@ -15,6 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import { Dialog } from "./Dialog";
 import { CommandPalette } from "./CommandPalette";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -34,6 +35,7 @@ type Props = {
 
 export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader(props, mobileContextRef) {
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -130,18 +132,7 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
           >
             <Search aria-hidden="true" size={16} />
           </button>
-          <ThemeToggle className="mobile-utility-btn theme-action" />
-          {props.onMolarMass && (
-            <button type="button" onClick={props.onMolarMass} aria-label="Molar mass calculator" title="Molar Mass Calculator">
-              <Calculator aria-hidden="true" size={16} />
-            </button>
-          )}
-          <button type="button" onClick={props.onTable} aria-label="Table">
-            <Grid3X3 aria-hidden="true" />
-          </button>
-          <button type="button" onClick={props.onSaved} aria-label="Saved">
-            <Bookmark aria-hidden="true" />
-          </button>
+          <button type="button" className="mobile-tools-trigger" onClick={() => setToolsOpen(true)} aria-haspopup="dialog">Tools</button>
         </div>
       </header>
 
@@ -151,6 +142,16 @@ export const AppHeader = forwardRef<HTMLButtonElement, Props>(function AppHeader
         <Link className={props.active === "trends" ? "active" : ""} href="/trends" aria-current={props.active === "trends" ? "page" : undefined}><TrendingUp /><span>Trends</span></Link>
         <Link className={props.active === "reactions" ? "active" : ""} href="/reactions" aria-current={props.active === "reactions" ? "page" : undefined}><FlaskConical /><span>Reactions</span></Link>
       </nav>
+
+      {toolsOpen && <Dialog title="Tools" onClose={() => setToolsOpen(false)} className="tools-dialog">
+        <div className="app-tools-grid">
+          <ThemeToggle showLabel />
+          {props.onMolarMass && <button type="button" onClick={() => { setToolsOpen(false); props.onMolarMass?.(); }}><Calculator size={18} />Molar mass</button>}
+          <button type="button" onClick={() => { setToolsOpen(false); props.onTable(); }}><Grid3X3 size={18} />Periodic table</button>
+          <button type="button" onClick={() => { setToolsOpen(false); props.onSaved(); }}><Bookmark size={18} />Saved & progress</button>
+          <Link href="/?element=carbon&lesson=carbon" onClick={() => setToolsOpen(false)}><Atom size={18} />Guided lesson</Link>
+        </div>
+      </Dialog>}
 
       {cmdOpen && (
         <CommandPalette

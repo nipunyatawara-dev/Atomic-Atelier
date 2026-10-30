@@ -1,5 +1,7 @@
 "use client";
 
+import { useTouchOrbit } from "@/hooks/useTouchOrbit";
+import { useViewerExpansion } from "@/hooks/useViewerExpansion";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -65,10 +67,12 @@ export function Periodic3DElevation({
   autoRotate = false,
   exaggeration = 1.0,
 }: Props) {
+  const viewerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneStateRef = useRef<SceneState | null>(null);
   const [hoveredElement, setHoveredElement] = useState<ElementRecord | null>(null);
-  const [fullscreen, setFullscreen] = useState(false);
+  const { expanded: fullscreen, toggleExpanded } = useViewerExpansion(viewerRef);
+  const [touchActive, setTouchActive] = useTouchOrbit(sceneStateRef);
   const autoRotateRef = useRef(autoRotate);
   const exaggerationRef = useRef(exaggeration);
 
@@ -358,6 +362,7 @@ export function Periodic3DElevation({
 
   // Click & Pointer Interaction (Raycasting)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as Element).closest("button, select, input") || (window.matchMedia("(max-width: 760px)").matches && !touchActive)) return;
     const state = sceneStateRef.current;
     const mount = containerRef.current;
     if (!state || !mount) return;
@@ -382,6 +387,7 @@ export function Periodic3DElevation({
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as Element).closest("button, select, input") || (window.matchMedia("(max-width: 760px)").matches && !touchActive)) return;
     const state = sceneStateRef.current;
     const mount = containerRef.current;
     if (!state || !mount) return;
@@ -434,7 +440,8 @@ export function Periodic3DElevation({
 
   return (
     <div
-      className={`trend-elevation-shell ${fullscreen ? "fullscreen" : ""}`}
+      ref={viewerRef}
+      className={`trend-elevation-shell ${fullscreen ? "fullscreen is-expanded" : ""} ${touchActive ? "touch-active" : ""}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
     >
@@ -465,6 +472,7 @@ export function Periodic3DElevation({
         </div>
       </div>
 
+      <button type="button" className="mobile-touch-guard" aria-pressed={touchActive} onClick={(event) => { event.stopPropagation(); setTouchActive((value) => !value); }}>{touchActive ? "Done rotating" : "Rotate model"}</button>
       {/* Hover Card */}
       {hoveredElement && (
         <div className="elevation-hover-card">
@@ -524,7 +532,7 @@ export function Periodic3DElevation({
         <button
           type="button"
           className="preset-btn icon-only"
-          onClick={() => setFullscreen((f) => !f)}
+          onClick={toggleExpanded}
           title={fullscreen ? "Exit Fullscreen" : "Fullscreen 3D View"}
           aria-label={fullscreen ? "Exit Fullscreen" : "Fullscreen 3D View"}
         >

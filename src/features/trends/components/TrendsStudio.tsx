@@ -25,6 +25,7 @@ import { PeriodicTable } from "@/features/explorer/components/PeriodicTable";
 import { QuizModal } from "@/features/explorer/components/QuizModal";
 import { SavedModal } from "@/features/explorer/components/SavedModal";
 import { MolarMassModal } from "@/features/reactions/components/MolarMassModal";
+import { FocusedTrendTable } from "./FocusedTrendTable";
 import { TrendsGraph } from "./TrendsGraph";
 import { elementByNumber, elements } from "@/features/explorer/lib/elements";
 import { useProgress } from "@/hooks/useProgress";
@@ -60,6 +61,10 @@ export function TrendsStudio() {
   const [selectedElement, setSelectedElement] = useState<ElementRecord>(elements[5]); // Carbon
   const [selectedAnomaly, setSelectedAnomaly] = useState<TrendAnomaly | null>(null);
   const [exaggeration, setExaggeration] = useState(1.0);
+
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 760px)").matches) queueMicrotask(() => setViewMode("focus"));
+  }, []);
 
   // Modals
   const [quizOpen, setQuizOpen] = useState(false);
@@ -136,7 +141,7 @@ export function TrendsStudio() {
       <section className="trends-topbar">
         <div className="trends-heading-block">
           <div className="title-row">
-            <h1>Periodic Trends Studio</h1>
+            <h1>Periodic trends</h1>
             <span className="trends-badge">
               <Activity size={13} />
               118 Elements Dynamic Elevation
@@ -155,16 +160,11 @@ export function TrendsStudio() {
             title="Test your periodic trends intuition"
           >
             <GraduationCap size={15} />
-            <span>Trends Quiz</span>
+            <span>Quiz</span>
           </button>
         </div>
       </section>
 
-      <label className="mobile-trend-property">Explore a property
-        <select id="trend-mobile-property" aria-label="Trend property" value={selectedPropertyId} onChange={(event) => handleSelectProperty(event.target.value as TrendPropertyId)}>
-          {TREND_PROPERTIES.map((property) => <option key={property.id} value={property.id}>{property.name} ({property.unit})</option>)}
-        </select>
-      </label>
       {/* Property Selector Bar */}
       <div id="trend-property-selector" className="property-selector-strip">
         <div className="property-chips-scroll">
@@ -192,7 +192,19 @@ export function TrendsStudio() {
         <section className="trends-center-stage">
           {/* View Mode Switcher Toolbar */}
           <div className="stage-mode-toolbar">
+      <label className="mobile-trend-property">Property
+        <select id="trend-mobile-property" aria-label="Trend property" value={selectedPropertyId} onChange={(event) => handleSelectProperty(event.target.value as TrendPropertyId)}>
+          {TREND_PROPERTIES.map((property) => <option key={property.id} value={property.id}>{property.name}</option>)}
+        </select>
+      </label>
+
+            <label className="mobile-trend-view">View
+              <select aria-label="Trend view" value={viewMode} onChange={(event) => setViewMode(event.target.value as TrendViewMode)}>
+                <option value="focus">Focused table</option><option value="elevation-3d">3D full table</option><option value="heatmap-2d">2D full table</option><option value="graphs">Graphs</option><option value="anomalies">Anomalies</option>
+              </select>
+            </label>
             <div className="mode-tabs">
+              <button type="button" className={`mode-tab ${viewMode === "focus" ? "active" : ""}`} onClick={() => setViewMode("focus")}><BarChart3 size={14} /><span>Focused table</span></button>
               <button
                 type="button"
                 className={`mode-tab ${viewMode === "elevation-3d" ? "active" : ""}`}
@@ -230,7 +242,7 @@ export function TrendsStudio() {
 
             {/* Palette Switcher */}
             {(viewMode === "elevation-3d" || viewMode === "heatmap-2d") && (
-              <div className="palette-controls">
+              <details className="trend-display-settings"><summary>Display settings</summary><div className="palette-controls">
                 <Palette size={13} className="palette-icon" />
                 <select
                   value={paletteId}
@@ -260,12 +272,13 @@ export function TrendsStudio() {
                     <small>{exaggeration}x</small>
                   </div>
                 )}
-              </div>
+              </div></details>
             )}
           </div>
 
           {/* Active Viewport Surface */}
           <div className="stage-viewport-shell">
+            {viewMode === "focus" && <FocusedTrendTable propertyId={selectedPropertyId} selected={selectedElement} onSelect={setSelectedElement} />}
             {viewMode === "elevation-3d" && (
               <Periodic3DElevation
                 selectedProperty={selectedPropertyId}

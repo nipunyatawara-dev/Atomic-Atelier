@@ -9,6 +9,7 @@ import { ArrowRight, Check, X } from "lucide-react";
 
 let sessionStep: number | null = null;
 
+export const LESSON_INVITATION_KEY = "atomic-atelier:lesson-invitation-hidden:v1";
 export const LESSON_KEY = "atomic-atelier:carbon-lesson:v1";
 const steps = [
   { title: "Meet Carbon", href: "/?element=carbon&lesson=carbon", task: `Highlight Carbon’s outer electrons in the viewer. Notice the ${CARBON.shells.at(-1)} electrons in its outer shell.`, action: "Compare with Nitrogen" },
@@ -23,6 +24,7 @@ export function LessonJourney({ readySteps, onHighlight }: { readySteps: number[
   const pathname = usePathname();
   const router = useRouter();
   const [step, setStep] = useState<number | null>(null);
+  const [invitationHidden, setInvitationHidden] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [answer, setAnswer] = useState<number | null>(null);
   const query = params.toString();
@@ -39,7 +41,9 @@ export function LessonJourney({ readySteps, onHighlight }: { readySteps: number[
       sessionStep = 0;
       try { window.localStorage.setItem(LESSON_KEY, "0"); } catch { /* Session fallback. */ }
     }
-    queueMicrotask(() => { setStep(saved); setLoaded(true); setAnswer(null); });
+    let hidden = false;
+    try { hidden = window.localStorage.getItem(LESSON_INVITATION_KEY) === "true"; } catch { /* Optional preference. */ }
+    queueMicrotask(() => { setStep(saved); setLoaded(true); setAnswer(null); setInvitationHidden(hidden); });
   }, [query]);
 
   const save = (next: number | null) => {
@@ -53,10 +57,12 @@ export function LessonJourney({ readySteps, onHighlight }: { readySteps: number[
   };
 
   if (!loaded) return null;
+  if ((step === null || step === steps.length) && invitationHidden) return null;
   if (step === null || step === steps.length) return (
     <section className="lesson-invitation" aria-label="Guided chemistry lesson">
       <div><strong>{step === steps.length ? "Lesson complete. Keep exploring." : "From atoms to molecules"}</strong><span>A short guided lesson through Carbon, periodic trends, and CO₂.</span></div>
       <Link href={steps[0].href} aria-label={step === steps.length ? "Review lesson" : "Start guided lesson"} onClick={() => save(0)}>{step === steps.length ? "Review lesson" : "Start lesson"}<ArrowRight size={16} /></Link>
+      <button className="lesson-invitation-close" type="button" aria-label="Hide lesson invitation" onClick={() => { setInvitationHidden(true); try { window.localStorage.setItem(LESSON_INVITATION_KEY, "true"); } catch { /* Session dismissal. */ } }}><X size={17} /></button>
     </section>
   );
 

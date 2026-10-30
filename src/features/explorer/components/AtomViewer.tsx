@@ -1,6 +1,8 @@
 "use client";
 /* eslint-disable react-hooks/refs, react-hooks/immutability, react-hooks/set-state-in-effect */
 
+import { useTouchOrbit } from "@/hooks/useTouchOrbit";
+import { useViewerExpansion } from "@/hooks/useViewerExpansion";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -13,6 +15,8 @@ import {
   Hand,
   Info,
   Layers,
+  Maximize2,
+  Minimize2,
   Minus,
   Orbit,
   Plus,
@@ -22,6 +26,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import { useTheme } from "@/components/common/ThemeProvider";
 import { Dialog } from "@/components/common/Dialog";
 import { ConceptHelp } from "@/components/common/ConceptHelp";
 import { formatElectronConfig } from "@/features/reactions/lib/formula";
@@ -271,6 +276,9 @@ export function AtomViewer({
   initialTool?: string | null;
   onValenceChange?: (active: boolean) => void;
 }) {
+  const { theme } = useTheme();
+  const viewerRef = useRef<HTMLElement>(null);
+  const { expanded, toggleExpanded } = useViewerExpansion(viewerRef);
   const mountRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<ViewerState | null>(null);
   const autoRotateRef = useRef(autoRotate);
@@ -297,7 +305,7 @@ export function AtomViewer({
   const [ionLabOpen, setIonLabOpen] = useState<boolean>(initialTool === "ion-lab");
 
   // Mobile 3D Touch Scroll-Trap Guard
-  const [mobileScrollLock, setMobileScrollLock] = useState<boolean>(false);
+  const [touchActive, setTouchActive] = useTouchOrbit(stateRef);
 
   const baseNeutrons = element.neutrons ?? element.atomicNumber;
   const activeNeutrons = Math.max(0, baseNeutrons + neutronOffset);
@@ -318,13 +326,6 @@ export function AtomViewer({
   }, [element.atomicNumber]);
 
   // Sync mobile scroll lock with OrbitControls & canvas touch-action
-  useEffect(() => {
-    const state = stateRef.current;
-    if (!state) return;
-    state.controls.enabled = !mobileScrollLock;
-    state.renderer.domElement.style.touchAction = mobileScrollLock ? "pan-y" : "none";
-    state.renderer.domElement.style.pointerEvents = mobileScrollLock ? "none" : "auto";
-  }, [mobileScrollLock]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -705,6 +706,23 @@ export function AtomViewer({
     state.dirty = true;
   }, [valenceFocus, viewMode, element, activeNeutrons, ionCharge]);
 
+  useEffect(() => {
+    const state = stateRef.current;
+    if (!state) return;
+    const dark = theme === "dark";
+    const inner = state.innerElectrons?.material as THREE.MeshPhongMaterial | undefined;
+    const outer = state.valenceElectrons?.material as THREE.MeshPhongMaterial | undefined;
+    inner?.color.setHex(dark ? 0x78c9e8 : 0x237b9a);
+    outer?.color.setHex(dark ? 0xb68af0 : 0x8352b7);
+    state.shells.forEach((shell, index) => {
+      const isOuter = index === state.shells.length - 1;
+      const material = (shell as THREE.Line).material as THREE.LineBasicMaterial;
+      material.color.setHex(isOuter ? (dark ? 0xae7aff : 0x755496) : (dark ? 0x38bdf8 : 0x287d96));
+      material.opacity = valenceFocus && !isOuter ? 0.12 : dark ? 0.8 : 0.95;
+    });
+    state.dirty = true;
+  }, [theme, element, activeNeutrons, ionCharge, valenceFocus]);
+
   const zoomIn = () => {
     const state = stateRef.current;
     if (!state) return;
@@ -789,7 +807,7 @@ export function AtomViewer({
   const isModifiedSpecies = ionCharge !== 0 || neutronOffset !== 0;
 
   return (
-    <section className={`viewer-shell ${mobileScrollLock ? "scroll-locked" : ""}`} aria-label={`${element.name} interactive atomic viewer`}>
+    <section ref={viewerRef} className={`viewer-shell ${expanded ? "is-expanded" : ""} ${touchActive ? "touch-active" : ""}`} aria-label={`${element.name} interactive atomic viewer`}>
       <div className="mobile-element-summary"><div><strong>{element.name}</strong><span>{element.symbol}{formatChargeSuperscript(ionCharge)} · Atomic number {element.atomicNumber}</span></div><span>{activeShells.length} shells · {activeShells.at(-1) ?? 0} outer e⁻</span></div>
       <div className="viewer-aura" style={{ "--element-color": element.cpkColor } as React.CSSProperties} />
 
@@ -844,19 +862,20 @@ export function AtomViewer({
         </div>
       </div>
 
+      <button type="button" className="viewer-expand" onClick={toggleExpanded} aria-label={expanded ? "Exit fullscreen model" : "Fullscreen model"}>{expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}<span>{expanded ? "Exit fullscreen" : "Fullscreen"}</span></button>
       <div className="atom-mount" ref={mountRef}>{fallback && <FallbackAtom element={element} highlighted={valenceFocus} />}</div>
       <div className="mobile-scroll-gutter" aria-hidden="true" />
 
       {/* Mobile Touch Scroll vs Orbit Toggle */}
       <button
         type="button"
-        className={`mobile-touch-guard ${mobileScrollLock ? "locked" : ""}`}
-        onClick={() => setMobileScrollLock((v) => !v)}
-        aria-pressed={mobileScrollLock}
-        title={mobileScrollLock ? "Tap to enable 3D touch orbit" : "Tap to lock 3D canvas for vertical page scrolling"}
+        className={`mobile-touch-guard ${touchActive ? "active" : ""}`}
+        onClick={() => setTouchActive((v) => !v)}
+        aria-pressed={touchActive}
+        title={touchActive ? "Finish rotating and resume page scrolling" : "Enable touch rotation"}
       >
         <Hand size={13} />
-        <span>{mobileScrollLock ? "Touch: Scroll" : "Touch: Orbit"}</span>
+        <span>{touchActive ? "Done rotating" : "Rotate model"}</span>
       </button>
 
       {/* Interactive Ion & Isotope Builder Panel */}
@@ -1044,7 +1063,7 @@ export function AtomViewer({
       </div>
       {moreOpen && <Dialog title="More viewer controls" onClose={() => setMoreOpen(false)} className="viewer-controls-dialog">
         <p>Adjust the model or explore how electrons and neutrons change an atom.</p>
-        <div className="advanced-controls-grid">{tools.filter((tool) => !["Zoom in", "Zoom out", "Valence"].includes(tool.label)).map(({ label, icon: Icon, active, action }) => <button key={label} type="button" aria-pressed={active} onClick={() => { action(); setMoreOpen(false); }}><Icon size={18} />{label}</button>)}
+        <div className="advanced-controls-grid">{tools.filter((tool) => !["Zoom in", "Zoom out", "Valence"].includes(tool.label)).map(({ label, icon: Icon, active, action }) => <button key={label} type="button" aria-pressed={active} onClick={async () => { if (expanded && label === "Compare") await toggleExpanded(); action(); setMoreOpen(false); }}><Icon size={18} />{label}</button>)}
           <button type="button" onClick={() => { setMoreOpen(false); setIonLabOpen(true); }}><SlidersHorizontal size={18} />Ion & Isotope Lab</button>
         </div>
         <div className="concept-row">Valence electrons <ConceptHelp concept="valence" /></div>

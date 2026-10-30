@@ -1,0 +1,172 @@
+/* Mobile studio controls share the same spacing, touch behavior, and theme tokens. */
+.mobile-molecule-controls, .mobile-reaction-actions, .mobile-resource-pagination, .mobile-trend-view { display: none; }
+.app-tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.app-tools-grid > button, .app-tools-grid > a { display: flex; gap: 10px; align-items: center; min-height: 54px; padding: 12px; background: var(--surface-control); color: var(--ink); font-size: 15px; border: 0; border-radius: 10px; text-align: left; line-height: 1.4; }
+.control-field { display: grid; gap: 8px; font-size: 15px; margin-top: 20px; }
+.control-field select, .mobile-trend-view select, .focus-controls select { width: 100%; min-height: 44px; color: var(--ink); background: var(--surface-solid); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-size: 16px; }
+.lesson-invitation { position: relative; padding-right: 64px; }
+.lesson-invitation-close { position: absolute; top: 12px; right: 8px; min-height: 44px; width: 44px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--muted); }
+.viewer-expand { align-items: center; gap: 6px; display: inline-flex; position: absolute; right: 18px; top: 76px; min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-solid); color: var(--ink); font-size: 13px; z-index: 7; }
+.reaction-viewer > .viewer-expand { top: 70px; }
+.molecule-iupac, .reaction-title p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+.stage-topbar .quiz-action-btn, .trends-actions .quiz-action-btn { width: auto; min-width: 70px; min-height: 44px; height: auto; padding: 10px 12px; color: var(--paper); font-size: 14px; }
+.stage-topbar .quiz-action-btn span, .trends-actions .quiz-action-btn span { display: inline; }
+.trend-display-settings { font-size: 14px; color: var(--ink); }
+.trend-display-settings > summary { cursor: pointer; min-height: 44px; padding: 12px; border-radius: 8px; background: var(--surface-control); }
+.trend-display-settings .palette-controls { padding: 12px 0; flex-wrap: wrap; }
+.trend-display-settings .palette-select { font-size: 14px; min-height: 44px; background: var(--surface-solid); }
+.stage-viewport-shell:has(.focused-trend-table) { height: auto; min-height: 0; }
+.focused-trend-table { padding: 20px; }
+.focus-controls { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+.focus-controls label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
+.focused-trend-table h2 { font-size: 22px; letter-spacing: -.02em; margin: 24px 0 8px; }
+.focused-trend-table p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+.focused-trend-rows { display: grid; gap: 6px; margin-top: 18px; }
+.focused-trend-rows button { display: grid; grid-template-columns: 36px minmax(0, 1fr) minmax(80px, auto); align-items: center; gap: 10px; min-height: 60px; border: 2px solid transparent; border-radius: 10px; padding: 10px; text-align: left; color: var(--ink); background: var(--surface-control); }
+.focused-trend-rows button[aria-pressed="true"] { border-color: var(--teal); background: var(--surface-selected); }
+.focused-symbol { font-weight: 700; font-size: 20px; }
+.focused-name { font-size: 14px; }
+.focused-trend-rows strong { font-size: 14px; text-align: right; max-width: 145px; overflow-wrap: anywhere; }
+.focused-meter { display: block; height: 5px; margin-top: 8px; background: var(--surface-control); border-radius: 3px; overflow: hidden; }
+.focused-meter i { display: block; background: var(--teal); height: 100%; }
+.focus-note { margin: 18px 0 0; }
+.footer-disclosure > summary { list-style: none; color: var(--deep); font-size: 14px; font-weight: 650; margin-bottom: 16px; }
+.footer-disclosure > summary::-webkit-details-marker { display: none; }
+
+/* Keep the same canvas alive when fullscreen is entered or exited. */
+.is-expanded, .viewer-shell.is-expanded, .reaction-viewer.is-expanded {
+  position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100dvh !important; min-height: 0 !important; max-height: none !important; z-index: 1000 !important; border-radius: 0 !important; background: var(--surface-solid) !important; margin: 0 !important;
+}
+/* CSS fullscreen fallback must escape containing blocks on browsers without the API. */
+html.viewer-expanded .app-shell, html.viewer-expanded .workspace, html.viewer-expanded .molecule-grid, html.viewer-expanded .molecule-center-stage, html.viewer-expanded .stage-canvas-container, html.viewer-expanded .reaction-workspace, html.viewer-expanded .reaction-center, html.viewer-expanded .trends-grid, html.viewer-expanded .trends-center-stage, html.viewer-expanded .stage-viewport-shell {
+  transform: none !important; transform-style: flat !important; perspective: none !important; filter: none !important; backdrop-filter: none !important; contain: none !important;
+}
+@media (min-width: 761px) { .footer-disclosure > summary { pointer-events: none; } }
+@media (max-width: 760px) {
+  .topbar .mobile-context-action { flex: 1 1 auto; min-width: 0; max-width: none; width: auto; padding: 4px 8px; }
+  .mobile-context-action > span { min-width: 0; }
+  .mobile-context-action strong, .mobile-context-action small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .topbar .mobile-utilities { flex: 0 0 auto; gap: 4px; }
+  .topbar .mobile-utilities > button { min-width: 44px; width: 44px; min-height: 44px; height: 44px; }
+  .topbar .mobile-utilities > .mobile-tools-trigger { width: 58px; min-width: 58px; font-size: 13px; font-weight: 650; }
+  .lesson-invitation { padding-right: 48px; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; }
+  .lesson-invitation > a { gap: 5px; }
+  .lesson-invitation > div > span { font-size: 13px; }
+  .lesson-invitation-close { right: 2px; top: 10px; }
+  .workspace > .viewer-shell { height: 460px; min-height: 460px; }
+  .viewer-shell .viewer-expand { top: 116px; left: 12px; right: auto; min-height: 40px; }
+  .viewer-shell .mobile-touch-guard { top: 116px; right: 12px; min-height: 40px; }
+  .viewer-shell .atom-mount { top: 156px; bottom: 122px; }
+  .viewer-shell .orbital-bar { top: 160px; }
+  .viewer-shell, .reaction-viewer, .molecule-viewer-shell, .trend-elevation-shell { touch-action: pan-y; }
+  .viewer-shell.touch-active, .reaction-viewer.touch-active, .molecule-viewer-shell.touch-active, .trend-elevation-shell.touch-active { cursor: grab; }
+  .stage-canvas-container { height: clamp(360px, 54svh, 440px); min-height: 0; }
+  .molecule-viewer-shell { min-height: 0; flex: 1 1 0; }
+  .molecule-viewer-shell > canvas { position: absolute; inset: 0; }
+  .molecule-viewer-shell .viewer-floating-top { top: 12px; left: 12px; right: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .molecule-badge, .polarity-badge { max-width: 100%; font-size: 12px; min-height: 32px; padding: 6px 9px; }
+  .molecule-badge span { font-size: 12px; }
+  .stage-canvas-container .mobile-touch-guard { top: 62px; right: 12px; min-height: 40px; font-size: 12px; }
+  .molecule-viewer-shell .viewer-floating-bottom { left: 12px; right: 12px; bottom: 12px; }
+  .viewer-floating-bottom .viewer-icon-btn { min-height: 40px; font-size: 12px; background: var(--surface-solid); }
+  .stage-canvas-container .desktop-molecule-controls { display: none; }
+  .mobile-molecule-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: var(--surface-solid); padding: 8px; position: relative; flex: 0 0 auto; }
+  .mobile-molecule-controls button { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; min-height: 52px; padding: 6px; background: var(--surface-control); color: var(--ink); border: 0; border-radius: 8px; font-size: 12px; }
+  .mobile-molecule-controls button[aria-pressed="true"] { background: var(--surface-selected); color: var(--deep); }
+  .reaction-viewer { height: 340px; min-height: 340px; }
+  .reaction-viewer .reaction-side { top: 14px; right: 14px; }
+  .reaction-viewer .reaction-side small { display: none; }
+  .reaction-viewer .reaction-side strong { font-size: 15px; }
+  .reaction-viewer .mobile-touch-guard { top: 64px; right: 12px; min-height: 40px; font-size: 12px; }
+  .reaction-viewer > .viewer-expand { top: 64px; left: 12px; right: auto; }
+  .reaction-viewer .representation-legend { display: none; }
+  .reaction-viewer .viewer-tip { top: 12px; left: 12px; }
+  .equation-card .coefficient-stepper { flex-direction: row; width: auto; align-items: center; gap: 1px; }
+  .equation-card .coefficient-stepper button { min-width: 32px; width: 32px; height: 44px; min-height: 44px; }
+  .equation-card .coefficient-stepper b { min-width: 20px; text-align: center; }
+  .equation-card .species-control { flex-direction: column; align-items: center; gap: 5px; padding: 8px; min-height: 0; }
+  .equation-card .species-control > div { text-align: center; }
+  .mobile-reaction-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 8px; background: var(--surface-solid); border-radius: 12px; position: sticky; top: 74px; z-index: 20; }
+  .mobile-reaction-actions > button { display: flex; gap: 8px; align-items: center; justify-content: center; min-height: 44px; border: 0; border-radius: 8px; background: var(--deep); color: var(--paper); font-size: 14px; font-weight: 650; }
+  .mobile-reaction-actions > button:disabled { opacity: .45; }
+  .mobile-atom-counts { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+  .mobile-atom-counts strong { color: var(--deep); }
+  .lab-actions .check-button, .lab-actions .animate-button { display: none; }
+  .stage-topbar { gap: 10px; align-items: flex-start; }
+  .stage-topbar .molecule-title-block { min-width: 0; }
+  .stage-topbar .quiz-action-btn, .trends-actions .quiz-action-btn { flex-shrink: 0; }
+  .molecule-iupac, .reaction-title p { font-size: 14px; }
+  .isotope-note p, .discovery-note p, .resource-expand-btn, .reaction-strategy li, .reaction-strategy > p, .attempt-tracker, .attempt-tracker em { font-size: 13px; line-height: 1.55; }
+  .learning-cards article header em { font-size: 12px; letter-spacing: 0; }
+  .learning-cards-header-mobile { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .learning-cards-header-mobile small { font-size: 13px; text-transform: none; letter-spacing: 0; }
+  .learning-cards { scroll-snap-type: x mandatory; }
+  .learning-cards > article { scroll-snap-align: start; }
+  .mobile-resource-pagination { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; margin: 8px 0 20px; }
+  .mobile-resource-pagination button { min-width: 0; min-height: 44px; background: var(--surface-control); border: 0; border-radius: 8px; color: var(--ink); font-size: 14px; }
+  .mobile-resource-pagination button[aria-current="page"] { background: var(--deep); color: var(--paper); }
+  .trends-workspace .mode-tabs { display: none; }
+  .mobile-trend-view { display: grid; gap: 8px; font-size: 14px; width: 100%; }
+  .trends-workspace .stage-mode-toolbar { padding: 12px; }
+  .trend-display-settings { width: 100%; }
+  .focused-trend-table { padding: 14px; }
+  .focused-trend-rows button { grid-template-columns: 30px minmax(0, 1fr) minmax(70px, auto); gap: 7px; padding: 8px; }
+  .focused-trend-rows strong { max-width: 125px; font-size: 13px; }
+  .trends-workspace .stage-viewport-shell { min-height: 0; height: auto; }
+  .trend-elevation-shell { min-height: 420px; }
+  .elevation-floating-top { left: 12px; right: 12px; top: 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .elevation-prop-badge { width: 100%; min-width: 0; padding: 8px 10px; box-sizing: border-box; font-size: 13px; }
+  .elevation-prop-badge > span { display: none; }
+  .elevation-floating-top .palette-gradient-bar { min-width: 0; width: 100%; max-width: none; padding: 10px; box-sizing: border-box; }
+  .palette-gradient-bar .gradient-labels { font-size: 12px; display: flex; justify-content: space-between; gap: 10px; }
+  .gradient-labels > span { min-width: 0; max-width: 50%; white-space: normal; }
+  .gradient-labels > span:last-child { text-align: right; }
+  .trend-elevation-shell .mobile-touch-guard { top: 120px; right: 12px; min-height: 40px; font-size: 12px; }
+  .trend-elevation-shell .elevation-canvas-mount { position: absolute; inset: 0; }
+  .site-footer .footer-grid { gap: 0; }
+  .footer-col-brand { padding-bottom: 16px; }
+  .footer-col-brand .footer-desc { font-size: 14px; margin-block: 12px; }
+  .footer-disclosure { padding-block: 6px; }
+  .footer-disclosure > summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer; min-height: 48px; margin: 0; font-size: 15px; }
+  .footer-disclosure > summary::after { content: "+"; font-size: 22px; }
+  .footer-disclosure[open] > summary::after { content: "−"; }
+  .footer-disclosure .footer-links { padding: 8px 0 16px; }
+  .footer-disclosure .footer-github-card { margin-top: 10px; }
+  .site-footer .footer-col { min-width: 0; }
+  .site-footer .footer-bottom { margin-top: 16px; }
+  .is-expanded .atom-mount { top: 156px; bottom: 122px; }
+  .molecule-viewer-shell.is-expanded > canvas { position: absolute; inset: 0; }
+}
+.focused-trend-rule > summary { cursor: pointer; min-height: 44px; padding: 10px 0; color: var(--deep); font-size: 14px; }
+@media (max-width: 760px) {
+  .trends-topbar { flex-direction: row; align-items: center; flex-wrap: nowrap; }
+  .trends-heading-block { min-width: 0; }
+  .trends-heading-block h1 { font-size: 26px; }
+  .trends-topbar .trends-actions { margin: 0; }
+  .trends-workspace .stage-mode-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .stage-mode-toolbar .mobile-trend-property, .stage-mode-toolbar .mobile-trend-view { display: grid; gap: 7px; font-size: 13px; margin: 0; }
+  .stage-mode-toolbar .mobile-trend-property select, .stage-mode-toolbar .mobile-trend-view select { font-size: 14px; padding: 8px; min-height: 46px; }
+  .trend-display-settings { grid-column: 1 / -1; }
+  .focused-trend-table h2 { margin-top: 18px; }
+  .equation-card.compact-equation { display: flex; flex-direction: row; gap: 5px; align-items: center; padding: 8px; }
+  .compact-equation .equation-side { display: flex; flex-wrap: nowrap; gap: 4px; min-width: 0; }
+  .compact-equation .equation-side:first-child { flex: var(--reactant-count); }
+  .compact-equation .equation-side:last-child { flex: var(--product-count); }
+  .compact-equation .species-control { flex: 1; min-width: 0; padding: 6px 2px; }
+  .compact-equation .species-control small { white-space: normal; }
+  .compact-equation .reaction-arrow { transform: none; font-size: 20px; width: 20px; flex: 0 0 20px; }
+  .compact-equation .coefficient-stepper button { width: 24px; min-width: 24px; }
+}
+@media (max-width: 760px) {
+  .molecule-viewer-shell .viewer-floating-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+  .viewer-floating-bottom .measure-status { order: -1; flex: 0 0 100%; justify-content: center; min-height: 38px; box-sizing: border-box; }
+}
+.stage-topbar .quiz-action-btn, .trends-actions .quiz-action-btn { background: var(--deep); color: var(--paper); }
+@media (max-width: 760px) {
+  .viewer-shell .viewer-expand, .viewer-shell .mobile-touch-guard { top: 128px; }
+  .viewer-shell .atom-mount, .is-expanded .atom-mount { top: 172px; }
+}
+.focused-name { overflow-wrap: anywhere; }
+@media (max-width: 360px) {
+  .stage-canvas-container { height: clamp(320px, 48svh, 360px); }
+}

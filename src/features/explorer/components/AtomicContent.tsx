@@ -2,7 +2,7 @@
 
 import { ConceptHelp } from "@/components/common/ConceptHelp";
 import { formatElementProperty } from "@/lib/elementProperties";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -232,6 +232,17 @@ export function AtomicLearningCards({
   const toggleCard = (key: string) =>
     setExpandedCards((prev) => ({ ...prev, [key]: !prev[key] }));
 
+  const cardsRef = useRef<HTMLElement>(null);
+  const [resourceIndex, setResourceIndex] = useState(0);
+  const resourceLabels = ["Atomic structure", "Periodic trend", "Compounds & shapes", "Uses & occurrence", "History", "Safety context"];
+  const goToResource = (index: number) => {
+    const container = cardsRef.current;
+    const card = container?.children[index] as HTMLElement | undefined;
+    if (!container || !card) return;
+    container.scrollTo({ left: container.scrollLeft + card.getBoundingClientRect().left - container.getBoundingClientRect().left, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    setResourceIndex(index);
+  };
+
   const shellCount = element.shells.length;
   const ringStep = shellCount > 1 ? Math.min(18, Math.floor(94 / (shellCount - 1))) : 18;
 
@@ -239,9 +250,21 @@ export function AtomicLearningCards({
     <>
       <div className="learning-cards-header-mobile">
         <span>Learning Resources</span>
-        <small>Swipe to explore (1–6) →</small>
+        <small aria-live="polite">{resourceIndex + 1} of 6 · {resourceLabels[resourceIndex]}</small>
       </div>
       <section
+        ref={cardsRef}
+        onScroll={() => {
+          const container = cardsRef.current;
+          if (!container) return;
+          let closest = 0;
+          let distance = Infinity;
+          [...container.children].forEach((card, index) => {
+            const delta = Math.abs(card.getBoundingClientRect().left - container.getBoundingClientRect().left);
+            if (delta < distance) { distance = delta; closest = index; }
+          });
+          setResourceIndex(closest);
+        }}
         className="learning-cards"
         aria-label={`${element.name} learning resources`}
       >
@@ -435,6 +458,7 @@ export function AtomicLearningCards({
         </a>
       </article>
       </section>
+      <nav className="mobile-resource-pagination" aria-label="Learning resource pages">{resourceLabels.map((label, index) => <button key={label} type="button" aria-label={`Show resource ${index + 1}: ${label}`} aria-current={resourceIndex === index ? "page" : undefined} onClick={() => goToResource(index)}>{index + 1}</button>)}</nav>
     </>
   );
 }

@@ -17,6 +17,9 @@ Atomic Atelier is an interactive chemistry learning app for exploring all 118 el
 - Open inline explanations for chemistry terms and continue from a local progress dashboard.
 - Save favorites, explored elements, quiz scores, reaction grades, and recent activity locally.
 - Install the app and revisit the element explorer or reaction lab offline.
+- Use compact mobile viewers with opt-in touch rotation, fullscreen expansion, and visible studio controls in light and dark themes.
+- Compare one period or group in the mobile Trends table, with full-table 2D and 3D views still available.
+- Navigate all six learning resources through numbered pages, and expand mobile footer sections when needed.
 - Use the responsive interface on desktop and mobile, with reduced-motion support.
 
 
@@ -30,7 +33,7 @@ Energy fields in the snapshot are in eV per atom. `src/lib/elementProperties.ts`
 
 ## Persistence and privacy
 
-Progress is stored only in the browser under the `atomic-atelier:v1` local-storage key. The optional guided lesson stores its current activity under `atomic-atelier:carbon-lesson:v1`; the first-task dismissal uses `atomic-atelier:tour-complete:v1`. The app has no accounts, analytics payload, database, cloud synchronization, notes, or collection of personally identifiable information.
+Progress is stored only in the browser under the `atomic-atelier:v1` local-storage key. The optional guided lesson stores its current activity under `atomic-atelier:carbon-lesson:v1`; the first-task dismissal uses `atomic-atelier:tour-complete:v1`. The dismissible lesson invitation stores only its visibility preference under `atomic-atelier:lesson-invitation-hidden:v1`. It can always be reopened from Tools → Guided lesson. The app has no accounts, analytics payload, database, cloud synchronization, notes, or collection of personally identifiable information.
 
 Stored preferences include favorites, explored and recent elements, quiz scores, completed reactions, reaction technique grades, last selections, and the auto-rotate setting. If browser storage is missing, blocked, outdated, or malformed, the app falls back to safe defaults.
 

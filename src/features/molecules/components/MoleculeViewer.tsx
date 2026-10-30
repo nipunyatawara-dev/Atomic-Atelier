@@ -1,5 +1,7 @@
 "use client";
 
+import { useTouchOrbit } from "@/hooks/useTouchOrbit";
+import { useViewerExpansion } from "@/hooks/useViewerExpansion";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -227,16 +229,11 @@ export function MoleculeViewer({
 
   const [selectedAtoms, setSelectedAtoms] = useState<MoleculeAtom[]>([]);
   const [hoveredAtom, setHoveredAtom] = useState<MoleculeAtom | null>(null);
-  const [fullscreen, setFullscreen] = useState(false);
-  const [mobileScrollLock, setMobileScrollLock] = useState(false);
+  const { expanded: fullscreen, toggleExpanded } = useViewerExpansion(containerRef);
+  const [touchActive, setTouchActive] = useTouchOrbit(sceneStateRef);
 
-  useEffect(() => {
-    const state = sceneStateRef.current;
-    if (!state) return;
-    state.controls.enabled = !mobileScrollLock;
-    state.renderer.domElement.style.touchAction = mobileScrollLock ? "pan-y" : "none";
-    state.renderer.domElement.style.pointerEvents = mobileScrollLock ? "none" : "auto";
-  }, [mobileScrollLock]);
+
+  useEffect(() => { if (measureMode) queueMicrotask(() => setTouchActive(true)); }, [measureMode, setTouchActive]);
 
   const [prevKey, setPrevKey] = useState(`${molecule.slug}:${measureMode}`);
   if (prevKey !== `${molecule.slug}:${measureMode}`) {
@@ -434,6 +431,10 @@ export function MoleculeViewer({
       });
 
       const mesh = new THREE.Mesh(geom, mat);
+      if (symbol === "H") {
+        const outline = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.07, 24, 18), new THREE.MeshBasicMaterial({ color: 0x304944, side: THREE.BackSide }));
+        mesh.add(outline);
+      }
       mesh.position.copy(pos);
       mesh.userData = { atom, kind: "atom" };
       state.moleculeGroup.add(mesh);
@@ -495,6 +496,7 @@ export function MoleculeViewer({
 
   // Click & Pointer Interaction (Raycasting)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (((e.target as Element).closest("button")) || (window.matchMedia("(max-width: 760px)").matches && !touchActive)) return;
     const state = sceneStateRef.current;
     const mount = containerRef.current;
     if (!state || !mount) return;
@@ -533,6 +535,7 @@ export function MoleculeViewer({
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (((e.target as Element).closest("button")) || (window.matchMedia("(max-width: 760px)").matches && !touchActive)) return;
     const state = sceneStateRef.current;
     const mount = containerRef.current;
     if (!state || !mount) return;
@@ -567,7 +570,7 @@ export function MoleculeViewer({
 
   return (
     <div
-      className={`molecule-viewer-shell ${fullscreen ? "fullscreen" : ""}`}
+      className={`molecule-viewer-shell ${fullscreen ? "fullscreen is-expanded" : ""} ${touchActive ? "touch-active" : ""}`}
       ref={containerRef}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -600,16 +603,16 @@ export function MoleculeViewer({
       <div className="mobile-scroll-gutter" aria-hidden="true" />
       <button
         type="button"
-        className={`mobile-touch-guard ${mobileScrollLock ? "locked" : ""}`}
+        className={`mobile-touch-guard ${touchActive ? "active" : ""}`}
         onClick={(e) => {
           e.stopPropagation();
-          setMobileScrollLock((v) => !v);
+          setTouchActive((v) => !v);
         }}
-        aria-pressed={mobileScrollLock}
-        title={mobileScrollLock ? "Tap to enable 3D touch orbit" : "Tap to lock 3D canvas for vertical page scrolling"}
+        aria-pressed={touchActive}
+        title={touchActive ? "Finish rotating and resume page scrolling" : "Enable touch rotation"}
       >
         <Hand size={13} />
-        <span>{mobileScrollLock ? "Touch: Scroll" : "Touch: Orbit"}</span>
+        <span>{touchActive ? "Done rotating" : "Rotate model"}</span>
       </button>
 
       <div className="viewer-floating-bottom">
@@ -627,18 +630,18 @@ export function MoleculeViewer({
         {measureMode && (
           <div className="measure-status">
             <Compass size={14} />
-            <span>Click 3 atoms ({selectedAtoms.length}/3)</span>
+            <span>Select 3 atoms ({selectedAtoms.length}/3)</span>
           </div>
         )}
 
         <button
           type="button"
           className="viewer-icon-btn"
-          onClick={() => setFullscreen((v) => !v)}
+          onClick={toggleExpanded}
           title={fullscreen ? "Exit full stage" : "Expand full stage"}
           aria-label="Toggle full stage"
         >
-          {fullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+          {fullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}<span>{fullscreen ? "Exit fullscreen" : "Fullscreen"}</span>
         </button>
       </div>
     </div>

@@ -133,6 +133,7 @@ export function MoleculeStudio() {
   }, []);
 
   // Modals & Navigation
+  const [viewerToolsOpen, setViewerToolsOpen] = useState(false);
   const [builderOpen, setBuilderOpen] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(false);
@@ -417,7 +418,7 @@ export function MoleculeStudio() {
                 onClick={() => setQuizOpen(true)}
               >
                 <GraduationCap size={15} />
-                <span>VSEPR Quiz</span>
+                <span>Quiz</span>
               </button>
             </div>
           </div>
@@ -435,7 +436,12 @@ export function MoleculeStudio() {
             />
 
             {/* Display Controls Toolbar */}
-            <div className="viewer-toolbar">
+            <div className="mobile-molecule-controls" aria-label="Molecule viewer tools">
+              <button type="button" aria-pressed={showLonePairs} onClick={() => setShowLonePairs((value) => !value)}><Eye size={17} />Lone pairs</button>
+              <button type="button" aria-pressed={showDipole} onClick={() => setShowDipole((value) => !value)}><Zap size={17} />Net dipole</button>
+              <button type="button" onClick={() => setViewerToolsOpen(true)} aria-haspopup="dialog"><Wrench size={17} />More</button>
+            </div>
+            <div className="viewer-toolbar desktop-molecule-controls">
               <div className="toolbar-group">
                 <span className="toolbar-label">Model:</span>
                 <button
@@ -792,6 +798,18 @@ export function MoleculeStudio() {
         </Dialog>
       )}
 
+      {viewerToolsOpen && <Dialog title="Molecule controls" onClose={() => setViewerToolsOpen(false)}>
+        <label className="control-field">Model representation
+          <select value={renderMode} onChange={(event) => setRenderMode(event.target.value as MoleculeRenderMode)}>
+            <option value="ball-and-stick">Ball & stick</option><option value="space-filling">Space-filling</option><option value="wireframe">Wireframe</option>
+          </select>
+        </label>
+        <div className="advanced-controls-grid">
+          <button type="button" aria-pressed={measureMode} onClick={() => { setMeasureMode((value) => !value); setMeasuredAngle({ angle: null, atoms: [] }); setViewerToolsOpen(false); }}><Compass size={18} />Measure angle</button>
+          <button type="button" aria-pressed={progress.autoRotate} onClick={() => setAutoRotate(!progress.autoRotate)}><Orbit size={18} />Auto-rotate</button>
+        </div>
+        <p>Select Measure angle, then tap three atoms in the model.</p>
+      </Dialog>}
       {/* VSEPR Quiz Modal */}
       {quizOpen && (
         <QuizModal

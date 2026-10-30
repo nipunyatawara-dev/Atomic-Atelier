@@ -34,7 +34,8 @@ test("periodic table supports keyboard navigation and escape", async ({ page }) 
   await page.goto("/");
   const mobile = (page.viewportSize()?.width ?? 1200) <= 760;
   if (mobile) {
-    await page.getByRole("button", { name: "Table", exact: true }).click();
+    await page.getByRole("button", { name: "Tools", exact: true }).click();
+    await page.getByRole("button", { name: "Periodic table", exact: true }).click();
   } else {
     await page.getByRole("button", { name: "Periodic table", exact: true }).click();
   }
@@ -169,7 +170,10 @@ test("mobile element drawer manages focus and Escape", async ({ page }, testInfo
 
 test("saved collection surfaces progress and a next step", async ({ page }) => {
   await page.goto("/?element=carbon");
-  await page.getByRole("button", { name: "Saved", exact: true }).click();
+  if ((page.viewportSize()?.width ?? 1200) <= 760) {
+    await page.getByRole("button", { name: "Tools", exact: true }).click();
+    await page.getByRole("button", { name: "Saved & progress", exact: true }).click();
+  } else await page.getByRole("button", { name: "Saved", exact: true }).click();
   const progress = page.getByRole("dialog");
   await expect(progress.getByRole("heading", { name: "Your learning progress" })).toBeVisible();
   await expect(progress.getByText("Continue learning", { exact: true })).toBeVisible();

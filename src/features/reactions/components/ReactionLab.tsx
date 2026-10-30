@@ -210,7 +210,12 @@ export function ReactionLab() {
 
         <section className="reaction-center">
           <div className="reaction-title"><div><em>Guided reaction lab</em><h1>{reaction.title}</h1><p>{reaction.subtitle}</p></div><span><FlaskConical />{reaction.type}</span></div>
-          <div className="equation-card" aria-label="Reaction coefficient controls"><div className="equation-side">{reaction.reactants.map((item, index) => coefficientControl("reactants", item, index))}</div><b className="reaction-arrow">→</b><div className="equation-side">{reaction.products.map((item, index) => coefficientControl("products", item, index))}</div></div>
+          <div className={`equation-card ${reaction.reactants.length + reaction.products.length <= 3 ? "compact-equation" : ""}`} style={{ "--reactant-count": reaction.reactants.length, "--product-count": reaction.products.length } as React.CSSProperties} aria-label="Reaction coefficient controls"><div className="equation-side">{reaction.reactants.map((item, index) => coefficientControl("reactants", item, index))}</div><b className="reaction-arrow">→</b><div className="equation-side">{reaction.products.map((item, index) => coefficientControl("products", item, index))}</div></div>
+          <div className="mobile-reaction-actions" aria-label="Quick balancing actions">
+            <div className="mobile-atom-counts" aria-live="polite">{symbols.map((symbol) => <span key={symbol}>{symbol}: {leftCounts[symbol] ?? 0} / {rightCounts[symbol] ?? 0}</span>)}<strong>{balanced ? "Balanced" : "Keep balancing"}</strong></div>
+            <button type="button" onClick={check}><Check size={17} />Check</button>
+            <button type="button" onClick={animate} disabled={!balanced || animating}><Play size={17} />{animating ? "Rearranging…" : "Animate"}</button>
+          </div>
           <ReactionViewer reaction={reaction} reactantCoefficients={coefficients.reactants} productCoefficients={coefficients.products} animationRun={animationRun} onAnimationComplete={onAnimationComplete} />
           <div className="balance-panel">
             <div className="atom-counts">

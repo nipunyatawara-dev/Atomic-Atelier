@@ -90,7 +90,7 @@ export type TrendPropertyId =
 
 export type TrendPaletteId = "viridis" | "magma" | "spectral" | "sunset" | "emerald";
 
-export type TrendViewMode = "elevation-3d" | "heatmap-2d" | "graphs" | "anomalies";
+export type TrendViewMode = "focus" | "elevation-3d" | "heatmap-2d" | "graphs" | "anomalies";
 
 export type TrendAnomaly = {
   id: string;

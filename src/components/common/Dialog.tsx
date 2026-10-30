@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 export function Dialog({ title, eyebrow, children, onClose, wide = false, className = "" }: { title: string; eyebrow?: string; children: ReactNode; onClose: () => void; wide?: boolean; className?: string }) {
   const titleId = useId();
+  const [portalHost, setPortalHost] = useState<Element | null>(() => typeof document === "undefined" ? null : document.fullscreenElement ?? document.body);
+  useEffect(() => {
+    const sync = () => setPortalHost(document.fullscreenElement ?? document.body);
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
   const ref = useRef<HTMLElement>(null);
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
@@ -28,8 +34,8 @@ export function Dialog({ title, eyebrow, children, onClose, wide = false, classN
     };
     document.addEventListener("keydown", onKey);
     return () => { document.removeEventListener("keydown", onKey); previous?.focus(); };
-  }, []);
-  if (typeof document === "undefined") return null;
+  }, [portalHost]);
+  if (!portalHost) return null;
   return createPortal(
     <div className="dialog-backdrop" role="presentation" onMouseDown={onClose}>
       <section ref={ref} className={`dialog-card ${wide ? "wide" : ""} ${className}`} role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
@@ -39,6 +45,6 @@ export function Dialog({ title, eyebrow, children, onClose, wide = false, classN
         {children}
       </section>
     </div>,
-    document.body,
+    portalHost,
   );
 }
