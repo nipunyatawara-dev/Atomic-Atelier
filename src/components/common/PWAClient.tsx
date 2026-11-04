@@ -41,10 +41,18 @@ export function PWAProvider({ children }: { children: ReactNode }) {
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
 
-    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
-      navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(() => {
-        // The app remains fully usable online when registration is unavailable.
-      });
+    if ("serviceWorker" in navigator) {
+      if (process.env.NODE_ENV === "production") {
+        navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(() => {
+          // The app remains fully usable online when registration is unavailable.
+        });
+      } else {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        }).catch(() => {});
+      }
     }
 
     return () => {

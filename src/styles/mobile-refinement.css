@@ -4,8 +4,7 @@
 .app-tools-grid > button, .app-tools-grid > a { display: flex; gap: 10px; align-items: center; min-height: 54px; padding: 12px; background: var(--surface-control); color: var(--ink); font-size: 15px; border: 0; border-radius: 10px; text-align: left; line-height: 1.4; }
 .control-field { display: grid; gap: 8px; font-size: 15px; margin-top: 20px; }
 .control-field select, .mobile-trend-view select, .focus-controls select { width: 100%; min-height: 44px; color: var(--ink); background: var(--surface-solid); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-size: 16px; }
-.lesson-invitation { position: relative; padding-right: 64px; }
-.lesson-invitation-close { position: absolute; top: 12px; right: 8px; min-height: 44px; width: 44px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--muted); }
+.lesson-invitation-close { min-height: 44px; width: 40px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--muted); }
 .viewer-expand { align-items: center; gap: 6px; display: inline-flex; position: absolute; right: 18px; top: 76px; min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-solid); color: var(--ink); font-size: 13px; z-index: 7; }
 .reaction-viewer > .viewer-expand { top: 70px; }
 .molecule-iupac, .reaction-title p { color: var(--muted); font-size: 14px; line-height: 1.5; }
@@ -49,15 +48,17 @@ html.viewer-expanded .app-shell, html.viewer-expanded .workspace, html.viewer-ex
   .topbar .mobile-utilities { flex: 0 0 auto; gap: 4px; }
   .topbar .mobile-utilities > button { min-width: 44px; width: 44px; min-height: 44px; height: 44px; }
   .topbar .mobile-utilities > .mobile-tools-trigger { width: 58px; min-width: 58px; font-size: 13px; font-weight: 650; }
-  .lesson-invitation { padding-right: 48px; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; }
   .lesson-invitation > a { gap: 5px; }
   .lesson-invitation > div > span { font-size: 13px; }
-  .lesson-invitation-close { right: 2px; top: 10px; }
-  .workspace > .viewer-shell { height: 460px; min-height: 460px; }
-  .viewer-shell .viewer-expand { top: 116px; left: 12px; right: auto; min-height: 40px; }
-  .viewer-shell .mobile-touch-guard { top: 116px; right: 12px; min-height: 40px; }
-  .viewer-shell .atom-mount { top: 156px; bottom: 122px; }
-  .viewer-shell .orbital-bar { top: 160px; }
+  .workspace > .viewer-shell { height: 480px; min-height: 480px; }
+  .workspace > .viewer-shell:has(.orbital-bar) { height: 560px; min-height: 560px; }
+  .viewer-shell .viewer-expand { top: 122px; left: 12px; right: auto; min-height: 38px; padding: 6px 10px; font-size: 12px; }
+  .viewer-shell .mobile-touch-guard { top: 122px; right: 12px; min-height: 38px; padding: 6px 10px; font-size: 12px; }
+  .viewer-shell .atom-mount { top: 164px; bottom: 122px; }
+  .viewer-shell .orbital-bar { top: 120px; left: 12px; right: 12px; max-width: none; max-height: none; overflow: visible; }
+  .viewer-shell:has(.orbital-bar) .viewer-expand,
+  .viewer-shell:has(.orbital-bar) .mobile-touch-guard { top: 198px; }
+  .viewer-shell:has(.orbital-bar) .atom-mount { top: 240px; bottom: 122px; }
   .viewer-shell, .reaction-viewer, .molecule-viewer-shell, .trend-elevation-shell { touch-action: pan-y; }
   .viewer-shell.touch-active, .reaction-viewer.touch-active, .molecule-viewer-shell.touch-active, .trend-elevation-shell.touch-active { cursor: grab; }
   .stage-canvas-container { height: clamp(360px, 54svh, 440px); min-height: 0; }
@@ -163,10 +164,19 @@ html.viewer-expanded .app-shell, html.viewer-expanded .workspace, html.viewer-ex
 }
 .stage-topbar .quiz-action-btn, .trends-actions .quiz-action-btn { background: var(--deep); color: var(--paper); }
 @media (max-width: 760px) {
-  .viewer-shell .viewer-expand, .viewer-shell .mobile-touch-guard { top: 128px; }
-  .viewer-shell .atom-mount, .is-expanded .atom-mount { top: 172px; }
+  .viewer-shell:not(:has(.orbital-bar)) .viewer-expand,
+  .viewer-shell:not(:has(.orbital-bar)) .mobile-touch-guard { top: 124px; }
+  .viewer-shell:not(:has(.orbital-bar)) .atom-mount,
+  .is-expanded:not(:has(.orbital-bar)) .atom-mount { top: 166px; }
+  .viewer-shell:has(.orbital-bar) .viewer-expand,
+  .viewer-shell:has(.orbital-bar) .mobile-touch-guard { top: 198px; }
+  .viewer-shell:has(.orbital-bar) .atom-mount,
+  .is-expanded:has(.orbital-bar) .atom-mount { top: 240px; }
 }
 .focused-name { overflow-wrap: anywhere; }
 @media (max-width: 360px) {
   .stage-canvas-container { height: clamp(320px, 48svh, 360px); }
+}
+@media (max-width: 360px) and (max-height: 780px) {
+  .stage-canvas-container { height: clamp(280px, 44svh, 340px); }
 }

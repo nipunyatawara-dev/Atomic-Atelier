@@ -41,8 +41,36 @@ export function generateElementStudyCardSvg(element: ElementRecord): string {
   // Shell occupancy text
   const shellText = element.shells.join(" · ");
 
-  const cleanHistory = (element.history || "").replace(/[<>&"]/g, "").slice(0, 160) + "…";
-  const cleanUses = (element.uses || "").replace(/[<>&"]/g, "").slice(0, 160) + "…";
+  const wrapSvgText = (raw: string, maxCharsPerLine = 84, maxLines = 2): string => {
+    const clean = (raw || "").replace(/[<>&"]/g, "").trim();
+    const words = clean.split(/\s+/);
+    const lines: string[] = [];
+    let current = "";
+    for (const word of words) {
+      if ((current + " " + word).trim().length <= maxCharsPerLine) {
+        current = (current + " " + word).trim();
+      } else {
+        if (current) lines.push(current);
+        current = word;
+        if (lines.length === maxLines - 1) break;
+      }
+    }
+    const consumedWords = lines.join(" ").split(/\s+/).filter(Boolean).length;
+    const remaining = words.slice(consumedWords).join(" ");
+    if (remaining) {
+      lines.push(
+        remaining.length > maxCharsPerLine
+          ? remaining.slice(0, maxCharsPerLine - 1).trimEnd() + "…"
+          : remaining,
+      );
+    }
+    return lines
+      .map((line, idx) => `<tspan x="0" dy="${idx === 0 ? 0 : 21}">${line}</tspan>`)
+      .join("");
+  };
+
+  const cleanHistory = wrapSvgText(element.history || "");
+  const cleanUses = wrapSvgText(element.uses || "");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">

@@ -10,7 +10,9 @@ html[data-theme="dark"] { --muted: #aec0ba; }
   margin-top: 16px;
   padding: 16px 20px;
 }
-.lesson-invitation, .first-task { display: flex; align-items: center; gap: 20px; justify-content: space-between; }
+.lesson-invitation { display: grid; align-items: center; grid-template-columns: minmax(0, 1fr) auto 40px; gap: 16px; }
+.lesson-invitation > div { min-width: 0; }
+.first-task { display: flex; align-items: center; gap: 20px; justify-content: space-between; }
 .lesson-invitation strong, .first-task strong { display: block; font-size: 17px; line-height: 1.4; }
 .lesson-invitation span { display: block; color: var(--muted); font-size: 14px; margin-top: 3px; }
 .lesson-invitation a, .lesson-next { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 650; min-height: 44px; flex-shrink: 0; }
@@ -43,6 +45,10 @@ html[data-theme="dark"] { --muted: #aec0ba; }
 }
 .key-facts dt { display: flex; align-items: center; gap: 4px; }
 .key-facts dd, .key-facts .configuration { font-size: 14px; line-height: 1.5; }
+.key-facts > div { align-items: center; gap: 16px; grid-template-columns: minmax(0, 1fr) fit-content(55%); padding: 12px; }
+.key-facts dt { flex-wrap: wrap; min-width: 0; }
+.key-facts dd { min-width: 0; max-width: none; overflow-wrap: anywhere; }
+.key-facts .configuration { word-break: normal; }
 .element-intro, .learning-cards article p, .spec-insight, .reaction-info > p { font-size: 16px; line-height: 1.6; }
 .isotope-note p, .discovery-note p { font-size: 13px; line-height: 1.5; }
 .isotope-note b, .discovery-note b, .info-kicker b, .card-kicker, .element-count, .learning-cards-header-mobile small { font-size: 13px; letter-spacing: 0; text-transform: none; }
@@ -69,9 +75,12 @@ html[data-theme="dark"] { --muted: #aec0ba; }
 .practice-dialog .quiz-explanation { font-size: 16px; line-height: 1.6; }
 
 @media (max-width: 760px) {
-  .lesson-invitation, .first-task { gap: 12px; flex-wrap: wrap; padding: 14px; }
-  .lesson-invitation > div { flex: 1 1 200px; }
-  .lesson-invitation > a { min-height: 40px; }
+  .lesson-invitation, .first-task { gap: 12px; padding: 14px; }
+  .first-task { flex-wrap: wrap; }
+  .lesson-invitation { grid-template-columns: minmax(0, 1fr) 40px; gap: 8px 12px; }
+  .lesson-invitation > div { grid-column: 1; grid-row: 1; }
+  .lesson-invitation > a { grid-column: 1; grid-row: 2; justify-self: start; min-height: 44px; }
+  .lesson-invitation-close { grid-column: 2; grid-row: 1 / 3; align-self: start; }
   .first-task { position: relative; padding-right: 50px; }
   .first-task > div { flex-basis: 100%; }
   .first-task-close { position: absolute; right: 6px; top: 6px; background: transparent; }
@@ -108,11 +117,15 @@ html[data-theme="dark"] { --muted: #aec0ba; }
   .viewer-shell .auto-rotate { bottom: 12px; left: 12px; }
   .viewer-shell .structure-guide { bottom: 12px; right: 12px; }
   .viewer-shell .structure-guide.open { left: 12px; right: 12px; width: auto; max-height: 330px; overflow-y: auto; background: var(--surface-solid); }
-  .viewer-shell .orbital-bar { top: 164px; left: 12px; right: 12px; max-height: 85px; overflow-y: auto; }
+  .viewer-shell .orbital-bar { top: 120px; left: 12px; right: 12px; max-width: none; max-height: none; overflow: visible; padding: 0; }
   .key-facts dt { font-size: 13px; letter-spacing: 0; text-transform: none; flex-wrap: wrap; }
+  .key-facts > div { align-items: flex-start; gap: 6px; }
   .key-facts dd, .key-facts .configuration { font-size: 14px; }
   .panel-actions { display: flex; }
   .practice-dialog .quiz-result { padding: 12px 0; }
+}
+@media (max-width: 480px) {
+  .key-facts > div:has(.concept-help), .key-facts > div:last-child { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) {
   .lesson-invitation *, .lesson-journey *, .first-task * { scroll-behavior: auto; transition: none; }
@@ -126,11 +139,8 @@ html[data-theme="dark"] { --muted: #aec0ba; }
 .reaction-info dd, .reaction-info > ol li, .trends-inspector .trend-description { font-size: 14px; line-height: 1.6; }
 .mobile-trend-property { display: none; }
 @media (max-width: 760px) {
-  .lesson-invitation { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 12px; }
-  .lesson-invitation > div { display: contents; }
   .lesson-invitation strong { font-size: 16px; }
-  .lesson-invitation > div > span { grid-column: 1 / -1; grid-row: 2; margin-top: 0; }
-  .lesson-invitation > a { font-size: 13px; min-height: 40px; }
+  .lesson-invitation > a { font-size: 13px; }
   .first-task ~ .lesson-invitation { display: none; }
   .mobile-trend-property { display: grid; gap: 8px; font-size: 14px; color: var(--muted); margin: 16px 0; }
   .mobile-trend-property select { width: 100%; min-height: 48px; font-size: 16px; padding: 10px 12px; border-radius: 10px; color: var(--ink); background: var(--surface-solid); border: 1px solid var(--line); }
@@ -146,10 +156,6 @@ html[data-theme="dark"] { --muted: #aec0ba; }
   .trends-actions { margin-left: auto; }
 }
 @media (min-width: 761px) and (max-width: 1120px) {
-  .topbar { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
-  .topbar > .brand { grid-row: 1; grid-column: 1; }
-  .topbar .header-actions { grid-row: 1; grid-column: 2; }
-  .topbar .main-nav { grid-column: 1 / -1; grid-row: 2; width: auto; min-width: 0; justify-self: stretch; justify-content: center; }
   .workspace > .viewer-shell, .workspace > .element-library { height: 620px; min-height: 620px; max-height: 620px; }
   .viewer-shell .mobile-element-summary { display: flex; position: absolute; top: 14px; left: 18px; right: 18px; justify-content: space-between; align-items: center; gap: 12px; z-index: 5; }
   .mobile-element-summary strong { display: block; font-size: 22px; }
@@ -165,5 +171,31 @@ html[data-theme="dark"] { --muted: #aec0ba; }
   .learning-cards { margin-inline: 0; padding-inline: 0; max-width: 100%; }
 }
 @media (min-width: 761px) and (max-width: 1120px) {
+  .topbar { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; }
+  .topbar > .brand { grid-row: 1; grid-column: 1; }
+  .topbar .header-actions { grid-row: 1; grid-column: 2; }
+  .topbar .main-nav { grid-column: 1 / -1; grid-row: 2; width: auto; min-width: 0; justify-self: stretch; justify-content: center; }
   .topbar .header-kbd { display: none; }
 }
+@media (min-width: 1121px) and (max-width: 1200px) {
+  .topbar { gap: 12px; }
+  .topbar .nav-link { padding-inline: 12px; }
+  .topbar .header-kbd { display: none; }
+}
+
+/* Keep reaction explanations on the same readable rhythm as element facts. */
+.reaction-info .info-kicker { gap: 8px; }
+.reaction-info h3 { margin: 24px 0 16px; font-size: 18px; line-height: 1.4; }
+.reaction-info > ol { display: grid; gap: 14px; }
+.reaction-info > ol li { margin: 0; padding-left: 34px; }
+.reaction-info > ol li::before { top: 1px; width: 22px; height: 22px; font-size: 10px; }
+.reaction-info .safety-note { margin-top: 20px; padding: 14px; }
+.reaction-info .safety-note p { font-size: 13px; line-height: 1.6; margin-top: 8px; }
+.reaction-info .related-elements { margin: 24px 0 20px; }
+.reaction-info .related-elements > span { margin-bottom: 10px; font-size: 11px; }
+.reaction-info .related-elements > div { gap: 8px; }
+.reaction-info .related-elements button { width: 48px; height: 48px; padding: 6px 8px; }
+.reaction-info .related-elements small { font-size: 9px; }
+.reaction-info .related-elements b { font-size: 20px; }
+.reaction-info > .primary-button { min-height: 48px; gap: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.4; }
+.reaction-info > .primary-button > svg { flex: 0 0 auto; width: 18px; height: 18px; }
