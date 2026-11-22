@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { PWAProvider } from "@/components/common/PWAClient";
 import { AppFooter } from "@/components/common/AppFooter";
 import { ThemeProvider } from "@/components/common/ThemeProvider";
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <AppFooter />
           </PWAProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
